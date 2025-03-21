@@ -317,43 +317,43 @@ class Elasticsearch7Mapping:
 class Elasticsearch7Index:
     def __init__(self, backend, name):
         self.backend = backend
-        self.es = backend.es
+        self.client = backend.client
         self.mapping_class = backend.mapping_class
         self.name = name
 
     if use_new_elasticsearch_api:
 
         def put(self):
-            self.es.indices.create(index=self.name, **self.backend.settings)
+            self.client.indices.create(index=self.name, **self.backend.settings)
 
         def delete(self):
             try:
-                self.es.indices.delete(index=self.name)
+                self.client.indices.delete(index=self.name)
             except NotFoundError:
                 pass
 
         def refresh(self):
-            self.es.indices.refresh(index=self.name)
+            self.client.indices.refresh(index=self.name)
 
     else:
 
         def put(self):
-            self.es.indices.create(self.name, self.backend.settings)
+            self.client.indices.create(self.name, self.backend.settings)
 
         def delete(self):
             try:
-                self.es.indices.delete(self.name)
+                self.client.indices.delete(self.name)
             except NotFoundError:
                 pass
 
         def refresh(self):
-            self.es.indices.refresh(self.name)
+            self.client.indices.refresh(self.name)
 
     def exists(self):
-        return self.es.indices.exists(self.name)
+        return self.client.indices.exists(self.name)
 
     def is_alias(self):
-        return self.es.indices.exists_alias(name=self.name)
+        return self.client.indices.exists_alias(name=self.name)
 
     def aliased_indices(self):
         """
@@ -366,7 +366,7 @@ class Elasticsearch7Index:
         """
         return [
             self.backend.index_class(self.backend, index_name)
-            for index_name in self.es.indices.get_alias(name=self.name).keys()
+            for index_name in self.client.indices.get_alias(name=self.name).keys()
         ]
 
     def put_alias(self, name):
@@ -374,14 +374,14 @@ class Elasticsearch7Index:
         Creates a new alias to this index. If the alias already exists it will
         be repointed to this index.
         """
-        self.es.indices.put_alias(name=name, index=self.name)
+        self.client.indices.put_alias(name=name, index=self.name)
 
     def add_model(self, model):
         # Get mapping
         mapping = self.mapping_class(model)
 
         # Put mapping
-        self.es.indices.put_mapping(index=self.name, body=mapping.get_mapping())
+        self.client.indices.put_mapping(index=self.name, body=mapping.get_mapping())
 
     if use_new_elasticsearch_api:
 
@@ -394,7 +394,7 @@ class Elasticsearch7Index:
             mapping = self.mapping_class(item.__class__)
 
             # Add document to index
-            self.es.index(
+            self.client.index(
                 index=self.name,
                 document=mapping.get_document(item),
                 id=mapping.get_document_id(item),
@@ -410,7 +410,7 @@ class Elasticsearch7Index:
             mapping = self.mapping_class(item.__class__)
 
             # Add document to index
-            self.es.index(
+            self.client.index(
                 self.name, mapping.get_document(item), id=mapping.get_document_id(item)
             )
 
@@ -430,7 +430,7 @@ class Elasticsearch7Index:
             actions.append(action)
 
         # Run the actions
-        bulk(self.es, actions, index=self.name)
+        bulk(self.client, actions, index=self.name)
 
     def delete_item(self, item):
         # Make sure the object can be indexed
@@ -442,7 +442,7 @@ class Elasticsearch7Index:
 
         # Delete document
         try:
-            self.es.delete(index=self.name, id=mapping.get_document_id(item))
+            self.client.delete(index=self.name, id=mapping.get_document_id(item))
         except NotFoundError:
             pass  # Document doesn't exist, ignore this exception
 
@@ -909,13 +909,13 @@ class Elasticsearch7SearchResults(BaseSearchResults):
         def _backend_do_search(self, body, **kwargs):
             # As of Elasticsearch 7.15, the 'body' parameter is deprecated; instead, the top-level
             # keys of the body dict are now kwargs in their own right
-            return self.backend.es.search(**body, **kwargs)
+            return self.backend.client.search(**body, **kwargs)
 
     else:
 
         def _backend_do_search(self, body, **kwargs):
             # Send the search query to the backend.
-            return self.backend.es.search(body=body, **kwargs)
+            return self.backend.client.search(body=body, **kwargs)
 
     def _do_search(self):
         PAGE_SIZE = 100
@@ -980,11 +980,11 @@ class Elasticsearch7SearchResults(BaseSearchResults):
                 if "_scroll_id" not in page:
                     break
 
-                page = self.backend.es.scroll(scroll_id=page["_scroll_id"], scroll="2m")
+                page = self.backend.client.scroll(scroll_id=page["_scroll_id"], scroll="2m")
 
             # Clear the scroll
             if "_scroll_id" in page:
-                self.backend.es.clear_scroll(scroll_id=page["_scroll_id"])
+                self.backend.client.clear_scroll(scroll_id=page["_scroll_id"])
         else:
             params.update(
                 {
@@ -1002,7 +1002,7 @@ class Elasticsearch7SearchResults(BaseSearchResults):
 
     def _do_count(self):
         # Get count
-        hit_count = self.backend.es.count(
+        hit_count = self.backend.client.count(
             index=self.backend.get_index_for_model(
                 self.query_compiler.queryset.model
             ).name,
@@ -1247,7 +1247,7 @@ class Elasticsearch7SearchBackend(BaseSearchBackend):
 
         options[self.timeout_kwarg_name] = self.timeout
 
-        self.es = Elasticsearch(hosts=self.hosts, **options)
+        self.client = Elasticsearch(hosts=self.hosts, **options)
 
     def get_index_for_model(self, model):
         # Split models up into separate indices based on their root model.

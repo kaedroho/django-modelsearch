@@ -1079,17 +1079,17 @@ class TestElasticsearch7Mapping(TestCase):
 
     def setUp(self):
         # Create ES mapping
-        self.es_mapping = Elasticsearch7SearchBackend.mapping_class(models.Book)
+        self.client_mapping = Elasticsearch7SearchBackend.mapping_class(models.Book)
 
         # Create ES document
         self.obj = models.Book.objects.get(id=4)
 
     def test_get_document_type(self):
-        self.assertEqual(self.es_mapping.get_document_type(), "doc")
+        self.assertEqual(self.client_mapping.get_document_type(), "doc")
 
     def test_get_mapping(self):
         # Build mapping
-        mapping = self.es_mapping.get_mapping()
+        mapping = self.client_mapping.get_mapping()
 
         # Check
         expected_result = {
@@ -1143,11 +1143,11 @@ class TestElasticsearch7Mapping(TestCase):
         self.assertDictEqual(mapping, expected_result)
 
     def test_get_document_id(self):
-        self.assertEqual(self.es_mapping.get_document_id(self.obj), str(self.obj.pk))
+        self.assertEqual(self.client_mapping.get_document_id(self.obj), str(self.obj.pk))
 
     def test_get_document(self):
         # Get document
-        document = self.es_mapping.get_document(self.obj)
+        document = self.client_mapping.get_document(self.obj)
 
         # Sort edgengrams
         if "_edgengrams" in document:
@@ -1196,16 +1196,16 @@ class TestElasticsearch7MappingInheritance(TestCase):
 
     def setUp(self):
         # Create ES mapping
-        self.es_mapping = Elasticsearch7SearchBackend.mapping_class(models.Novel)
+        self.client_mapping = Elasticsearch7SearchBackend.mapping_class(models.Novel)
 
         self.obj = models.Novel.objects.get(id=4)
 
     def test_get_document_type(self):
-        self.assertEqual(self.es_mapping.get_document_type(), "doc")
+        self.assertEqual(self.client_mapping.get_document_type(), "doc")
 
     def test_get_mapping(self):
         # Build mapping
-        mapping = self.es_mapping.get_mapping()
+        mapping = self.client_mapping.get_mapping()
 
         # Check
         expected_result = {
@@ -1295,11 +1295,11 @@ class TestElasticsearch7MappingInheritance(TestCase):
         # This must be tests_searchtest instead of 'tests_searchtest_tests_searchtestchild'
         # as it uses the contents base content type name.
         # This prevents the same object being accidentally indexed twice.
-        self.assertEqual(self.es_mapping.get_document_id(self.obj), str(self.obj.pk))
+        self.assertEqual(self.client_mapping.get_document_id(self.obj), str(self.obj.pk))
 
     def test_get_document(self):
         # Build document
-        document = self.es_mapping.get_document(self.obj)
+        document = self.client_mapping.get_document(self.obj)
 
         # Sort edgengrams
         if "_edgengrams" in document:
