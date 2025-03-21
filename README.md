@@ -9,7 +9,7 @@ This was built in to [Wagtail CMS](https://github.com/wagtail/wagtail) since 201
 Install with PIP, then add to `INSTALLED_APPS` in your Django settings:
 
 ```shell
-pip install django-modelsearch
+pip install modelsearch
 ```
 
 ```python
