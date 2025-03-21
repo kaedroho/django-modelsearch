@@ -29,7 +29,7 @@ Configure a backend in Django settings. For example, to configure Elasticsearch:
 
 MODELSEARCH_BACKENDS = {
     'default': {
-        'BACKEND': 'wagtail.search.backends.elasticsearch8',
+        'BACKEND': 'modelsearch.backends.elasticsearch8',
         'URLS': ['https://localhost:9200'],
         'INDEX': 'wagtail',
         'TIMEOUT': 5,
