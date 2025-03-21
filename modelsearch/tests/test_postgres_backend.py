@@ -13,7 +13,7 @@ from wagtail.test.search import models
     connection.vendor == "postgresql", "The current database is not PostgreSQL"
 )
 @override_settings(
-    WAGTAILSEARCH_BACKENDS={
+    MODELSEARCH_BACKENDS={
         "default": {
             "BACKEND": "modelsearch.backends.database.postgres.postgres",
         }
@@ -165,7 +165,7 @@ class TestPostgresSearchBackend(BackendTests, TestCase):
     connection.vendor == "postgresql", "The current database is not PostgreSQL"
 )
 @override_settings(
-    WAGTAILSEARCH_BACKENDS={
+    MODELSEARCH_BACKENDS={
         "default": {
             "BACKEND": "modelsearch.backends.database.postgres.postgres",
             "SEARCH_CONFIG": "dutch",

@@ -18,7 +18,7 @@ from modelsearch.tests.test_backends import BackendTests
 )
 @unittest.skipUnless(fts5_available(), "The SQLite fts5 extension is not available")
 @override_settings(
-    WAGTAILSEARCH_BACKENDS={
+    MODELSEARCH_BACKENDS={
         "default": {
             "BACKEND": "modelsearch.backends.database.sqlite.sqlite",
         }

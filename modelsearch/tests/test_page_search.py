@@ -8,7 +8,7 @@ from modelsearch.backends.base import BaseSearchQueryCompiler, BaseSearchResults
 
 class PageSearchTests:
     # A TestCase with this class mixed in will be dynamically created
-    # for each search backend defined in WAGTAILSEARCH_BACKENDS, with the backend name available
+    # for each search backend defined in MODELSEARCH_BACKENDS, with the backend name available
     # as self.backend_name
 
     fixtures = ["test.json"]
@@ -51,7 +51,7 @@ class PageSearchTests:
         )
 
 
-for backend_name in settings.WAGTAILSEARCH_BACKENDS.keys():
+for backend_name in settings.MODELSEARCH_BACKENDS.keys():
     test_name = str("Test%sBackend" % backend_name.title())
     globals()[test_name] = type(
         test_name,

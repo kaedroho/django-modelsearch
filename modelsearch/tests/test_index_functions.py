@@ -43,7 +43,7 @@ class TestGetIndexedInstance(TestCase):
 
 @mock.patch("modelsearch.tests.DummySearchBackend", create=True)
 @override_settings(
-    WAGTAILSEARCH_BACKENDS={
+    MODELSEARCH_BACKENDS={
         "default": {"BACKEND": "modelsearch.tests.DummySearchBackend"}
     }
 )
@@ -106,7 +106,7 @@ class TestInsertOrUpdateObject(WagtailTestUtils, TestCase):
 
 @mock.patch("modelsearch.tests.DummySearchBackend", create=True)
 @override_settings(
-    WAGTAILSEARCH_BACKENDS={
+    MODELSEARCH_BACKENDS={
         "default": {"BACKEND": "modelsearch.tests.DummySearchBackend"}
     }
 )
@@ -153,7 +153,7 @@ class TestRemoveObject(WagtailTestUtils, TestCase):
 
 @mock.patch("modelsearch.tests.DummySearchBackend", create=True)
 @override_settings(
-    WAGTAILSEARCH_BACKENDS={
+    MODELSEARCH_BACKENDS={
         "default": {"BACKEND": "modelsearch.tests.DummySearchBackend"}
     }
 )
@@ -235,7 +235,7 @@ class TestSignalHandlers(WagtailTestUtils, TestCase):
 
 @mock.patch("modelsearch.tests.DummySearchBackend", create=True)
 @override_settings(
-    WAGTAILSEARCH_BACKENDS={
+    MODELSEARCH_BACKENDS={
         "default": {"BACKEND": "modelsearch.tests.DummySearchBackend"}
     }
 )

@@ -12,7 +12,7 @@ from wagtail.test.search import models
 
 @unittest.skipUnless(connection.vendor == "mysql", "The current database is not MySQL")
 @override_settings(
-    WAGTAILSEARCH_BACKENDS={
+    MODELSEARCH_BACKENDS={
         "default": {
             "BACKEND": "modelsearch.backends.database.mysql.mysql",
         }

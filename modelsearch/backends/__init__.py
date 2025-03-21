@@ -14,7 +14,7 @@ class InvalidSearchBackendError(ImproperlyConfigured):
 
 
 def get_search_backend_config():
-    search_backends = getattr(settings, "WAGTAILSEARCH_BACKENDS", {})
+    search_backends = getattr(settings, "MODELSEARCH_BACKENDS", {})
 
     # Make sure the default backend is always defined
     search_backends.setdefault(
@@ -84,10 +84,10 @@ def _backend_requires_auto_update(backend_name, params):
     if params.get("AUTO_UPDATE", True):
         return True
 
-    # _WAGTAILSEARCH_FORCE_AUTO_UPDATE is only used by Wagtail tests. It allows
+    # _MODELSEARCH_FORCE_AUTO_UPDATE is only used by Wagtail tests. It allows
     # us to test AUTO_UPDATE behaviour against Elasticsearch without having to
     # have AUTO_UPDATE enabed for every test.
-    force_auto_update = getattr(settings, "_WAGTAILSEARCH_FORCE_AUTO_UPDATE", [])
+    force_auto_update = getattr(settings, "_MODELSEARCH_FORCE_AUTO_UPDATE", [])
     if backend_name in force_auto_update:
         return True
 

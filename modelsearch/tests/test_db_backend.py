@@ -7,7 +7,7 @@ from .test_backends import BackendTests
 
 
 @override_settings(
-    WAGTAILSEARCH_BACKENDS={
+    MODELSEARCH_BACKENDS={
         "default": {
             "BACKEND": "modelsearch.backends.database.fallback",
         }

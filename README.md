@@ -12,7 +12,6 @@ Install with PIP, then add to `INSTALLED_APPS` in your Django settings:
 pip install django-modelsearch
 ```
 
-
 ```python
 # settings.py
 
@@ -21,6 +20,23 @@ INSTALLED_APPS = [
     "modelsearch
     ...
 ]
+```
+
+Configure a backend in Django settings. For example, to configure Elasticsearch:
+
+```python
+# settings.py
+
+MODELSEARCH_BACKENDS = {
+    'default': {
+        'BACKEND': 'wagtail.search.backends.elasticsearch8',
+        'URLS': ['https://localhost:9200'],
+        'INDEX': 'wagtail',
+        'TIMEOUT': 5,
+        'OPTIONS': {},
+        'INDEX_SETTINGS': {},
+    }
+}
 ```
 
 ## Indexing content
@@ -47,7 +63,7 @@ class Book(index.Indexed, models.Model):
     ]
 ```
 
-Then run the ``rebuild_index`` management command to build the search index.
+Then run the `rebuild_index` management command to build the search index.
 
 ## Searching content
 

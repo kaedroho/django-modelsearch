@@ -146,9 +146,9 @@ class Command(BaseCommand):
         if options["backend_name"]:
             # index only the passed backend
             backend_names = [options["backend_name"]]
-        elif hasattr(settings, "WAGTAILSEARCH_BACKENDS"):
+        elif hasattr(settings, "MODELSEARCH_BACKENDS"):
             # index all backends listed in settings
-            backend_names = settings.WAGTAILSEARCH_BACKENDS.keys()
+            backend_names = settings.MODELSEARCH_BACKENDS.keys()
         else:
             # index the 'default' backend only
             backend_names = ["default"]

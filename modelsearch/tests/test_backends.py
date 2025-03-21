@@ -41,8 +41,8 @@ class BackendTests(WagtailTestUtils):
     fixtures = ["search"]
 
     def setUp(self):
-        # Search WAGTAILSEARCH_BACKENDS for an entry that uses the given backend path
-        for backend_name, backend_conf in settings.WAGTAILSEARCH_BACKENDS.items():
+        # Search MODELSEARCH_BACKENDS for an entry that uses the given backend path
+        for backend_name, backend_conf in settings.MODELSEARCH_BACKENDS.items():
             if backend_conf["BACKEND"] == self.backend_path:
                 self.backend = get_search_backend(backend_name)
                 self.backend_name = backend_name
@@ -50,7 +50,7 @@ class BackendTests(WagtailTestUtils):
         else:
             # no conf entry found - skip tests for this backend
             raise unittest.SkipTest(
-                "No WAGTAILSEARCH_BACKENDS entry for the backend %s" % self.backend_path
+                "No MODELSEARCH_BACKENDS entry for the backend %s" % self.backend_path
             )
 
         # HACK: This is a hack to delete all the index entries that may be present in the test database before each test is run.
@@ -996,7 +996,7 @@ class BackendTests(WagtailTestUtils):
 
 
 @override_settings(
-    WAGTAILSEARCH_BACKENDS={"default": {"BACKEND": "modelsearch.backends.database"}}
+    MODELSEARCH_BACKENDS={"default": {"BACKEND": "modelsearch.backends.database"}}
 )
 class TestBackendLoader(TestCase):
     @mock.patch("modelsearch.backends.database.connection")
@@ -1163,7 +1163,7 @@ class TestBackendLoader(TestCase):
         if not issubclass(type(backends[0]), BaseSearchBackend):
             self.fail()
 
-    @override_settings(WAGTAILSEARCH_BACKENDS={})
+    @override_settings(MODELSEARCH_BACKENDS={})
     def test_get_search_backends_with_no_default_defined(self):
         backends = list(get_search_backends())
 
@@ -1172,7 +1172,7 @@ class TestBackendLoader(TestCase):
             self.fail()
 
     @override_settings(
-        WAGTAILSEARCH_BACKENDS={
+        MODELSEARCH_BACKENDS={
             "default": {"BACKEND": "modelsearch.backends.database"},
             "another-backend": {"BACKEND": "modelsearch.backends.database"},
         }
@@ -1189,7 +1189,7 @@ class TestBackendLoader(TestCase):
         self.assertEqual(len(backends), 1)
 
     @override_settings(
-        WAGTAILSEARCH_BACKENDS={
+        MODELSEARCH_BACKENDS={
             "default": {
                 "BACKEND": "modelsearch.backends.database",
                 "AUTO_UPDATE": False,
@@ -1202,7 +1202,7 @@ class TestBackendLoader(TestCase):
         self.assertEqual(len(backends), 0)
 
     @override_settings(
-        WAGTAILSEARCH_BACKENDS={
+        MODELSEARCH_BACKENDS={
             "default": {
                 "BACKEND": "modelsearch.backends.database",
                 "AUTO_UPDATE": False,
