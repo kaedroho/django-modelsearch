@@ -1,0 +1,28 @@
+name: Linting
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - uses: actions/checkout@v4
+
+      - run: poetry install
+
+      - name: Run ruff
+        working-directory: .
+        run: poetry run ruff check --output-format=github .
