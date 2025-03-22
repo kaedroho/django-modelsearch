@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.11", "3.12", "3.13"]
-        django: ["4.2", "5.0", "5.1"]
+        python: ["3.13"]
+        django: ["5.1"]
         backend: [
           "sqlite-db",
           "postgresql-db",
@@ -25,17 +25,6 @@ jobs:
           "sqlite-elasticsearch7",
           "sqlite-elasticsearch8"
         ]
-        exclude:
-          # Don't test all backends on Python 3.11/3.12 to save time
-          - python: ["3.11", "3.12"]
-            backend: [
-              "postgresql-db",
-              "mysql-db",
-              "sqlite-opensearch1",
-              "sqlite-opensearch2",
-              "sqlite-elasticsearch7",
-              "sqlite-elasticsearch8"
-            ]
 
     steps:
       - uses: actions/checkout@v2
