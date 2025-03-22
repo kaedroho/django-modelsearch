@@ -15,7 +15,16 @@ jobs:
       matrix:
         python: ["3.11", "3.12", "3.13"]
         django: ["4.2", "5.0", "5.1"]
-        backend: ["opensearch1", "opensearch2", "elasticsearch7", "elasticsearch8"]
+        backend: [
+          "sqlite-db",
+          "postgresql-db",
+          "mysql-db",
+          "mariadb-db",
+          "sqlite-opensearch1",
+          "sqlite-opensearch2",
+          "sqlite-elasticsearch7",
+          "sqlite-elasticsearch8"
+        ]
 
     steps:
       - uses: actions/checkout@v2
