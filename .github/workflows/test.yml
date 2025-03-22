@@ -1,0 +1,33 @@
+name: Django Bridge CI
+
+on:
+  push:
+    branches:
+      - main
+      - "stable/**"
+
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.12", "3.13"]
+        django: ["4.2", "5.0", "5.1"]
+        backend: ["opensearch1", "opensearch2", "elasticsearch7", "elasticsearch8"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Tox
+        run: |
+          python -m pip install tox
+      - name: Test
+        run: |
+          tox
+        env:
+          TOXENV: python${{ matrix.python }}-django${{ matrix.django }}-{{ matrix.backend }}
