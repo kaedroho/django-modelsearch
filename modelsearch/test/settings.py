@@ -95,6 +95,9 @@ MODELSEARCH_BACKENDS = {
             "elasticsearch7": "modelsearch.backends.elasticsearch7",
             "elasticsearch8": "modelsearch.backends.elasticsearch8",
             "elasticsearch9": "modelsearch.backends.elasticsearch9",
+            "opensearch1": "modelsearch.backends.opensearch1",
+            "opensearch2": "modelsearch.backends.opensearch2",
+            "opensearch3": "modelsearch.backends.opensearch3",
         }[SEARCH_BACKEND]
     }
 }
@@ -102,6 +105,12 @@ MODELSEARCH_BACKENDS = {
 if SEARCH_BACKEND in ["elasticsearch7", "elasticsearch8", "elasticsearch9"]:
     ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL", "http://localhost:9200")
     MODELSEARCH_BACKENDS["default"]["URLS"] = [ELASTICSEARCH_URL]
+    MODELSEARCH_BACKENDS["default"]["INDEX"] = "modelsearchtest"
+
+
+if SEARCH_BACKEND in ["opensearch1", "opensearch2", "opensearch3"]:
+    OPENSEARCH_URL = os.getenv("OPENSEARCH_URL", "http://localhost:9200")
+    MODELSEARCH_BACKENDS["default"]["URLS"] = [OPENSEARCH_URL]
     MODELSEARCH_BACKENDS["default"]["INDEX"] = "modelsearchtest"
 
 
