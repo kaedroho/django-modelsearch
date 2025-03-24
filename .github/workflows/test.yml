@@ -26,6 +26,10 @@ jobs:
             backend: elasticsearch7
           - database: sqlite
             backend: elasticsearch8
+          - database: sqlite
+            backend: opensearch1
+          - database: sqlite
+            backend: opensearch2
 
     services:
       postgresql:
@@ -69,6 +73,32 @@ jobs:
           --health-timeout 5s
           --health-retries 10
 
+      opensearch1:
+        image: opensearchproject/opensearch:1.3.11
+        env:
+          discovery.type: single-node
+          OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+        ports:
+          - 9211:9200
+        options: >-
+          --health-cmd "curl -s https://localhost:9200/_cluster/health | grep 'status' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+      opensearch2:
+        image: opensearchproject/opensearch:2.11.0
+        env:
+          discovery.type: single-node
+          OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+        ports:
+          - 9212:9200
+        options: >-
+          --health-cmd "curl -s https://localhost:9200/_cluster/health | grep 'status' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ env.PYTHON_VERSION }}
@@ -76,27 +106,28 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Wait for Elasticsearch
-        if: contains(matrix.backend, 'elasticsearch')
+      - name: Wait for Search Engines
+        if: contains(matrix.backend, 'elasticsearch') || contains(matrix.backend, 'opensearch')
         run: |
-          ES_PORT=9200
-          if [[ "${{ matrix.backend }}" == "elasticsearch7" ]]; then
-            ES_PORT=9207
-          elif [[ "${{ matrix.backend }}" == "elasticsearch8" ]]; then
-            ES_PORT=9208
-          fi
+          PORT=9200
+          case "${{ matrix.backend }}" in
+            elasticsearch7) PORT=9207 ;;
+            elasticsearch8) PORT=9208 ;;
+            opensearch1) PORT=9211 ;;
+            opensearch2) PORT=9212 ;;
+          esac
 
-          echo "Waiting for Elasticsearch on port $ES_PORT..."
+          echo "Waiting for ${{ matrix.backend }} on port $PORT..."
           for i in {1..24}; do
-            if curl -s "http://localhost:$ES_PORT/_cluster/health" | grep -q '"status"'; then
-              echo "Elasticsearch is ready!"
+            if curl -s "http://localhost:$PORT/_cluster/health" | grep -q '"status"'; then
+              echo "${{ matrix.backend }} is ready!"
               exit 0
             fi
-            echo "Still waiting for Elasticsearch ($i/24)..."
+            echo "Still waiting for ${{ matrix.backend }} ($i/24)..."
             sleep 5
           done
 
-          echo "Elasticsearch did not start in time!"
+          echo "${{ matrix.backend }} did not start in time!"
           exit 1
 
       - name: Install dependencies
@@ -104,11 +135,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[test]
 
-          if [[ "${{ matrix.backend }}" == "elasticsearch7" ]]; then
-            pip install "elasticsearch>7,<8"
-          elif [[ "${{ matrix.backend }}" == "elasticsearch8" ]]; then
-            pip install "elasticsearch>8,<9"
-          fi
+          case "${{ matrix.backend }}" in
+            elasticsearch7) pip install "elasticsearch>7,<8" ;;
+            elasticsearch8) pip install "elasticsearch>8,<9" ;;
+            opensearch1|opensearch2) pip install "opensearch-py" ;;
+          esac
 
       - name: Run tests
         run: |
@@ -120,6 +151,10 @@ jobs:
             export ELASTICSEARCH_URL="http://localhost:9207"
           elif [[ "${{ matrix.backend }}" == "elasticsearch8" ]]; then
             export ELASTICSEARCH_URL="http://localhost:9208"
+          elif [[ "${{ matrix.backend }}" == "opensearch1" ]]; then
+            export OPENSEARCH_URL="http://localhost:9211"
+          elif [[ "${{ matrix.backend }}" == "opensearch2" ]]; then
+            export OPENSEARCH_URL="http://localhost:9212"
           fi
 
           python runtests.py --backend ${{ matrix.backend }}
