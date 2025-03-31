@@ -10,9 +10,9 @@
     <a href="https://pypi.python.org/pypi/modelsearch/">
         <img src="https://img.shields.io/pypi/v/modelsearch.svg" alt="Version" />
     </a>
-    <!-- <a href="https://pypi.python.org/pypi/modelsearch/">
+    <a href="https://django-modelsearch.readthedocs.io/en/latest/">
         <img src="https://img.shields.io/badge/Documentation-blue" alt="Documentation" />
-    </a> -->
+    </a>
 </p>
 
 Django ModelSearch allows you index Django models and search using the ORM. It supports PostgreSQL FTS, SQLite FTS5, and Elasticsearch.
