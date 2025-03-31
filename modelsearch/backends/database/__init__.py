@@ -11,10 +11,7 @@ def SearchBackend(params):
         from .postgres.postgres import PostgresSearchBackend
 
         return PostgresSearchBackend(params)
-    elif connection.vendor == "mysql":
-        from .mysql.mysql import MySQLSearchBackend
 
-        return MySQLSearchBackend(params)
     elif connection.vendor == "sqlite":
         global USE_SQLITE_FTS
 

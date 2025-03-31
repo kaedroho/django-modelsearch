@@ -18,7 +18,7 @@ from modelsearch.utils import AND, OR
 # This file implements a database search backend using basic substring matching, and no
 # database-specific full-text search capabilities. It will be used in the following cases:
 # * The current default database is SQLite <3.19, or SQLite built without fulltext
-#   extensions, or something other than PostgreSQL, MySQL or SQLite
+#   extensions, or something other than PostgreSQL or SQLite
 # * 'modelsearch.backends.database.fallback' is specified directly as the search backend
 
 

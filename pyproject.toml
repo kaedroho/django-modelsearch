@@ -34,7 +34,6 @@ classifiers = [
 test = [
   "dj-database-url (>=2.3.0,<3)",
   "psycopg (>=3.2.6,<4)",
-  "mysqlclient (>=2.2.0,<3)",
   "django-modelcluster (>=6.4,<7)",
   "django-tasks (>=0.6.1,<1)",
   "django-taggit (>=6.1.0,<7)",
