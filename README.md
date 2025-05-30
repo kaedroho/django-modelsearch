@@ -48,7 +48,9 @@ INSTALLED_APPS = [
 ]
 ```
 
-Configure a backend in Django settings. For example, to configure Elasticsearch:
+By default, Django ModelSearch will index into the database configured in `DATABASES["default"]` and use PostgreSQL FTS or SQLite FTS, if available.
+
+You can change the indexing configuration, or add additional backends with the `MODALSEARCH_BACKENDS` setting. For example, to configure Elasticsearch:
 
 ```python
 # settings.py
