@@ -2,7 +2,7 @@
 
 <p>
     <a href="https://github.com/kaedroho/django-modelsearch/actions">
-        <img src="https://github.com/kaedroho/django-modelsearch/workflows/ModelSearch%20CI/badge.svg" alt="Build Status" />
+        <img src="https://github.com/kaedroho/django-modelsearch/workflows/ModelSearch%20CI/badge.svg?branch=main" alt="Build Status" />
     </a>
     <a href="https://opensource.org/licenses/BSD-3-Clause">
         <img src="https://img.shields.io/badge/license-BSD-blue.svg" alt="License" />
