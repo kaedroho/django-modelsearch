@@ -15,7 +15,7 @@
     </a>
 </p>
 
-Django ModelSearch allows you index Django models and search using the ORM. It supports PostgreSQL FTS, SQLite FTS5, and Elasticsearch (7.x and 8.x).
+Django ModelSearch allows you index Django models and search using the ORM. It supports PostgreSQL FTS, SQLite FTS5, and Elasticsearch (7.x, 8.x, and 9.x).
 
 Features:
 

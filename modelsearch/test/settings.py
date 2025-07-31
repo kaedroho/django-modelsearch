@@ -94,11 +94,12 @@ MODELSEARCH_BACKENDS = {
             "db": "modelsearch.backends.db",
             "elasticsearch7": "modelsearch.backends.elasticsearch7",
             "elasticsearch8": "modelsearch.backends.elasticsearch8",
+            "elasticsearch9": "modelsearch.backends.elasticsearch9",
         }[SEARCH_BACKEND]
     }
 }
 
-if SEARCH_BACKEND in ["elasticsearch7", "elasticsearch8"]:
+if SEARCH_BACKEND in ["elasticsearch7", "elasticsearch8", "elasticsearch9"]:
     ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL", "http://localhost:9200")
     MODELSEARCH_BACKENDS["default"]["URLS"] = [ELASTICSEARCH_URL]
     MODELSEARCH_BACKENDS["default"]["INDEX"] = "modelsearchtest"

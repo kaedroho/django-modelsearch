@@ -62,15 +62,20 @@ Elasticsearch versions 7 and 8 are supported. Use the appropriate backend for yo
 
 -   `modelsearch.backends.elasticsearch7` (Elasticsearch 7.x)
 -   `modelsearch.backends.elasticsearch8` (Elasticsearch 8.x)
+-   `modelsearch.backends.elasticsearch9` (Elasticsearch 9.x)
 
 Prerequisites are the [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) service itself and, via pip, the [elasticsearch-py](https://elasticsearch-py.readthedocs.io/) package. The major version of the package must match the installed version of Elasticsearch:
 
 ```sh
-pip install "elasticsearch>=7.0.0,<8.0.0"  # for Elasticsearch 7.x
+pip install "elasticsearch>=7,<8"  # for Elasticsearch 7.x
 ```
 
 ```sh
-pip install "elasticsearch>=8.0.0,<9.0.0"  # for Elasticsearch 8.x
+pip install "elasticsearch>=8,<9"  # for Elasticsearch 8.x
+```
+
+```sh
+pip install "elasticsearch>=9,<10"  # for Elasticsearch 9.x
 ```
 
 The backend is configured in settings:
@@ -78,7 +83,7 @@ The backend is configured in settings:
 ```python
 MODELSEARCH_BACKENDS = {
     'default': {
-        'BACKEND': 'modelsearch.backends.elasticsearch8',
+        'BACKEND': 'modelsearch.backends.elasticsearch9',
         'URLS': ['https://localhost:9200'],
         'INDEX': 'test',
         'TIMEOUT': 5,
@@ -148,7 +153,7 @@ from requests_aws4auth import AWS4Auth
 
 MODELSEARCH_BACKENDS = {
     'default': {
-        'BACKEND': 'modelsearch.backends.elasticsearch7',
+        'BACKEND': 'modelsearch.backends.elasticsearch9',
         'INDEX': 'test',
         'TIMEOUT': 5,
         'HOSTS': [{

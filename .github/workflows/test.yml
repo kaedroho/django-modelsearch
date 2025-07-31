@@ -26,6 +26,8 @@ jobs:
             backend: elasticsearch7
           - database: sqlite
             backend: elasticsearch8
+          - database: sqlite
+            backend: elasticsearch9
 
     services:
       postgresql:
@@ -69,6 +71,20 @@ jobs:
           --health-timeout 5s
           --health-retries 10
 
+      elasticsearch9:
+        image: docker.elastic.co/elasticsearch/elasticsearch:9.0.4
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: false
+          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+        ports:
+          - 9209:9200
+        options: >-
+          --health-cmd "curl -s http://localhost:9200/_cluster/health | grep 'status' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ env.PYTHON_VERSION }}
@@ -84,6 +100,8 @@ jobs:
             ES_PORT=9207
           elif [[ "${{ matrix.backend }}" == "elasticsearch8" ]]; then
             ES_PORT=9208
+          elif [[ "${{ matrix.backend }}" == "elasticsearch9" ]]; then
+            ES_PORT=9209
           fi
 
           echo "Waiting for Elasticsearch on port $ES_PORT..."
@@ -108,6 +126,8 @@ jobs:
             pip install "elasticsearch>7,<8"
           elif [[ "${{ matrix.backend }}" == "elasticsearch8" ]]; then
             pip install "elasticsearch>8,<9"
+          elif [[ "${{ matrix.backend }}" == "elasticsearch9" ]]; then
+            pip install "elasticsearch>9,<10"
           fi
 
       - name: Run tests
@@ -120,6 +140,8 @@ jobs:
             export ELASTICSEARCH_URL="http://localhost:9207"
           elif [[ "${{ matrix.backend }}" == "elasticsearch8" ]]; then
             export ELASTICSEARCH_URL="http://localhost:9208"
+          elif [[ "${{ matrix.backend }}" == "elasticsearch9" ]]; then
+            export ELASTICSEARCH_URL="http://localhost:9209"
           fi
 
           python runtests.py --backend ${{ matrix.backend }}
