@@ -61,7 +61,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         # Check it
         expected_result = {
             "bool": {
-                "filter": {"match": {"content_type": "searchtests.Book"}},
+                "filter": {"match": {"_django_content_type": "searchtests.Book"}},
                 "must": {
                     "multi_match": {
                         "fields": [
@@ -85,7 +85,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         # Check it
         expected_result = {
             "bool": {
-                "filter": {"match": {"content_type": "searchtests.Book"}},
+                "filter": {"match": {"_django_content_type": "searchtests.Book"}},
                 "must": {
                     "match": {
                         "_edgengrams": {
@@ -106,7 +106,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         # Check it
         expected_result = {
             "bool": {
-                "filter": {"match": {"content_type": "searchtests.Book"}},
+                "filter": {"match": {"_django_content_type": "searchtests.Book"}},
                 "must": {"match_all": {}},
             }
         }
@@ -129,7 +129,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         # Check it
         expected_result = {
             "bool": {
-                "filter": {"match": {"content_type": "searchtests.Book"}},
+                "filter": {"match": {"_django_content_type": "searchtests.Book"}},
                 "must": {"match_all": {}},
             }
         }
@@ -144,7 +144,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         # Check it
         expected_result = {
             "bool": {
-                "filter": {"match": {"content_type": "searchtests.Book"}},
+                "filter": {"match": {"_django_content_type": "searchtests.Book"}},
                 "must": {
                     "multi_match": {
                         "fields": [
@@ -170,7 +170,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"term": {"title_filter": "Test"}},
                 ],
                 "must": {
@@ -200,7 +200,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {
                         "bool": {
                             "must": [
@@ -252,7 +252,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {
                         "bool": {
                             "should": [
@@ -287,7 +287,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {
                         "bool": {
                             "mustNot": {
@@ -319,7 +319,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         # Check it
         expected_result = {
             "bool": {
-                "filter": {"match": {"content_type": "searchtests.Book"}},
+                "filter": {"match": {"_django_content_type": "searchtests.Book"}},
                 "must": {
                     "match": {
                         "title": {
@@ -341,7 +341,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         # Check it
         expected_result = {
             "bool": {
-                "filter": {"match": {"content_type": "searchtests.Book"}},
+                "filter": {"match": {"_django_content_type": "searchtests.Book"}},
                 "must": {
                     "match": {
                         "title": {
@@ -364,7 +364,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         # Check it
         expected_result = {
             "bool": {
-                "filter": {"match": {"content_type": "searchtests.Book"}},
+                "filter": {"match": {"_django_content_type": "searchtests.Book"}},
                 "must": {
                     "multi_match": {
                         "fields": [
@@ -390,7 +390,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         # Check it
         expected_result = {
             "bool": {
-                "filter": {"match": {"content_type": "searchtests.Book"}},
+                "filter": {"match": {"_django_content_type": "searchtests.Book"}},
                 "must": {
                     "multi_match": {
                         "fields": [
@@ -415,7 +415,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"term": {"title_filter": "Test"}},
                 ],
                 "must": {
@@ -442,7 +442,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"bool": {"mustNot": {"exists": {"field": "title_filter"}}}},
                 ],
                 "must": {
@@ -469,7 +469,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"bool": {"mustNot": {"exists": {"field": "title_filter"}}}},
                 ],
                 "must": {
@@ -496,7 +496,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"exists": {"field": "title_filter"}},
                 ],
                 "must": {
@@ -523,7 +523,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"prefix": {"title_filter": "Test"}},
                 ],
                 "must": {
@@ -555,7 +555,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"range": {"publication_date_filter": {"gt": "2014-04-29"}}},
                 ],
                 "must": {
@@ -585,7 +585,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"range": {"publication_date_filter": {"lt": "2014-04-29"}}},
                 ],
                 "must": {
@@ -615,7 +615,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"range": {"publication_date_filter": {"gte": "2014-04-29"}}},
                 ],
                 "must": {
@@ -645,7 +645,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"range": {"publication_date_filter": {"lte": "2014-04-29"}}},
                 ],
                 "must": {
@@ -676,7 +676,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {
                         "range": {
                             "publication_date_filter": {
@@ -890,7 +890,7 @@ class TestElasticsearch7SearchQuery(TestCase):
         expected_result = {
             "bool": {
                 "filter": [
-                    {"match": {"content_type": "searchtests.Book"}},
+                    {"match": {"_django_content_type": "searchtests.Book"}},
                     {"range": {"publication_date_filter": {"lt": "1900-01-01"}}},
                 ],
                 "must": {
@@ -1115,7 +1115,7 @@ class TestElasticsearch7Mapping(TestCase):
         expected_result = {
             "properties": {
                 "pk": {"type": "keyword", "store": True},
-                "content_type": {"type": "keyword"},
+                "_django_content_type": {"type": "keyword"},
                 "_all_text": {"type": "text"},
                 "_all_text_boost_10_0": {"type": "text"},
                 "_all_text_boost_2_0": {"type": "text"},
@@ -1180,7 +1180,7 @@ class TestElasticsearch7Mapping(TestCase):
         # Check
         expected_result = {
             "pk": "4",
-            "content_type": ["searchtests.Book"],
+            "_django_content_type": ["searchtests.Book"],
             "_edgengrams": [
                 "J. R. R. Tolkien",
                 "The Fellowship of the Ring",
@@ -1266,7 +1266,7 @@ class TestElasticsearch7MappingInheritance(TestCase):
                 },
                 # Inherited
                 "pk": {"type": "keyword", "store": True},
-                "content_type": {"type": "keyword"},
+                "_django_content_type": {"type": "keyword"},
                 "_all_text": {"type": "text"},
                 "_all_text_boost_0_25": {"type": "text"},
                 "_all_text_boost_0_5": {"type": "text"},
@@ -1353,7 +1353,7 @@ class TestElasticsearch7MappingInheritance(TestCase):
                 {"name": "Gandalf"},
             ],
             # Changed
-            "content_type": ["searchtests.Novel", "searchtests.Book"],
+            "_django_content_type": ["searchtests.Novel", "searchtests.Book"],
             "_edgengrams": [
                 "J. R. R. Tolkien",
                 "Middle Earth",
