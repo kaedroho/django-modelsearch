@@ -112,7 +112,7 @@ You can search models using the `.search()` QuerySet method (added by `Searchabl
 
 ### Autocomplete
 
-Autocomplete, uses the `.autocomplete()` method, for example:
+To autocomplete a partial search qeury, use the `.autocomplete()` method. For example:
 
 ```python
 >>> Book.objects.filter(author=roald_dahl).search("choco")
