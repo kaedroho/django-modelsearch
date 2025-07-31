@@ -2,7 +2,7 @@
 
 # Backends
 
-Wagtailsearch has support for multiple backends, giving you the choice between using the database for search or an external service such as Elasticsearch.
+Django Modelsearch has support for multiple backends, giving you the choice between using the database for search or an external service such as Elasticsearch.
 
 You can configure which backend to use with the `MODELSEARCH_BACKENDS` setting:
 
@@ -18,9 +18,9 @@ MODELSEARCH_BACKENDS = {
 
 ## `AUTO_UPDATE`
 
-By default, Wagtail will automatically keep all indexes up to date. This could impact performance when editing content, especially if your index is hosted on an external service.
+By default, Django Modelsearch will automatically keep all indexes up to date. This could impact peformance as each save will trigger the indexing to occur.
 
-The `AUTO_UPDATE` setting allows you to disable this on a per-index basis:
+The `AUTO_UPDATE` setting allows you to disable this for the backend:
 
 ```python
 MODELSEARCH_BACKENDS = {
@@ -37,13 +37,13 @@ If you have disabled auto-update, you must run the [](rebuild_modelsearch_index)
 
 ## `ATOMIC_REBUILD`
 
-By default (when using the Elasticsearch backend), when the `rebuild_modelsearch_index` command is run, Wagtail deletes the index and rebuilds it from scratch. This causes the search engine to not return results until the rebuild is complete and is also risky as you can't roll back if an error occurs.
+By default (when using the Elasticsearch backend), the index and rebuilds it from scratch every time the `rebuild_modelsearch_index` comamnd is run. This causes the search engine to not return results until the rebuild is complete and is also risky as you can't roll back if an error occurs.
 
-Setting the `ATOMIC_REBUILD` setting to `True` makes Wagtail rebuild into a separate index while keeping the old index active until the new one is fully built. When the rebuild is finished, the indexes are swapped atomically and the old index is deleted.
+Setting the `ATOMIC_REBUILD` setting to `True` makes Django Modelsearch rebuild into a separate index while keeping the old index active until the new one is fully built. When the rebuild is finished, the indexes are swapped atomically and the old index is deleted.
 
 ## `BACKEND`
 
-Here's a list of backends that Wagtail supports out of the box.
+Here's a list of backends that Django Modelsearch supports out of the box.
 
 (modelsearch_backends_database)=
 
@@ -136,7 +136,7 @@ If you prefer not to run an Elasticsearch server in development or production, t
 
 ### OpenSearch
 
-OpenSearch is a community-driven search engine originally created as a fork of Elasticsearch 7. Wagtail supports OpenSearch through the `modelsearch.backends.elasticsearch7` backend and version 7.13.4 of the [Elasticsearch Python library](https://pypi.org/project/elasticsearch/). Later versions of the library only permit connecting to Elastic-branded servers, and are not compatible with OpenSearch.
+OpenSearch is a community-driven search engine originally created as a fork of Elasticsearch 7. Django Modelsearch supports OpenSearch through the `modelsearch.backends.elasticsearch7` backend and version 7.13.4 of the [Elasticsearch Python library](https://pypi.org/project/elasticsearch/). Later versions of the library only permit connecting to Elastic-branded servers, and are not compatible with OpenSearch.
 
 ### Amazon AWS OpenSearch
 
@@ -167,4 +167,4 @@ MODELSEARCH_BACKENDS = {
 
 ## Rolling Your Own
 
-Wagtail search backends implement the interface defined in `modelsearch/backends/base.py`. At a minimum, the backend's `search()` method must return a collection of objects or `model.objects.none()`. For a fully-featured search backend, examine the Elasticsearch backend code in `elasticsearch.py`.
+Django Modelsearch backends implement the interface defined in `modelsearch/backends/base.py`. At a minimum, the backend's `search()` method must return a collection of objects or `model.objects.none()`. For a fully-featured search backend, examine the Elasticsearch backend code in `elasticsearch.py`.

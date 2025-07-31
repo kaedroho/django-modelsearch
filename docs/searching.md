@@ -6,11 +6,11 @@
 
 ## Searching QuerySets
 
-Wagtail search is built on Django's [QuerySet API](inv:django#ref/models/querysets). You should be able to search any Django QuerySet provided the model and the fields being filtered have been added to the search index.
+Django Modelsearch is built on Django's [QuerySet API](inv:django#ref/models/querysets). You should be able to search any Django QuerySet provided the model and the fields being filtered have been added to the search index.
 
 ### Searching Pages
 
-Wagtail provides a shortcut for searching pages: the `.search()` `QuerySet` method. You can call this on any `PageQuerySet`. For example:
+Django Modelsearch provides a shortcut for searching pages: the `.search()` `QuerySet` method. You can call this on any `PageQuerySet`. For example:
 
 ```python
 # Search future EventPages
@@ -27,14 +27,14 @@ All other methods of `PageQuerySet` can be used with `search()`. For example:
 ```
 
 ```{note}
-The `search()` method will convert your `QuerySet` into an instance of one of Wagtail's `SearchResults` classes (depending on backend). This means that you must perform filtering before calling `search()`.
+The `search()` method will convert your `QuerySet` into an instance of one of Django Modelsearch's `SearchResults` classes (depending on backend). This means that you must perform filtering before calling `search()`.
 ```
 
 The standard behavior of the `search` method is to only return matches for complete words; for example, a search for "hel" will not return results containing the word "hello". The exception to this is the fallback database search backend, used when the database does not have full-text search extensions available, and no alternative backend has been specified. This performs basic substring matching and will return results containing the search term ignoring all word boundaries.
 
 ### Autocomplete searches
 
-Wagtail provides a separate method which performs partial matching on specific autocomplete fields. This is primarily useful for suggesting pages to the user in real-time as they type their query - it is not recommended for ordinary searches, as the autocompletion will tend to add unwanted results beyond the specific term being searched for.
+Django Modelsearch provides a separate method which performs partial matching on specific autocomplete fields. This is primarily useful for suggesting pages to the user in real-time as they type their query - it is not recommended for ordinary searches, as the autocompletion will tend to add unwanted results beyond the specific term being searched for.
 
 ```python
 >>> EventPage.objects.live().autocomplete("Eve")
@@ -45,7 +45,7 @@ Wagtail provides a separate method which performs partial matching on specific a
 
 ### Searching Images, Documents and custom models
 
-Wagtail's document and image models provide a `search` method on their QuerySets, just as pages do:
+Django Modelsearch's document and image models provide a `search` method on their QuerySets, just as pages do:
 
 ```python
 >>> from myapp.images.models import Image
@@ -82,7 +82,7 @@ You can also pass a QuerySet into the `search` method, which allows you to add f
 
 ### Specifying the fields to search
 
-By default, Wagtail will search all fields that have been indexed using `index.SearchField`.
+By default, Django Modelsearch will search all fields that have been indexed using `index.SearchField`.
 
 This can be limited to a certain set of fields by using the `fields` keyword argument:
 
@@ -96,7 +96,7 @@ This can be limited to a certain set of fields by using the `fields` keyword arg
 
 ### Faceted search
 
-Wagtail supports faceted search, which is a kind of filtering based on a taxonomy
+Django Modelsearch supports faceted search, which is a kind of filtering based on a taxonomy
 field (such as category or page type).
 
 The `.facet(field_name)` method returns an `OrderedDict`. The keys are
@@ -213,7 +213,7 @@ The `operator` keyword argument is also supported on `Fuzzy` objects, defaulting
 
 ### Complex search queries
 
-Through the use of search query classes, Wagtail also supports building search queries as Python
+Through the use of search query classes, Django Modelsearch also supports building search queries as Python
 objects which can be wrapped by and combined with other search queries. The following classes are
 available:
 
@@ -263,7 +263,7 @@ Note that this isn't supported by the PostgreSQL or database search backends.
 
 ### Query string parsing
 
-The previous sections show how to construct a phrase search query manually, but a lot of search engines (Wagtail admin included, try it!)
+The previous sections show how to construct a phrase search query manually, but a lot of search engines
 support writing phrase queries by wrapping the phrase with double quotes. In addition to phrases, you might also want to allow users to
 add filters to the query using the colon syntax (`hello world published:yes`).
 
@@ -368,75 +368,3 @@ For example:
 
 Note that the score itself is arbitrary and it is only useful for comparison
 of results for the same query.
-
-(modelsearch_frontend_views)=
-
-## An example page search view
-
-Here's an example Django view that could be used to add a "search" page to your site:
-
-```python
-# views.py
-
-from django.shortcuts import render
-
-from wagtail.models import Page
-from wagtail.contrib.search_promotions.models import Query
-
-
-def search(request):
-    # Search
-    search_query = request.GET.get('query', None)
-    if search_query:
-        search_results = Page.objects.live().search(search_query)
-
-        # Log the query so Wagtail can suggest promoted results
-        Query.get(search_query).add_hit()
-    else:
-        search_results = Page.objects.none()
-
-    # Render template
-    return render(request, 'search_results.html', {
-        'search_query': search_query,
-        'search_results': search_results,
-    })
-```
-
-And here's a template to go with it:
-
-```html+django
-{% extends "base.html" %}
-{% load wagtailcore_tags %}
-
-{% block title %}Search{% endblock %}
-
-{% block content %}
-    <form action="{% url 'search' %}" method="get">
-        <input type="text" name="query" value="{{ search_query }}">
-        <input type="submit" value="Search">
-    </form>
-
-    {% if search_results %}
-        <ul>
-            {% for result in search_results %}
-                <li>
-                    <h4><a href="{% pageurl result %}">{{ result }}</a></h4>
-                    {% if result.search_description %}
-                        {{ result.search_description|safe }}
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% elif search_query %}
-        No results found
-    {% else %}
-        Please type something into the search box
-    {% endif %}
-{% endblock %}
-```
-
-## Promoted search results
-
-"Promoted search results" allow editors to explicitly link relevant content to search terms, so results pages can contain curated content in addition to results from the search engine.
-
-This functionality is provided by the {mod}`~wagtail.contrib.search_promotions` contrib module.
