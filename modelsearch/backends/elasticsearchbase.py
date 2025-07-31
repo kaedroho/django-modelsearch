@@ -198,7 +198,7 @@ class ElasticsearchBaseMapping:
         # Make field list
         fields = {
             "pk": {"type": self.keyword_type, "store": True},
-            "content_type": {"type": self.keyword_type},
+            "_django_content_type": {"type": self.keyword_type},
             self.edgengrams_field_name: {"type": self.text_type},
         }
         fields[self.edgengrams_field_name].update(self.edgengram_analyzer_config)
@@ -262,7 +262,7 @@ class ElasticsearchBaseMapping:
 
     def get_document(self, obj):
         # Build document
-        doc = {"pk": str(obj.pk), "content_type": self.get_all_content_types()}
+        doc = {"pk": str(obj.pk), "_django_content_type": self.get_all_content_types()}
         edgengrams = []
         for field in self.model.get_search_fields():
             value = field.get_value(obj)
@@ -744,7 +744,7 @@ class ElasticsearchBaseSearchQueryCompiler(BaseSearchQueryCompiler):
         # ElasticsearchBaseMapping.get_document for more details
         content_type = self.mapping_class(self.queryset.model).get_content_type()
 
-        return {"match": {"content_type": content_type}}
+        return {"match": {"_django_content_type": content_type}}
 
     def get_filters(self):
         # Filter by content type
