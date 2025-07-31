@@ -1,4 +1,4 @@
-from modelsearch.backends.opensearch1 import (
+from modelsearch.backends.opensearch2 import (
     OpenSearch2AutocompleteQueryCompiler,
     OpenSearch2Index,
     OpenSearch2Mapping,
