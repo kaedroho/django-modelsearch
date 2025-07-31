@@ -32,13 +32,13 @@ To search the model by all searchable fields:
 Person.objects.search("Stefan Zweig")
 ```
 
-To pick individual fields to search on, use the `fields` argument:
+Pick individual fields to search on with the `fields` argument:
 
 ```python
 Person.objects.search("Stefan", fields=["first_name"])
 ```
 
-To to filter the results, use Django's `.filter()` and `.exclude()` methods before `.search()`
+Filter results by using Django's `.filter()` and `.exclude()` methods before `.search()`
 
 ```python
 Person.objects.filter(birth_date__year=1881).search(...)
@@ -50,47 +50,6 @@ If you've indexed a `ForeignKey` or `OneToOneField`, you can search using the re
 
 ```python
 stefan_zweig.books.search("The World of Yesterday")
-```
-
-### Autocomplete searches
-
-Autocomplete searches are a bit special because they require different indexing behaviour. This is for performance but also to switch off stemming which can cause strange results with autocomplete.
-
-Also, generally, you only want to autocomplete names and titles of things and not the contents.
-
-For these reasons, Django Modelsearch indexes them separately to search fields. Any field that you want to autocomplete on must also be indexed with `index.AutocompleteField`.
-
-To run an autocomplete query, use the `.autocomplete()` method:
-
-```python
-Person.objects.autocomplete('stef')
-```
-
-### Modifying search behaviour
-
-#### Changing the operator
-
-The search operator determines whether we need to match all terms in the query or just one:
-
-- `AND` - Match all terms
-- `OR` - Match one or more terms
-
-By default Django Modelsearch searches with the `OR` operator. This helps if the user mis-spells a word in the query. Search ranking will ensure the best match always gets to the top.
-
-But if you don't want records that don't match the whole query to appear, you can switch to the `AND` operator instead:
-
-```python
-Book.objects.get("The tale of two cities", operator="and")
-```
-
-We won't get random books about tales and cities in the results, just the Charles Dickens classic.
-
-#### Custom ordering
-
-You can order by any filter field using Django's `.order_by()` before `search(..., order_by_relevance=False)`. This will disable ranking and just do a basic match search returning results in the order of the requested field:
-
-```python
-Book.objects.order_by('release_date').search("The Hobbit", order_by_relevance=False)
 ```
 
 (fuzzy_matching)=
@@ -115,9 +74,50 @@ from modelsearch.query import Phrase
 Book.objects.search(Phrase("Peace and War"))
 ```
 
+#### Custom ordering
+
+Use Django's `.order_by()` before `search(..., order_by_relevance=False)` to order by that field. This will disable ranking and just do a basic match search:
+
+```python
+Book.objects.order_by('release_date').search("The Hobbit", order_by_relevance=False)
+```
+
+Note the field being ordered by must be indexed with `index.FilterField`
+
+#### Changing the search operator
+
+The search operator determines whether we need to match all terms in the query or just one:
+
+- `AND` - Match all terms
+- `OR` - Match one or more terms
+
+By default Django Modelsearch searches with the `OR` operator. This helps if the user mis-spells a word in the query. Search ranking will ensure the best match always gets to the top.
+
+But if you don't want records that don't match the whole query to appear, you can switch to the `AND` operator instead:
+
+```python
+Book.objects.get("The tale of two cities", operator="and")
+```
+
+We won't get random books about tales and cities in the results, just the Charles Dickens classic.
+
+### Autocomplete search
+
+Autocomplete searches are a bit special because they require different indexing behaviour. This is for performance but also to switch off stemming which can cause strange results with autocomplete.
+
+Also, generally, you only want to autocomplete names and titles of things and not the contents.
+
+For these reasons, Django Modelsearch indexes them separately to search fields. Any field that you want to autocomplete on must also be indexed with `index.AutocompleteField`.
+
+To run an autocomplete query, use the `.autocomplete()` method:
+
+```python
+Person.objects.autocomplete('stef')
+```
+
 ### Structured Queries
 
-In the last section, we saw a couple of query objects: `Fuzzy` and `Phrase`.
+In the above section, we saw a couple of query objects: `Fuzzy` and `Phrase`.
 
 There are a couple more:
 
@@ -130,7 +130,7 @@ Query objects can be combined with `|` and `&` opreators. parentheses can be use
 Book.objects.search(Boost(Phrase("War and Peace"), 2.0) | PlainText("War and Peace"))
 ```
 
-This will perform both a phrase and a plain search and give an extra boost to results that match the phrase as well.
+This will perform both a phrase and a plain search and give an extra boost to results that match the phrase too.
 
 ### How does `.search()` work?
 
