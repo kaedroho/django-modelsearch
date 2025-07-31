@@ -73,12 +73,18 @@ To index a model, add `modelsearch.index.Indexed` to the model class and define 
 
 ```python
 from modelsearch import index
+from modelsearch.queryset import SearchableQuerySetMixin
+
+class BookQuerySet(models.QuerySet, SearchableQuerySetMixin):
+    pass
 
 class Book(index.Indexed, models.Model):
     title = models.CharField(max_length=255)
     genre = models.CharField(max_length=255, choices=GENRE_CHOICES)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     published_date = models.DateTimeField()
+
+    objects = BookQuerySet.as_manager()
 
     search_fields = [
         index.SearchField('title', boost=10),
@@ -95,13 +101,22 @@ Then run the `rebuild_index` management command to build the search index.
 
 ## Searching
 
-Searching is done using a `.search()` method that is added to the querysets of indexed models.
-
-For example:
+You can search models using the `.search()` QuerySet method (added by `SearchableQuerySetMixin`). For example:
 
 ```python
 >>> Book.objects.filter(author=roald_dahl).search("chocolate factory")
 [<Book: Charlie and the chocolate factory>]
 ```
 
-Any fields that are used in `.filter()`, `.exclude()` or `.order_by()` must be indexed with `index.FilterField` so they are added to the Elasticsearch index. Filters are automatically rewritten as Elasticsearch DSL queries.
+`.search()` can be used in conjunction with most other QuerySet Methods like `.filter()`, `.exclude()` or `.order_by()`. When using Elasticsearch, these are automatically converted to the same Elasticsearch Query, so any fields used here must be indexed with `index.FilterField` so they are added to the Elasticsearch index.
+
+### Autocomplete
+
+Autocomplete, uses the `.autocomplete()` method, for example:
+
+```python
+>>> Book.objects.filter(author=roald_dahl).search("choco")
+[<Book: Charlie and the chocolate factory>]
+```
+
+Note that fields used in autocomplete need to also be indexed as an `AutocompleteField` as autocompletable fields need to be indexed differently.
