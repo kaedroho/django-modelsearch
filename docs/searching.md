@@ -178,20 +178,15 @@ This method allows you to see the score for each result by annotating it on each
 Modelsearch provides a little helper for parsing a well known syntax for phrase queries (`"double quotes"`) and filters (`field:value`) into a query object and a `QueryDict` of filters (the same type Django uses for `request.GET`):
 
 ```python
->>> from modelsearch.utils import parse_query_string
+from modelsearch.utils import parse_query_string
 
 filters, query = parse_query_string('my query string "this is a phrase" this_is_a:filter key:value1 key:value2')
 
-filters =
-<QueryDict: {
+filters == {
     'this_is_a': ['filter'],
     'key': ['value1', 'value2']
-}>>
+}
 
-query =
-And([
-    PlainText("my query string", operator='and'),
-    Phrase("this is a phrase"),
-])
+query == PlainText("my query string") & Phrase("this is a phrase")
 ```
 
