@@ -1,3 +1,5 @@
+from opensearchpy import NotFoundError
+
 from modelsearch.backends.opensearch2 import (
     OpenSearch2AutocompleteQueryCompiler,
     OpenSearch2Index,
@@ -6,6 +8,7 @@ from modelsearch.backends.opensearch2 import (
     OpenSearch2SearchQueryCompiler,
     OpenSearch2SearchResults,
 )
+from modelsearch.index import class_is_indexed
 
 
 class OpenSearch3Mapping(OpenSearch2Mapping):
@@ -13,7 +16,35 @@ class OpenSearch3Mapping(OpenSearch2Mapping):
 
 
 class OpenSearch3Index(OpenSearch2Index):
-    pass
+    def put(self):
+        self.es.indices.create(index=self.name, body=self.backend.settings)
+
+    def delete(self):
+        try:
+            self.es.indices.delete(index=self.name)
+        except NotFoundError:
+            pass
+
+    def refresh(self):
+        self.es.indices.refresh(index=self.name)
+
+    def exists(self):
+        return self.es.indices.exists(index=self.name)
+
+    def add_item(self, item):
+        # Make sure the object can be indexed
+        if not class_is_indexed(item.__class__):
+            return
+
+        # Get mapping
+        mapping = self.mapping_class(item.__class__)
+
+        # Add document to index
+        self.es.index(
+            index=self.name,
+            body=mapping.get_document(item),
+            id=mapping.get_document_id(item),
+        )
 
 
 class OpenSearch3SearchQueryCompiler(OpenSearch2SearchQueryCompiler):
