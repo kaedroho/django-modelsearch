@@ -1219,7 +1219,7 @@ class Elasticsearch7SearchBackend(BaseSearchBackend):
         self.index_name = params.pop("INDEX", "wagtail")
         self.timeout = params.pop("TIMEOUT", 10)
 
-        if params.pop("ATOMIC_REBUILD", False):
+        if params.pop("ATOMIC_REBUILD", True):
             self.rebuilder_class = self.atomic_rebuilder_class
         else:
             self.rebuilder_class = self.basic_rebuilder_class

@@ -711,7 +711,7 @@ class PostgresSearchBackend(BaseSearchBackend):
         # https://www.postgresql.org/docs/9.1/datatype-textsearch.html#DATATYPE-TSQUERY
         self.autocomplete_config = params.get("AUTOCOMPLETE_SEARCH_CONFIG", "simple")
 
-        if params.get("ATOMIC_REBUILD", False):
+        if params.get("ATOMIC_REBUILD", True):
             self.rebuilder_class = self.atomic_rebuilder_class
 
     def get_index_for_model(self, model):

@@ -681,7 +681,7 @@ class SQLiteSearchBackend(BaseSearchBackend):
         self.config = None
         self.autocomplete_config = None
 
-        if params.get("ATOMIC_REBUILD", False):
+        if params.get("ATOMIC_REBUILD", True):
             self.rebuilder_class = self.atomic_rebuilder_class
 
     def get_index_for_model(self, model):
