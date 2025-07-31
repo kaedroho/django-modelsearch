@@ -29,6 +29,12 @@ def get_boosts():
 def determine_boosts_weights(boosts=()):
     if not boosts:
         boosts = get_boosts()
+
+    if not boosts:
+        # No models in the project or no search fields with boosts defined.
+        # Use default weights.
+        return [(1.0, 'A'), (0.4, 'B'), (0.2, 'C'), (0.1, 'D')]
+
     boosts = sorted(boosts, reverse=True)
     min_boost = boosts[-1]
     if len(boosts) <= WEIGHTS_COUNT:
