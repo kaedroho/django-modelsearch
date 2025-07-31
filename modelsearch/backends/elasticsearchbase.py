@@ -431,6 +431,12 @@ class ElasticsearchBaseIndex:
         # Create new index
         self.put()
 
+    def get_key(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
 
 class ElasticsearchBaseSearchQueryCompiler(BaseSearchQueryCompiler):
     mapping_class = ElasticsearchBaseMapping

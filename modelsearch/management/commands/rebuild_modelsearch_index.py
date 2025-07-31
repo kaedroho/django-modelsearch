@@ -41,14 +41,15 @@ def group_models_by_index(backend, models):
         index = backend.get_index_for_model(model)
 
         if index:
-            indices.setdefault(index.name, index)
-            models_by_index.setdefault(index.name, [])
-            models_by_index[index.name].append(model)
+            index_key = (backend, index.get_key() if hasattr(index, "get_key") else None)
+            indices[index_key] = index
+            models_by_index.setdefault(index_key, [])
+            models_by_index[index_key].append(model)
 
     return collections.OrderedDict(
         [
-            (indices[index_name], index_models)
-            for index_name, index_models in models_by_index.items()
+            (indices[index_key], index_models)
+            for index_key, index_models in models_by_index.items()
         ]
     )
 
@@ -77,7 +78,7 @@ class Command(BaseCommand):
             self.write(backend_name + ": No indices to rebuild")
 
         for index, models in models_grouped_by_index:
-            self.write(backend_name + ": Rebuilding index %s" % index.name)
+            self.write(backend_name + ": Rebuilding index %s" % index)
 
             # Start rebuild
             rebuilder = backend.rebuilder_class(index)
