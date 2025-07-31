@@ -29,7 +29,7 @@ Features:
 - Per-field boosting
 - Fuzzy Search
 - Phrase search
-- Query combinators
+- Structured queries
 
 This has been built into [Wagtail CMS](https://github.com/wagtail/wagtail) since 2014 and extracted into a separate package in March 2025.
 
