@@ -14,7 +14,26 @@
         <img src="https://img.shields.io/badge/Documentation-blue" alt="Documentation" />
     </a>
 </p>
-Django ModelSearch allows you to index Django models and search them using the ORM:
+
+Django ModelSearch allows you to index Django models and search them using the ORM!
+
+It supports PostgreSQL FTS, SQLite FTS5, Elasticsearch (7.x, 8.x, and 9.x), and OpenSearch (1.x, 2.x, and 3.x).
+
+Features:
+
+- Index models in Elasticsearch and OpenSearch and query with the Django ORM
+- Reuse existing QuerySets for search, works with Django paginators and `django-filter`
+- Also supports PostgreSQL FTS and SQLite FTS5
+- Autocomplete
+- Faceting
+- Per-field boosting
+- Fuzzy Search
+- Phrase search
+- Query combinators
+
+This has been built into [Wagtail CMS](https://github.com/wagtail/wagtail) since 2014 and extracted into a separate package in March 2025.
+
+## Example
 
 ```python
 from django.db import models
@@ -57,24 +76,6 @@ opeth.songs.search("Ghost of ")
 # Works with all the built-in filter lookups too
 Song.objects.filter(release_date__year__lt=1971).search("Iron Man")
 ```
-
-
-
-It supports PostgreSQL FTS, SQLite FTS5, Elasticsearch (7.x, 8.x, and 9.x), and OpenSearch (1.x, 2.x, and 3.x).
-
-Features:
-
-- Index models in Elasticsearch and OpenSearch and query with the Django ORM
-- Reuse existing QuerySets for search, works with Django paginators and `django-filter`
-- Also supports PostgreSQL FTS and SQLite FTS5
-- Autocomplete
-- Faceting
-- Per-field boosting
-- Fuzzy Search
-- Phrase search
-- Query combinators
-
-This has been built into [Wagtail CMS](https://github.com/wagtail/wagtail) since 2014 and extracted into a separate package in March 2025.
 
 ## Installation
 
