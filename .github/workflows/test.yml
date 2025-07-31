@@ -28,6 +28,15 @@ jobs:
             backend: elasticsearch8
           - database: sqlite
             backend: elasticsearch9
+          - database: sqlite
+            backend: opensearch1
+            opensearch-version: 1.3.0
+          - database: sqlite
+            backend: opensearch2
+            opensearch-version: 2.10.0
+          - database: sqlite
+            backend: opensearch3
+            opensearch-version: 3.1.0
 
     services:
       postgresql:
@@ -92,6 +101,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - uses: ankane/setup-opensearch@v1
+        with:
+          opensearch-version: ${{ matrix.opensearch-version }}
+
       - name: Wait for Elasticsearch
         if: contains(matrix.backend, 'elasticsearch')
         run: |
@@ -123,11 +136,17 @@ jobs:
           pip install .[test]
 
           if [[ "${{ matrix.backend }}" == "elasticsearch7" ]]; then
-            pip install "elasticsearch>7,<8"
+            pip install "elasticsearch>=7,<8"
           elif [[ "${{ matrix.backend }}" == "elasticsearch8" ]]; then
-            pip install "elasticsearch>8,<9"
+            pip install "elasticsearch>=8,<9"
           elif [[ "${{ matrix.backend }}" == "elasticsearch9" ]]; then
-            pip install "elasticsearch>9,<10"
+            pip install "elasticsearch>=9,<10"
+          elif [[ "${{ matrix.backend }}" == "opensearch1" ]]; then
+            pip install "opensearch-py>=1,<2" requests
+          elif [[ "${{ matrix.backend }}" == "opensearch2" ]]; then
+            pip install "opensearch-py>=2,<3" requests
+          elif [[ "${{ matrix.backend }}" == "opensearch3" ]]; then
+            pip install "opensearch-py>=3,<4" requests
           fi
 
       - name: Run tests
@@ -135,6 +154,8 @@ jobs:
           if [[ "${{ matrix.database }}" == "postgresql" ]]; then
               export DATABASE_URL="postgresql://user:password@localhost:5432/testdb"
           fi
+
+          export OPENSEARCH_URL="http://localhost:9200"
 
           if [[ "${{ matrix.backend }}" == "elasticsearch7" ]]; then
             export ELASTICSEARCH_URL="http://localhost:9207"

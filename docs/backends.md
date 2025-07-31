@@ -56,15 +56,11 @@ This backend is intended to be used for development and also should be good enou
 
 (modelsearch_backends_elasticsearch)=
 
-### Elasticsearch Backend
+### Elasticsearch/OpenSearch Backends
 
-Elasticsearch versions 7 and 8 are supported. Use the appropriate backend for your version:
+Elasticsearch versions 7, 8, and 9 are supported. OpenSearch 1, 2, and 3 are supported.
 
--   `modelsearch.backends.elasticsearch7` (Elasticsearch 7.x)
--   `modelsearch.backends.elasticsearch8` (Elasticsearch 8.x)
--   `modelsearch.backends.elasticsearch9` (Elasticsearch 9.x)
-
-Prerequisites are the [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) service itself and, via pip, the [elasticsearch-py](https://elasticsearch-py.readthedocs.io/) package. The major version of the package must match the installed version of Elasticsearch:
+You'll need to install the [elasticsearch-py](https://elasticsearch-py.readthedocs.io/) package for Elasticsearch and for OpenSearch, you'll need the [opensearch-py](https://pypi.org/project/opensearch-py/) package. The major version of the package must match the installed version of Elasticsearch/OpenSearch:
 
 ```sh
 pip install "elasticsearch>=7,<8"  # for Elasticsearch 7.x
@@ -78,7 +74,19 @@ pip install "elasticsearch>=8,<9"  # for Elasticsearch 8.x
 pip install "elasticsearch>=9,<10"  # for Elasticsearch 9.x
 ```
 
-The backend is configured in settings:
+```sh
+pip install "opensearch-py>=1,<2"  # for OpenSearch 1.x
+```
+
+```sh
+pip install "opensearch-py>=2,<3"  # for OpenSearch 2.x
+```
+
+```sh
+pip install "opensearch-py>=3,<4"  # for OpenSearch 3.x
+```
+
+Then configure the backend in ``MODELSEARCH_SETTINGS`` in your Django settings:
 
 ```python
 MODELSEARCH_BACKENDS = {
@@ -93,9 +101,18 @@ MODELSEARCH_BACKENDS = {
 }
 ```
 
-Other than `BACKEND`, the keys are optional and default to the values shown. Any defined key in `OPTIONS` is passed directly to the Elasticsearch constructor as a case-sensitive keyword argument (for example `'max_retries': 1`).
+Set the `BACKEND` for the version of Elasticsearch/OpenSearch you are using:
 
-A username and password may be optionally supplied to the `URL` field to provide authentication credentials for the Elasticsearch service:
+-   `modelsearch.backends.elasticsearch7` (Elasticsearch 7.x)
+-   `modelsearch.backends.elasticsearch8` (Elasticsearch 8.x)
+-   `modelsearch.backends.elasticsearch9` (Elasticsearch 9.x)
+-   `modelsearch.backends.opensearch1` (OpenSearch 1.x)
+-   `modelsearch.backends.opensearch2` (OpenSearch 2.x)
+-   `modelsearch.backends.opensearch3` (OpenSearch 3.x)
+
+Any defined key in `OPTIONS` is passed directly to the Elasticsearch/OpenSearch constructor as a case-sensitive keyword argument (for example `'max_retries': 1`).
+
+A username and password may be optionally supplied to the `URL` field to provide authentication credentials for the Elasticsearch/OpenSearch service:
 
 ```python
 MODELSEARCH_BACKENDS = {
@@ -139,13 +156,9 @@ If you prefer not to run an Elasticsearch server in development or production, t
 
 (opensearch)=
 
-### OpenSearch
-
-OpenSearch is a community-driven search engine originally created as a fork of Elasticsearch 7. Django Modelsearch supports OpenSearch through the `modelsearch.backends.elasticsearch7` backend and version 7.13.4 of the [Elasticsearch Python library](https://pypi.org/project/elasticsearch/). Later versions of the library only permit connecting to Elastic-branded servers, and are not compatible with OpenSearch.
-
 ### Amazon AWS OpenSearch
 
-The Elasticsearch backend is compatible with [Amazon OpenSearch Service](https://aws.amazon.com/opensearch-service/), but requires additional configuration to handle IAM based authentication. This can be done with the [requests-aws4auth](https://pypi.org/project/requests-aws4auth/) package along with the following configuration:
+The OpenSearch backend is compatible with [Amazon OpenSearch Service](https://aws.amazon.com/opensearch-service/), but requires additional configuration to handle IAM based authentication. This can be done with the [requests-aws4auth](https://pypi.org/project/requests-aws4auth/) package along with the following configuration:
 
 ```python
 from elasticsearch import RequestsHttpConnection
@@ -153,7 +166,7 @@ from requests_aws4auth import AWS4Auth
 
 MODELSEARCH_BACKENDS = {
     'default': {
-        'BACKEND': 'modelsearch.backends.elasticsearch9',
+        'BACKEND': 'modelsearch.backends.opensearch2',
         'INDEX': 'test',
         'TIMEOUT': 5,
         'HOSTS': [{
