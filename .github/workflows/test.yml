@@ -136,17 +136,17 @@ jobs:
           pip install .[test]
 
           if [[ "${{ matrix.backend }}" == "elasticsearch7" ]]; then
-            pip install "elasticsearch>7,<8"
+            pip install "elasticsearch>=7,<8"
           elif [[ "${{ matrix.backend }}" == "elasticsearch8" ]]; then
-            pip install "elasticsearch>8,<9"
+            pip install "elasticsearch>=8,<9"
           elif [[ "${{ matrix.backend }}" == "elasticsearch9" ]]; then
-            pip install "elasticsearch>9,<10"
+            pip install "elasticsearch>=9,<10"
           elif [[ "${{ matrix.backend }}" == "opensearch1" ]]; then
-            pip install "opensearch-py>1,<2" requests
+            pip install "opensearch-py>=1,<2" requests
           elif [[ "${{ matrix.backend }}" == "opensearch2" ]]; then
-            pip install "opensearch-py>2,<3" requests
+            pip install "opensearch-py>=2,<3" requests
           elif [[ "${{ matrix.backend }}" == "opensearch3" ]]; then
-            pip install "opensearch-py>3,<4" requests
+            pip install "opensearch-py>=3,<4" requests
           fi
 
       - name: Run tests
