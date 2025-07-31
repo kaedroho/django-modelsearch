@@ -8,363 +8,190 @@
 
 Django Modelsearch is built on Django's [QuerySet API](inv:django#ref/models/querysets). You should be able to search any Django QuerySet provided the model and the fields being filtered have been added to the search index.
 
-### Searching Pages
+### Making a model searchable
 
-Django Modelsearch provides a shortcut for searching pages: the `.search()` `QuerySet` method. You can call this on any `PageQuerySet`. For example:
-
-```python
-# Search future EventPages
->>> from myapp.models import EventPage
->>> EventPage.objects.filter(date__gt=timezone.now()).search("Hello world!")
-```
-
-All other methods of `PageQuerySet` can be used with `search()`. For example:
+To make an indexed model searchable, you need to create a QuerySet that inherits from `modelsearch.queryset.SearchableQuerySetMixin` and use it on the model's `objects` attribute. This will add the `.search()` method to all QuerySets for the model:
 
 ```python
-# Search all live EventPages that are under the events index
->>> EventPage.objects.live().descendant_of(events_index).search("Event")
-[<EventPage: Event 1>, <EventPage: Event 2>]
+class PersonQuerySet(SearchableQuerySetMixin, QuerySet):
+    pass
+
+
+class Person(index.Indexed, models.Model);
+	# ...
+    
+    objects = PersonQuerySet.as_manager()
+
 ```
 
-```{note}
-The `search()` method will convert your `QuerySet` into an instance of one of Django Modelsearch's `SearchResults` classes (depending on backend). This means that you must perform filtering before calling `search()`.
+### Simple searches
+
+To search the model by all searchable fields:
+
+```python
+Person.objects.search("Stefan Zweig")
 ```
 
-The standard behavior of the `search` method is to only return matches for complete words; for example, a search for "hel" will not return results containing the word "hello". The exception to this is the fallback database search backend, used when the database does not have full-text search extensions available, and no alternative backend has been specified. This performs basic substring matching and will return results containing the search term ignoring all word boundaries.
+To pick individual fields to search on, use the `fields` argument:
+
+```python
+Person.objects.search("Stefan", fields=["first_name"])
+```
+
+To to filter the results, use Django's `.filter()` and `.exclude()` methods before `.search()`
+
+```python
+Person.objects.filter(birth_date__year=1881).search(...)
+```
+
+*Note that any fields you filter on must be indexed with `index.FilterField`.*
+
+If you've indexed a `ForeignKey` or `OneToOneField`, you can search using the related name (assuming the `Book` model is also indexed in this example):
+
+```python
+stefan_zweig.books.search("The World of Yesterday")
+```
 
 ### Autocomplete searches
 
-Django Modelsearch provides a separate method which performs partial matching on specific autocomplete fields. This is primarily useful for suggesting pages to the user in real-time as they type their query - it is not recommended for ordinary searches, as the autocompletion will tend to add unwanted results beyond the specific term being searched for.
+Autocomplete searches are a bit special because they require different indexing behaviour. This is for performance but also to switch off stemming which can cause strange results with autocomplete.
+
+Also, generally, you only want to autocomplete names and titles of things and not the contents.
+
+For these reasons, Django Modelsearch indexes them separately to search fields. Any field that you want to autocomplete on must also be indexed with `index.AutocompleteField`.
+
+To run an autocomplete query, use the `.autocomplete()` method:
 
 ```python
->>> EventPage.objects.live().autocomplete("Eve")
-[<EventPage: Event 1>, <EventPage: Event 2>]
+Person.objects.autocomplete('stef')
 ```
 
-(modelsearch_images_documents_custom_models)=
+### Modifying search behaviour
 
-### Searching Images, Documents and custom models
+#### Changing the operator
 
-Django Modelsearch's document and image models provide a `search` method on their QuerySets, just as pages do:
+The search operator determines whether we need to match all terms in the query or just one:
+
+- `AND` - Match all terms
+- `OR` - Match one or more terms
+
+By default Django Modelsearch searches with the `OR` operator. This helps if the user mis-spells a word in the query. Search ranking will ensure the best match always gets to the top.
+
+But if you don't want records that don't match the whole query to appear, you can switch to the `AND` operator instead:
 
 ```python
->>> from myapp.images.models import Image
-
->>> Image.objects.filter(uploaded_by_user=user).search("Hello")
-[<Image: Hello>, <Image: Hello world!>]
+Book.objects.get("The tale of two cities", operator="and")
 ```
 
-[Custom models](modelsearch_indexing_models) can be searched by using the `search` method on the search backend directly:
+We won't get random books about tales and cities in the results, just the Charles Dickens classic.
+
+#### Custom ordering
+
+You can order by any filter field using Django's `.order_by()` before `search(..., order_by_relevance=False)`. This will disable ranking and just do a basic match search returning results in the order of the requested field:
 
 ```python
->>> from myapp.models import Book
->>> from modelsearch.backends import get_search_backend
-
-# Search books
->>> s = get_search_backend()
->>> s.search("Great", Book)
-[<Book: Great Expectations>, <Book: The Great Gatsby>]
+Book.objects.order_by('release_date').search("The Hobbit", order_by_relevance=False)
 ```
-
-You can also pass a QuerySet into the `search` method, which allows you to add filters to your search results:
-
-```python
->>> from myapp.models import Book
->>> from modelsearch.backends import get_search_backend
-
-# Search books
->>> s = get_search_backend()
->>> s.search("Great", Book.objects.filter(published_date__year__lt=1900))
-[<Book: Great Expectations>]
-```
-
-(modelsearch_specifying_fields)=
-
-### Specifying the fields to search
-
-By default, Django Modelsearch will search all fields that have been indexed using `index.SearchField`.
-
-This can be limited to a certain set of fields by using the `fields` keyword argument:
-
-```python
-# Search just the title field
->>> EventPage.objects.search("Event", fields=["title"])
-[<EventPage: Event 1>, <EventPage: Event 2>]
-```
-
-(modelsearch_faceted_search)=
-
-### Faceted search
-
-Django Modelsearch supports faceted search, which is a kind of filtering based on a taxonomy
-field (such as category or page type).
-
-The `.facet(field_name)` method returns an `OrderedDict`. The keys are
-the IDs of the related objects that have been referenced by the specified field, and the
-values are the number of references found for each ID. The results are ordered by the number
-of references descending.
-
-For example, to find the most common page types in the search results:
-
-```python
->>> Page.objects.search("Test").facet("content_type_id")
-
-# Note: The keys correspond to the ID of a ContentType object; the values are the
-# number of pages returned for that type
-OrderedDict([
-    ('2', 4),  # 4 pages have content_type_id == 2
-    ('1', 2),  # 2 pages have content_type_id == 1
-])
-```
-
-## Changing search behavior
-
-### Search operator
-
-The search operator specifies how the search should behave when the user has typed in multiple search terms. There are two possible values:
-
--   "or" - The results must match at least one term (default for Elasticsearch)
--   "and" - The results must match all terms (default for database search)
-
-Both operators have benefits and drawbacks. The "or" operator will return many more results but will likely contain a lot of results that aren't relevant. The "and" operator only returns results that contain all search terms but requires the user to be more precise with their query.
-
-We recommend using the "or" operator when ordering by relevance and the "and" operator when ordering by anything else.
-
-Here's an example of using the `operator` keyword argument:
-
-```python
-# The database contains a "Thing" model with the following items:
-# - Hello world
-# - Hello
-# - World
-
-
-# Search with the "or" operator
->>> s = get_search_backend()
->>> s.search("Hello world", Things, operator="or")
-
-# All records returned as they all contain either "hello" or "world"
-[<Thing: Hello World>, <Thing: Hello>, <Thing: World>]
-
-
-# Search with the "and" operator
->>> s = get_search_backend()
->>> s.search("Hello world", Things, operator="and")
-
-# Only "hello world" returned as that's the only item that contains both terms
-[<Thing: Hello world>]
-```
-
-For page, image, and document models, the `operator` keyword argument is also supported on the QuerySet's `search` method:
-
-```python
->>> Page.objects.search("Hello world", operator="or")
-
-# All pages containing either "hello" or "world" are returned
-[<Page: Hello World>, <Page: Hello>, <Page: World>]
-```
-
-### Phrase searching
-
-Phrase searching is used for finding whole sentences or phrases rather than individual terms.
-The terms must appear together and in the same order.
-
-For example:
-
-```python
->>> from modelsearch.query import Phrase
-
->>> Page.objects.search(Phrase("Hello world"))
-[<Page: Hello World>]
-
->>> Page.objects.search(Phrase("World hello"))
-[<Page: World Hello day>]
-```
-
-If you are looking to implement phrase queries using the double-quote syntax, see [](modelsearch_query_string_parsing).
 
 (fuzzy_matching)=
 
-### Fuzzy matching
+#### Fuzzy search
 
-Fuzzy matching will return documents which contain terms similar to the search term, as measured by a [Levenshtein edit distance](https://en.wikipedia.org/wiki/Levenshtein_distance).
-
-A maximum of one edit (transposition, insertion, or removal of a character) is permitted for three to five-letter terms, two edits for longer terms, and shorter terms must match exactly.
-
-For example:
+Fuzzy search can help auto-correct mis-spelled queries:
 
 ```python
->>> from modelsearch.query import Fuzzy
+from modelsearch.query import Fuzzy
 
->>> Page.objects.search(Fuzzy("Hallo"))
-[<Page: Hello World>, <Page: Hello>]
+james_joyce.books.search(Fuzzy("Ulises"))
 ```
 
-Fuzzy matching is supported by the Elasticsearch search backend only.
+#### Phrase search
 
-The `operator` keyword argument is also supported on `Fuzzy` objects, defaulting to "or":
+Search queries usually allow the terms to be a different order and not next to each other in the document. You can use a phrase search if you need the words to appear in their exact order:
 
 ```python
->>> Page.objects.search(Fuzzy("Hallo wurld", operator="and"))
-[<Page: Hello World>]
+from modelsearch.query import Phrase
+
+Book.objects.search(Phrase("Peace and War"))
 ```
 
-(modelsearch_complex_queries)=
+### Structured Queries
 
-### Complex search queries
+In the last section, we saw a couple of query objects: `Fuzzy` and `Phrase`.
 
-Through the use of search query classes, Django Modelsearch also supports building search queries as Python
-objects which can be wrapped by and combined with other search queries. The following classes are
-available:
+There are a couple more:
 
-`PlainText(query_string, operator=None, boost=1.0)`
+- `PlainText(query, operator='or')` - This is the default one
+- `Boost(query, boost)` - Boosts the wrapped query
 
-This class wraps a string of separate terms. This is the same as searching without query classes.
-
-It takes a query string, operator and boost.
-
-For example:
+Query objects can be combined with `|` and `&` opreators. parentheses can be used as well to build complex structured queries:
 
 ```python
->>> from modelsearch.query import PlainText
->>> Page.objects.search(PlainText("Hello world"))
-
-# Multiple plain text queries can be combined. This example will match both "hello world" and "Hello earth"
->>> Page.objects.search(PlainText("Hello") & (PlainText("world") | PlainText("earth")))
+Book.objects.search(Boost(Phrase("War and Peace"), 2.0) | PlainText("War and Peace"))
 ```
 
-`Phrase(query_string)`
+This will perform both a phrase and a plain search and give an extra boost to results that match the phrase as well.
 
-This class wraps a string containing a phrase. See the previous section for how this works.
+### How does `.search()` work?
 
-For example:
+When you call `.search()` on a QuerySet, it is converted to a SearchResults object. Any filters or ordering that was applied on the QuerySet are translated and applied to the new SearchResults.
+
+Like with QuerySets, the search is not actually performed until you try to iterate the results or fetch an individual result.
+
+### SearchResults methods
+
+The SearchResults class has a couple of useful methods:
+
+(modelsearch_faceted_search)=
+
+#### `facet(field_name)`
+
+Performs a faceted search on the results. It returns a dictionary containing each value of the given field as keys, and the counts of records as values.
+
+For example, say we are searching for products, and we want to see the categories faceted:
 
 ```python
-# This example will match both the phrases "hello world" and "Hello earth"
->>> Page.objects.search(Phrase("Hello world") | Phrase("Hello earth"))
+>>> Product.objects.search("The Hobbit").facet("category")
+{
+    "Books": 3,
+    "Films": 1,
+    "Games": 5,
+}
 ```
 
-`Boost(query, boost)`
+(modelsearch_annotating_results_with_score)=
 
-This class boosts the score of another query.
+#### `annotate_score(field_name)`
 
-For example:
+Search engines work by calculating a score for each result and ordering the results by that score.
+
+This method allows you to see the score for each result by annotating it on each returned object. This is useful for debugging:
 
 ```python
->>> from modelsearch.query import PlainText, Boost
-
-# This example will match both the phrases "hello world" and "Hello earth" but matches for "hello world" will be ranked higher
->>> Page.objects.search(Boost(Phrase("Hello world"), 10.0) | Phrase("Hello earth"))
+>>> results = Product.objects.search("The Hobbit").annotate_score("score")
+>>> results[0].score
+123.4
 ```
 
-Note that this isn't supported by the PostgreSQL or database search backends.
+### Query string parser
 
-(modelsearch_query_string_parsing)=
-
-### Query string parsing
-
-The previous sections show how to construct a phrase search query manually, but a lot of search engines
-support writing phrase queries by wrapping the phrase with double quotes. In addition to phrases, you might also want to allow users to
-add filters to the query using the colon syntax (`hello world published:yes`).
-
-These two features can be implemented using the `parse_query_string` utility function. This function takes a query string that a user
-typed and returns a query object and a [QueryDict](inv:django#django.http.QueryDict) of filters:
-
-For example:
+Modelsearch provides a little helper for parsing a well known syntax for phrase queries (`"double quotes"`) and filters (`field:value`) into a query object and a `QueryDict` of filters (the same type Django uses for `request.GET`):
 
 ```python
 >>> from modelsearch.utils import parse_query_string
->>> filters, query = parse_query_string('my query string "this is a phrase" this_is_a:filter key:value1 key:value2', operator='and')
 
-# Alternatively..
-# filters, query = parse_query_string("my query string 'this is a phrase' this_is_a:filter key:test1 key:test2", operator='and')
+filters, query = parse_query_string('my query string "this is a phrase" this_is_a:filter key:value1 key:value2')
 
->>> filters
-<QueryDict: {'this_is_a': ['filter'], 'key': ['value1', 'value2']}>>
+filters =
+<QueryDict: {
+    'this_is_a': ['filter'],
+    'key': ['value1', 'value2']
+}>>
 
-# Get a list of values associated with a particular key using the getlist method
->>> filters.getlist('key')
-['value1', 'value2']
-
-# Get a dict representation using the dict method
-# NOTE: The dict method will reduce multiple values for a particular key to the last assigned value
->>> filters.dict()
-{
-    'this_is_a': 'filter',
-    'key': 'value2'
-}
-
->>> query
+query =
 And([
     PlainText("my query string", operator='and'),
     Phrase("this is a phrase"),
 ])
 ```
 
-Here's an example of how this function can be used in a search view:
-
-```python
-from modelsearch.utils import parse_query_string
-
-def search(request):
-    query_string = request.GET['query']
-
-    # Parse query
-    filters, query = parse_query_string(query_string, operator='and')
-
-    # Published filter
-    # An example filter that accepts either `published:yes` or `published:no` and filters the pages accordingly
-    published_filter = filters.get('published')
-    published_filter = published_filter and published_filter.lower()
-    if published_filter in ['yes', 'true']:
-        pages = pages.filter(live=True)
-    elif published_filter in ['no', 'false']:
-        pages = pages.filter(live=False)
-
-    # Search
-    pages = pages.search(query)
-
-    return render(request, 'search_results.html', {'pages': pages})
-```
-
-### Custom ordering
-
-By default, search results are ordered by relevance if the backend supports it. To preserve the QuerySet's existing ordering, the `order_by_relevance` keyword argument needs to be set to `False` on the `search()` method.
-
-For example:
-
-```python
-# Get a list of events ordered by date
->>> EventPage.objects.order_by('date').search("Event", order_by_relevance=False)
-
-# Events ordered by date
-[<EventPage: Easter>, <EventPage: Halloween>, <EventPage: Christmas>]
-```
-
-(modelsearch_annotating_results_with_score)=
-
-### Annotating results with score
-
-For each matched result, Elasticsearch calculates a "score", which is a number
-that represents how relevant the result is based on the user's query. The
-results are usually ordered based on the score.
-
-There are some cases where having access to the score is useful (such as
-programmatically combining two queries for different models). You can add the
-score to each result by calling the `.annotate_score(field)` method on the
-`SearchQuerySet`.
-
-For example:
-
-```python
->>> events = EventPage.objects.search("Event").annotate_score("_score")
->>> for event in events:
-...    print(event.title, event._score)
-...
-("Easter", 2.5),
-("Halloween", 1.7),
-("Christmas", 1.5),
-```
-
-Note that the score itself is arbitrary and it is only useful for comparison
-of results for the same query.
