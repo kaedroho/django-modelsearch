@@ -931,7 +931,7 @@ class TestElasticsearch7SearchResults(TestCase):
                 "hits": [
                     {
                         "_id": "searchtests_book:" + str(result),
-                        "_index": "wagtail",
+                        "_index": "searchtests_book",
                         "_score": 1,
                         "_type": "searchtests_book",
                         "fields": {
@@ -957,7 +957,7 @@ class TestElasticsearch7SearchResults(TestCase):
         search.assert_any_call(
             _source=False,
             stored_fields="pk",
-            index="wagtail__searchtests_book",
+            index="searchtests_book",
             scroll="2m",
             size=100,
             **search_query_kwargs,
@@ -975,7 +975,7 @@ class TestElasticsearch7SearchResults(TestCase):
             from_=10,
             _source=False,
             stored_fields="pk",
-            index="wagtail__searchtests_book",
+            index="searchtests_book",
             size=1,
             **search_query_kwargs,
         )
@@ -991,7 +991,7 @@ class TestElasticsearch7SearchResults(TestCase):
             from_=1,
             _source=False,
             stored_fields="pk",
-            index="wagtail__searchtests_book",
+            index="searchtests_book",
             size=3,
             **search_query_kwargs,
         )
@@ -1007,7 +1007,7 @@ class TestElasticsearch7SearchResults(TestCase):
             from_=10,
             _source=False,
             stored_fields="pk",
-            index="wagtail__searchtests_book",
+            index="searchtests_book",
             size=10,
             **search_query_kwargs,
         )
@@ -1024,7 +1024,7 @@ class TestElasticsearch7SearchResults(TestCase):
             from_=20,
             _source=False,
             stored_fields="pk",
-            index="wagtail__searchtests_book",
+            index="searchtests_book",
             size=1,
             **search_query_kwargs,
         )
