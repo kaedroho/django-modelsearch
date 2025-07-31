@@ -1237,13 +1237,14 @@ class ElasticsearchBaseSearchBackend(BaseSearchBackend):
         # For example, all page-derived models get put together in one index,
         # while images and documents each have their own index.
         root_model = get_model_root(model)
-        index_suffix = (
+        index_name = (
+            self.index_prefix
             + root_model._meta.app_label.lower()
             + "_"
             + root_model.__name__.lower()
         )
 
-        return self.index_class(self, self.index_prefix + index_suffix)
+        return self.index_class(self, index_name)
 
 
 SearchBackend = ElasticsearchBaseSearchBackend
