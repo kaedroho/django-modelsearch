@@ -33,50 +33,6 @@ Features:
 
 This has been built into [Wagtail CMS](https://github.com/wagtail/wagtail) since 2014 and extracted into a separate package in March 2025.
 
-## Example
-
-```python
-from django.db import models
-from modelsearch import index
-
-# Create a model that inherits from Indexed
-class Song(index.Indexed, models.Model):
-    name = models.TextField()
-    lyrics = models.TextField()
-    release_date = models.DateField()
-    artist = models.ForeignKey(Artist, related_name='songs')
-
-    search_fields = [
-        # Index text fields for full-text search
-        # Boost the important fields
-        index.SearchField('name', boost=2.0),
-        index.SearchField('lyrics'),
-
-        # Index fields that for filtering
-        # These get inserted into Elasticsearch for fast filtering
-        index.FilterField('release_date'),
-        index.FilterField('artist'),
-
-        # Pull in content from related models too
-        index.RelatedFields('artist', [
-           index.SearchField('name'),
-        ]),
-    ]
-
-
-# Run 'rebuild_modelsearch_index' to create the indexes, mappings and insert the data
-
-
-# Now you can query using the Django ORM!
-Song.objects.search("Flying Whales")
-
-# Search using the ForeignKey
-opeth.songs.search("Ghost of ")
-
-# Works with all the built-in filter lookups too
-Song.objects.filter(release_date__year__lt=1971).search("Iron Man")
-```
-
 ## Installation
 
 Install with PIP, then add to `INSTALLED_APPS` in your Django settings:
