@@ -40,7 +40,7 @@ MODELSEARCH_BACKENDS = {
     'default': {
         'BACKEND': 'modelsearch.backends.elasticsearch9',
         'URLS': ['https://localhost:9200'],
-        'INDEX': 'test',
+        'INDEX_PREFIX': 'test_',  # Indexes are named {prefix}{app_label}_{model_name}
         'TIMEOUT': 5,
         'OPTIONS': {
             # Options to pass a kwargs to the client 

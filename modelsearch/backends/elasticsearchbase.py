@@ -1193,7 +1193,7 @@ class ElasticsearchBaseSearchBackend(BaseSearchBackend):
 
         # Get settings
         self.hosts = params.pop("HOSTS", None)
-        self.index_name = params.pop("INDEX", "wagtail")
+        self.index_prefix = params.pop("INDEX_PREFIX", "")
         self.timeout = params.pop("TIMEOUT", 10)
 
         if params.pop("ATOMIC_REBUILD", True):
@@ -1232,23 +1232,12 @@ class ElasticsearchBaseSearchBackend(BaseSearchBackend):
         # while images and documents each have their own index.
         root_model = get_model_root(model)
         index_suffix = (
-            "__"
             + root_model._meta.app_label.lower()
             + "_"
             + root_model.__name__.lower()
         )
 
-        return self.index_class(self, self.index_name + index_suffix)
-
-    def get_index(self):
-        return self.index_class(self, self.index_name)
-
-    def get_rebuilder(self):
-        return self.rebuilder_class(self.get_index())
-
-    def reset_index(self):
-        # Use the rebuilder to reset the index
-        self.get_rebuilder().reset_index()
+        return self.index_class(self, self.index_prefix + index_suffix)
 
 
 SearchBackend = ElasticsearchBaseSearchBackend

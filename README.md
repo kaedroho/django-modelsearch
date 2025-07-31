@@ -62,7 +62,7 @@ MODELSEARCH_BACKENDS = {
     'default': {
         'BACKEND': 'modelsearch.backends.elasticsearch8',
         'URLS': ['https://localhost:9200'],
-        'INDEX': 'wagtail',
+        'INDEX_PREFIX': 'modelsearch_',
         'TIMEOUT': 5,
         'OPTIONS': {},
         'INDEX_SETTINGS': {},

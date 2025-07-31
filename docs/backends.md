@@ -93,10 +93,14 @@ MODELSEARCH_BACKENDS = {
     'default': {
         'BACKEND': 'modelsearch.backends.elasticsearch9',
         'URLS': ['https://localhost:9200'],
-        'INDEX': 'test',
+        'INDEX_PREFIX': 'test_',  # Indexes are named {prefix}{app_label}_{model_name}
         'TIMEOUT': 5,
-        'OPTIONS': {},
-        'INDEX_SETTINGS': {},
+        'OPTIONS': {
+            # Options to pass a kwargs to the client 
+        },
+        'INDEX_SETTINGS': {
+            # Additional index settings
+        },
     }
 }
 ```
@@ -167,7 +171,7 @@ from requests_aws4auth import AWS4Auth
 MODELSEARCH_BACKENDS = {
     'default': {
         'BACKEND': 'modelsearch.backends.opensearch2',
-        'INDEX': 'test',
+        'INDEX_PREFIX': 'test_',
         'TIMEOUT': 5,
         'HOSTS': [{
             'host': 'YOURCLUSTER.REGION.es.amazonaws.com',

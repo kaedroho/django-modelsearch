@@ -152,7 +152,6 @@ class ObjectIndexer:
 class Index:
     def __init__(self, backend):
         self.backend = backend
-        self.name = self.backend.index_name
 
         self.read_connection = connections[router.db_for_read(IndexEntry)]
         self.write_connection = connections[router.db_for_write(IndexEntry)]
@@ -279,9 +278,6 @@ class Index:
 
     def delete_item(self, item):
         item.index_entries.all()._raw_delete(using=self.write_connection.alias)
-
-    def __str__(self):
-        return self.name
 
 
 class SQLiteSearchRebuilder:
@@ -675,8 +671,6 @@ class SQLiteSearchBackend(BaseSearchBackend):
 
     def __init__(self, params):
         super().__init__(params)
-        self.index_name = params.get("INDEX", "default")
-
         # SQLite backend currently has no config options
         self.config = None
         self.autocomplete_config = None
