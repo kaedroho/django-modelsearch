@@ -31,6 +31,7 @@ Features:
 - [Phrase search](https://django-modelsearch.readthedocs.io/en/latest/searching.html#phrase-search)
 - [Structured queries](https://django-modelsearch.readthedocs.io/en/latest/searching.html#structured-queries)
 - [Multi-table inheritance](https://django-modelsearch.readthedocs.io/en/latest/indexing.html#indexing-models-with-multi-table-inheritance)
+- Zero-downtime index rebuilding (uses aliases to atomically swap in a new index when its ready)
 
 This has been built into [Wagtail CMS](https://github.com/wagtail/wagtail) since 2014 and extracted into a separate package in March 2025.
 
