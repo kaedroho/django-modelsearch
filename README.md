@@ -79,48 +79,56 @@ To index a model, add `modelsearch.index.Indexed` to the model class and define 
 from modelsearch import index
 from modelsearch.queryset import SearchableQuerySetMixin
 
-class BookQuerySet(models.QuerySet, SearchableQuerySetMixin):
+class SongQuerySet(models.QuerySet, SearchableQuerySetMixin):
     pass
 
-class Book(index.Indexed, models.Model):
-    title = models.CharField(max_length=255)
-    genre = models.CharField(max_length=255, choices=GENRE_CHOICES)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    published_date = models.DateTimeField()
+# Create a model that inherits from Indexed
+class Song(index.Indexed, models.Model):
+    name = models.TextField()
+    lyrics = models.TextField()
+    release_date = models.DateField()
+    artist = models.ForeignKey(Artist, related_name='songs')
 
-    objects = BookQuerySet.as_manager()
+    objects = SongQuerySet.as_manager()
 
     search_fields = [
-        index.SearchField('title', boost=10),
-        index.AutocompleteField('title', boost=10),
-        index.SearchField('get_genre_display'),
+        # Index text fields for full-text search
+        # Boost the important fields
+        index.SearchField('name', boost=2.0),
+        index.SearchField('lyrics'),
 
-        index.FilterField('genre'),
-        index.FilterField('author'),
-        index.FilterField('published_date'),
+        # Index fields that for filtering
+        # These get inserted into Elasticsearch for fast filtering
+        index.FilterField('release_date'),
+        index.FilterField('artist'),
+
+        # Pull in content from related models too
+        index.RelatedFields('artist', [
+           index.SearchField('name'),
+        ]),
     ]
 ```
 
-Then run the `rebuild_index` management command to build the search index.
+Then run the `django-admin rebuild_modelsearch_index` to create the indexes, mappings and insert the data.
 
 ## Searching
 
-You can search models using the `.search()` QuerySet method (added by `SearchableQuerySetMixin`). For example:
+Search by calling `.search()` on the QuerySet!
 
 ```python
->>> Book.objects.filter(author=roald_dahl).search("chocolate factory")
-[<Book: Charlie and the chocolate factory>]
+Song.objects.search("Flying Whales")
 ```
 
-`.search()` can be used in conjunction with most other QuerySet Methods like `.filter()`, `.exclude()` or `.order_by()`. When using Elasticsearch, these are automatically converted to the same Elasticsearch Query, so any fields used here must be indexed with `index.FilterField` so they are added to the Elasticsearch index.
-
-### Autocomplete
-
-To autocomplete a partial search query, use the `.autocomplete()` method. For example:
+Searches also work when reversing `ForeignKey`s:
 
 ```python
->>> Book.objects.filter(author=roald_dahl).search("choco")
-[<Book: Charlie and the chocolate factory>]
+opeth.songs.search("Ghost of ")
 ```
 
-Note that fields used in autocomplete need to also be indexed as an `AutocompleteField` as autocompletable fields need to be indexed differently.
+You can use Django's `.filter()`, `.exclude()` and `.order_by()` with search too:
+
+```python
+Song.objects.filter(release_date__year__lt=1971).search("Iron Man")
+```
+
+The filters are rewitten into the Elasticsearch query to make it run fast with a lot of data.
