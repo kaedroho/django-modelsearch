@@ -31,6 +31,13 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
+[project.urls]
+Homepage = "https://github.com/kaedroho/django-modelsearch"
+Documentation = "https://django-modelsearch.readthedocs.io/en/latest"
+Repository = "https://github.com/kaedroho/django-modelsearch"
+Issues = "https://github.com/kaedroho/django-modelsearch/issues"
+Changelog = "https://github.com/kaedroho/django-modelsearch/releases"
+
 [project.optional-dependencies]
 test = [
   "dj-database-url (>=2.3.0,<3)",
