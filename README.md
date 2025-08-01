@@ -24,13 +24,13 @@ Features:
 - Index models in Elasticsearch and OpenSearch and query with the Django ORM
 - Reuse existing QuerySets for search, works with Django paginators and `django-filter`
 - Also supports PostgreSQL FTS and SQLite FTS5
-- Autocomplete
-- Faceting
-- Per-field boosting
-- Fuzzy Search
-- Phrase search
-- Structured queries
-- Multi-table inheritance
+- [Autocomplete](https://django-modelsearch.readthedocs.io/en/latest/searching.html#autocomplete-search)
+- [Faceting](https://django-modelsearch.readthedocs.io/en/latest/searching.html#facet-field-name)
+- [Per-field boosting](https://django-modelsearch.readthedocs.io/en/latest/indexing.html#boosting-search-fields)
+- [Fuzzy Search](https://django-modelsearch.readthedocs.io/en/latest/searching.html#fuzzy-search)
+- [Phrase search](https://django-modelsearch.readthedocs.io/en/latest/searching.html#phrase-search)
+- [Structured queries](https://django-modelsearch.readthedocs.io/en/latest/searching.html#structured-queries)
+- [Multi-table inheritance](https://django-modelsearch.readthedocs.io/en/latest/indexing.html#indexing-models-with-multi-table-inheritance)
 
 This has been built into [Wagtail CMS](https://github.com/wagtail/wagtail) since 2014 and extracted into a separate package in March 2025.
 
