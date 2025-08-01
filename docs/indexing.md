@@ -121,3 +121,53 @@ class Book(index.Indexed, models.Model):
 ```
 
 Now when you search for books with an author's name, books with that author will show up.
+
+## Indexing models with multi-table-inheritance
+
+Django supports creating models that inherit from other concrete models. This is known as [multi-table-inheritance](https://docs.djangoproject.com/en/5.2/topics/db/models/#multi-table-inheritance).
+
+Django ModelSearch supports multi-table-inheritance by putting all models with the same root in the same index. For example, let's say we have these models:
+
+- Person(Model)
+- Pet(Model)
+- Dog(Pet)
+- Cat(Pet)
+
+There will be two indexes created for this, Person and Pet.
+
+To prevent name clashes, fields on the Dog and Cat models that are not on the Pet model will be prefixed with `dog_` and `cat_` respectively.
+
+When searching the whole Pet index, all `SearchField`s will be searched, including those defined on Dog And Cat.
+
+### Implementing `get_indexed_instance`
+
+Django by itself has no way of telling us that a given instance of the root model (Pet) also has an instance of the (Dog). This is a problem because if a field on the root model is altered, Django ModelSearch will reindex it without the fields on the chil d model.
+
+To resolve this, you can implement `get_indexed_instance()` on the root model. If the model has a child model instance, it should return the child. For example:
+
+```python
+from django.db import models
+
+
+class Pet(models.Model):
+    name = models.TextField()
+    species = models.TextField()
+
+    def get_indexed_instance(self):
+        if self.species == "cat":
+            return self.cat
+        elif self.species == "dog":
+            return self.dog
+        else:
+            return self
+
+
+class Cat(Pet):
+    pass
+
+
+class Dog(Pet)
+	pass
+```
+
+Django ModelSearch will always call `get_indexed_instance` before indexing to get the most specific version of the object to index.

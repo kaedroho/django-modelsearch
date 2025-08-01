@@ -30,6 +30,7 @@ Features:
 - Fuzzy Search
 - Phrase search
 - Structured queries
+- Multi-table inheritance
 
 This has been built into [Wagtail CMS](https://github.com/wagtail/wagtail) since 2014 and extracted into a separate package in March 2025.
 
