@@ -34,6 +34,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/kaedroho/django-modelsearch"
 Documentation = "https://django-modelsearch.readthedocs.io/en/latest"
+Source = "https://github.com/kaedroho/django-modelsearch"
 Repository = "https://github.com/kaedroho/django-modelsearch"
 Issues = "https://github.com/kaedroho/django-modelsearch/issues"
 Changelog = "https://github.com/kaedroho/django-modelsearch/releases"
@@ -54,9 +55,6 @@ docs = [
 dev = [
   "ruff (==0.11.2)"
 ]
-
-[project.urls]
-Source = "https://github.com/kaedroho/django-modelsearch"
 
 [tool.setuptools.dynamic]
 version = {attr = "modelsearch.__version__"}
