@@ -79,8 +79,11 @@ To index a model, add `modelsearch.index.Indexed` to the model class and define 
 from modelsearch import index
 from modelsearch.queryset import SearchableQuerySetMixin
 
-class SongQuerySet(models.QuerySet, SearchableQuerySetMixin):
+
+# This adds a .search() method to the models QuerySet
+class SongQuerySet(SearchableQuerySetMixin, models.QuerySet):
     pass
+
 
 # Create a model that inherits from Indexed
 class Song(index.Indexed, models.Model):
