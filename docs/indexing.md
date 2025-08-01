@@ -167,7 +167,7 @@ class Cat(Pet):
 
 
 class Dog(Pet)
-	pass
+    pass
 ```
 
 Django ModelSearch will always call `get_indexed_instance` before indexing to get the most specific version of the object to index.
