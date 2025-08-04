@@ -48,7 +48,7 @@ pip install modelsearch
 
 INSTALLED_APPS = [
     ...
-    "modelsearch
+    "modelsearch",
     ...
 ]
 ```
@@ -127,7 +127,7 @@ Song.objects.search("Flying Whales")
 Searches also work when reversing `ForeignKey`s:
 
 ```python
-opeth.songs.search("Ghost of ")
+opeth.songs.search("Harvest")
 ```
 
 You can use Django's `.filter()`, `.exclude()` and `.order_by()` with search too:
