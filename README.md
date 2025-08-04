@@ -81,7 +81,7 @@ from modelsearch import index
 from modelsearch.queryset import SearchableQuerySetMixin
 
 
-# This adds a .search() method to the models QuerySet
+# This mixin adds a .search() method to the models QuerySet
 class SongQuerySet(SearchableQuerySetMixin, models.QuerySet):
     pass
 
@@ -95,6 +95,7 @@ class Song(index.Indexed, models.Model):
 
     objects = SongQuerySet.as_manager()
 
+    # Define a list of fields to index
     search_fields = [
         # Index text fields for full-text search
         # Boost the important fields
@@ -113,7 +114,7 @@ class Song(index.Indexed, models.Model):
     ]
 ```
 
-Then run the `django-admin rebuild_modelsearch_index` to create the indexes, mappings and insert the data.
+Then run the `django-admin rebuild_modelsearch_index` to create the indexes, mappings and insert the data. Signals are then used to keep the index in sync with the database.
 
 ## Searching
 
