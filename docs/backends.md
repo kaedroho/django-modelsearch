@@ -31,7 +31,7 @@ MODELSEARCH_BACKENDS = {
 }
 ```
 
-If you have disabled auto-update, you must run the [](rebuild_modelsearch_index) command on a regular basis to keep the index in sync with the database.
+If you have disabled auto-update, you must run the `rebuild_modelsearch_index` command on a regular basis to keep the index in sync with the database.
 
 (modelsearch_backends_atomic_rebuild)=
 
@@ -96,7 +96,7 @@ MODELSEARCH_BACKENDS = {
         'INDEX_PREFIX': 'test_',  # Indexes are named {prefix}{app_label}_{model_name}
         'TIMEOUT': 5,
         'OPTIONS': {
-            # Options to pass a kwargs to the client 
+            # Options to pass a kwargs to the client
         },
         'INDEX_SETTINGS': {
             # Additional index settings
