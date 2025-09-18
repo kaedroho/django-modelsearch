@@ -746,7 +746,7 @@ class BackendTests(ModelSearchTestCase):
 
         results = self.backend.search("Rank", models.Book)
         results_across_pages = set()
-        for i, obj in enumerate(same_rank_objects):
+        for i, _obj in enumerate(same_rank_objects):
             results_across_pages.add(results[i : i + 1][0])
         self.assertSetEqual(results_across_pages, same_rank_objects)
 
