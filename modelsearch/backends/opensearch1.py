@@ -1,4 +1,4 @@
-from opensearchpy import OpenSearch, NotFoundError
+from opensearchpy import NotFoundError, OpenSearch
 from opensearchpy.helpers import bulk
 
 from modelsearch.backends.elasticsearchbase import (

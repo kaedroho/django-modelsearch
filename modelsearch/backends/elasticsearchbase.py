@@ -9,7 +9,6 @@ from django.db.models.sql import Query
 from django.db.models.sql.constants import MULTI, SINGLE
 from django.utils.crypto import get_random_string
 
-
 from modelsearch.backends.base import (
     BaseSearchBackend,
     BaseSearchQueryCompiler,
@@ -887,7 +886,6 @@ class ElasticsearchBaseSearchResults(BaseSearchResults):
             result = results[str(pk)]
             if result:
                 yield result
-
 
     def _backend_do_search(self, body, **kwargs):
         if self.backend.use_new_elasticsearch_api:
