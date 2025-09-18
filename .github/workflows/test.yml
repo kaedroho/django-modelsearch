@@ -12,6 +12,17 @@ env:
   PYTHON_VERSION: "3.13"
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: pre-commit/action@v3.0.1
   test:
     runs-on: ubuntu-latest
     strategy:
