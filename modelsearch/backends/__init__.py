@@ -62,7 +62,7 @@ def get_search_backend(backend="default", **kwargs):
             # Trying to import the given backend, in case it's a dotted path
             import_backend(backend)
         except ImportError as e:
-            raise InvalidSearchBackendError(f"Could not find backend '{backend}': {e}")
+            raise InvalidSearchBackendError(f"Could not find backend '{backend}': {e}") from e
         params = kwargs
     else:
         # Backend is a conf entry
@@ -74,7 +74,7 @@ def get_search_backend(backend="default", **kwargs):
     try:
         backend_cls = import_backend(backend)
     except ImportError as e:
-        raise InvalidSearchBackendError(f"Could not find backend '{backend}': {e}")
+        raise InvalidSearchBackendError(f"Could not find backend '{backend}': {e}") from e
 
     # Create backend
     return backend_cls(params)
