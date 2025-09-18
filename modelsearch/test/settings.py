@@ -108,12 +108,17 @@ if SEARCH_BACKEND in ["elasticsearch7", "elasticsearch8", "elasticsearch9"]:
     ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL", "http://localhost:9200")
     MODELSEARCH_BACKENDS["default"]["URLS"] = [ELASTICSEARCH_URL]
     MODELSEARCH_BACKENDS["default"]["INDEX_PREFIX"] = "modelsearchtest_"
-
+    MODELSEARCH_BACKENDS["default"]["OPTIONS"] = {
+        "ca_certs": os.environ.get("ELASTICSEARCH_CA_CERTS"),
+    }
 
 if SEARCH_BACKEND in ["opensearch1", "opensearch2", "opensearch3"]:
     OPENSEARCH_URL = os.getenv("OPENSEARCH_URL", "http://localhost:9200")
     MODELSEARCH_BACKENDS["default"]["URLS"] = [OPENSEARCH_URL]
     MODELSEARCH_BACKENDS["default"]["INDEX_PREFIX"] = "modelsearchtest_"
+    MODELSEARCH_BACKENDS["default"]["OPTIONS"] = {
+        "ca_certs": os.environ.get("OPENSEARCH_CA_CERTS"),
+    }
 
 
 # Password validation
