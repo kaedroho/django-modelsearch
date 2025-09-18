@@ -117,9 +117,9 @@ elif connection.vendor == "sqlite":
         This class is the specific IndexEntry model for SQLite database systems. The autocomplete, title, and body fields store additional
         """
 
-        autocomplete = TextField(null=True)
+        autocomplete = TextField(null=True)  # NOQA: DJ001
         title = TextField(null=False)
-        body = TextField(null=True)
+        body = TextField(null=True)  # NOQA: DJ001
 
         class Meta(BaseIndexEntry.Meta):
             abstract = True
@@ -129,9 +129,9 @@ elif connection.vendor == "sqlite":
     if fts5_available():
 
         class SQLiteFTSIndexEntry(models.Model):
-            autocomplete = TextField(null=True)
+            autocomplete = TextField(null=True)  # NOQA: DJ001
             title = TextField(null=False)
-            body = TextField(null=True)
+            body = TextField(null=True)  # NOQA: DJ001
             index_entry = OneToOneField(
                 primary_key=True,
                 to="modelsearch.indexentry",
