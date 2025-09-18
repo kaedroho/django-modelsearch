@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from .elasticsearch_common_tests import ElasticsearchCommonSearchBackendTests
 
+
 try:
     from elasticsearch import VERSION as ELASTICSEARCH_VERSION
 except ImportError:

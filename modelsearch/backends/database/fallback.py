@@ -15,6 +15,7 @@ from modelsearch.backends.base import (
 from modelsearch.query import And, Boost, MatchAll, Not, Or, Phrase, PlainText
 from modelsearch.utils import AND, OR
 
+
 # This file implements a database search backend using basic substring matching, and no
 # database-specific full-text search capabilities. It will be used in the following cases:
 # * The current default database is SQLite <3.19, or SQLite built without fulltext

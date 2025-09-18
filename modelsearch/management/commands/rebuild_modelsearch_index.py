@@ -7,6 +7,7 @@ from django.db import transaction
 from modelsearch.backends import get_search_backend
 from modelsearch.index import get_indexed_models
 
+
 DEFAULT_CHUNK_SIZE = 1000
 
 
@@ -23,12 +24,10 @@ def group_models_by_index(backend, models):
     separate from other content types (eg, images and documents) to prevent
     field mapping collisions:
 
-    >>> group_models_by_index(elasticsearch2_backend, [
-    ...     wagtailcore.Page,
-    ...     myapp.HomePage,
-    ...     myapp.StandardPage,
-    ...     wagtailimages.Image
-    ... ])
+    >>> group_models_by_index(
+    ...     elasticsearch2_backend,
+    ...     [wagtailcore.Page, myapp.HomePage, myapp.StandardPage, wagtailimages.Image],
+    ... )
     {
         <Index wagtailcore_page>: [wagtailcore.Page, myapp.HomePage, myapp.StandardPage],
         <Index wagtailimages_image>: [wagtailimages.Image],
@@ -96,9 +95,7 @@ class Command(BaseCommand):
             if not schema_only:
                 for model in models:
                     self.write(
-                        "{}: {}.{} ".format(
-                            backend_name, model._meta.app_label, model.__name__
-                        ).ljust(35),
+                        f"{backend_name}: {model._meta.app_label}.{model.__name__} ".ljust(35),
                         ending="",
                     )
 

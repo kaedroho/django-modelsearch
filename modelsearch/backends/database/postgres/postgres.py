@@ -1,4 +1,5 @@
 import warnings
+
 from collections import OrderedDict
 from functools import reduce
 
@@ -34,6 +35,7 @@ from ...base import (
 )
 from .query import Lexeme
 from .weights import get_sql_weights, get_weight
+
 
 EMPTY_VECTOR = SearchVector(Value("", output_field=TextField()))
 

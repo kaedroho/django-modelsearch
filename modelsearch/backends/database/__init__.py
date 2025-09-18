@@ -1,5 +1,6 @@
 from django.db import connection
 
+
 USE_SQLITE_FTS = None  # True if sqlite FTS is available, False if not, None if untested
 
 
