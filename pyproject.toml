@@ -53,7 +53,7 @@ docs = [
   "myst-parser (>=4.0.1,<5)",
 ]
 dev = [
-  "ruff (==0.11.2)"
+  "ruff (==0.13.0)"
 ]
 
 [tool.setuptools.dynamic]

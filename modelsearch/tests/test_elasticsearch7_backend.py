@@ -1383,7 +1383,9 @@ class TestElasticsearch7MappingInheritance(TestCase):
 
 
 @unittest.skipIf(ELASTICSEARCH_VERSION[0] != 7, "Elasticsearch 7 required")
-@mock.patch("modelsearch.backends.elasticsearch7.Elasticsearch7SearchBackend.client_class")
+@mock.patch(
+    "modelsearch.backends.elasticsearch7.Elasticsearch7SearchBackend.client_class"
+)
 class TestBackendConfiguration(TestCase):
     def test_default_settings(self, Elasticsearch):
         Elasticsearch7SearchBackend(params={})

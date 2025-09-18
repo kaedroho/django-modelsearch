@@ -7,6 +7,7 @@ from modelsearch.backends.elasticsearch8 import (
     Elasticsearch8SearchResults,
 )
 
+
 class Elasticsearch9Mapping(Elasticsearch8Mapping):
     pass
 

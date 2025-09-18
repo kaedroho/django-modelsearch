@@ -41,7 +41,10 @@ def group_models_by_index(backend, models):
         index = backend.get_index_for_model(model)
 
         if index:
-            index_key = (backend, index.get_key() if hasattr(index, "get_key") else None)
+            index_key = (
+                backend,
+                index.get_key() if hasattr(index, "get_key") else None,
+            )
             indices[index_key] = index
             models_by_index.setdefault(index_key, [])
             models_by_index[index_key].append(model)

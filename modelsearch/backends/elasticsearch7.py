@@ -12,7 +12,6 @@ from modelsearch.backends.elasticsearchbase import (
 )
 
 
-
 class Elasticsearch7Mapping(ElasticsearchBaseMapping):
     pass
 
@@ -29,7 +28,9 @@ class Elasticsearch7SearchResults(ElasticsearchBaseSearchResults):
     pass
 
 
-class Elasticsearch7AutocompleteQueryCompiler(ElasticsearchBaseAutocompleteQueryCompiler):
+class Elasticsearch7AutocompleteQueryCompiler(
+    ElasticsearchBaseAutocompleteQueryCompiler
+):
     mapping_class = Elasticsearch7Mapping
 
 
