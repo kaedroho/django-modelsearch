@@ -45,6 +45,9 @@ class Book(index.Indexed, models.Model):
         index.FilterField("tags"),
     ]
 
+    def __str__(self):
+        return self.title
+
     @classmethod
     def get_indexed_objects(cls):
         indexed_objects = super().get_indexed_objects()
@@ -71,9 +74,6 @@ class Book(index.Indexed, models.Model):
 
         # Return the novel/programming guide object if there is one, otherwise return self
         return novel or programming_guide or self
-
-    def __str__(self):
-        return self.title
 
 
 class Character(models.Model):
