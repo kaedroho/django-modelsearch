@@ -263,7 +263,7 @@ class BaseField:
             field = self.get_field(obj.__class__)
         except FieldDoesNotExist:
             value = getattr(obj, self.field_name, None)
-            if hasattr(value, "__call__"):
+            if callable(value):
                 value = value()
             return value
 
