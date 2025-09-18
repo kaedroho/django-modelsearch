@@ -108,7 +108,7 @@ class Migration(migrations.Migration):
                         ),
                         migrations.RunSQL(
                             sql=(
-                                f"CREATE TRIGGER insert_modelsearch_indexentry_fts AFTER INSERT ON {IndexEntry._meta.db_table} BEGIN INSERT INTO {IndexEntry._meta.db_table}_fts(title, body, autocomplete, rowid) VALUES (NEW.title, NEW.body, NEW.autocomplete, NEW.id); END"
+                                f"CREATE TRIGGER insert_modelsearch_indexentry_fts AFTER INSERT ON {IndexEntry._meta.db_table} BEGIN INSERT INTO {IndexEntry._meta.db_table}_fts(title, body, autocomplete, rowid) VALUES (NEW.title, NEW.body, NEW.autocomplete, NEW.id); END"  # NOQA: S608
                             ),
                             reverse_sql=(
                                 "DROP TRIGGER IF EXISTS insert_modelsearch_indexentry_fts"
@@ -116,7 +116,7 @@ class Migration(migrations.Migration):
                         ),
                         migrations.RunSQL(
                             sql=(
-                                f"CREATE TRIGGER update_modelsearch_indexentry_fts AFTER UPDATE ON {IndexEntry._meta.db_table} BEGIN UPDATE {IndexEntry._meta.db_table}_fts SET title=NEW.title, body=NEW.body, autocomplete=NEW.autocomplete WHERE rowid=NEW.id; END"
+                                f"CREATE TRIGGER update_modelsearch_indexentry_fts AFTER UPDATE ON {IndexEntry._meta.db_table} BEGIN UPDATE {IndexEntry._meta.db_table}_fts SET title=NEW.title, body=NEW.body, autocomplete=NEW.autocomplete WHERE rowid=NEW.id; END"  # NOQA: S608
                             ),
                             reverse_sql=(
                                 "DROP TRIGGER IF EXISTS update_modelsearch_indexentry_fts"
@@ -124,7 +124,7 @@ class Migration(migrations.Migration):
                         ),
                         migrations.RunSQL(
                             sql=(
-                                f"CREATE TRIGGER delete_modelsearch_indexentry_fts AFTER DELETE ON {IndexEntry._meta.db_table} BEGIN DELETE FROM {IndexEntry._meta.db_table}_fts WHERE rowid=OLD.id; END"
+                                f"CREATE TRIGGER delete_modelsearch_indexentry_fts AFTER DELETE ON {IndexEntry._meta.db_table} BEGIN DELETE FROM {IndexEntry._meta.db_table}_fts WHERE rowid=OLD.id; END"  # NOQA: S608
                             ),
                             reverse_sql=(
                                 "DROP TRIGGER IF EXISTS delete_modelsearch_indexentry_fts"
