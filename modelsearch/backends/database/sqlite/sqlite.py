@@ -514,7 +514,7 @@ class SQLiteSearchQueryCompiler(BaseSearchQueryCompiler):
         ][
             0
         ]  # We create a combined vector for the search results queryset. We start with the first vector and build from there.
-        for vector, boost in vectors[1:]:
+        for vector, _boost in vectors[1:]:
             combined_vector = combined_vector._combine(
                 vector, " ", False
             )  # We add the subsequent vectors to the combined vector.

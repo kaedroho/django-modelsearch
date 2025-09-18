@@ -532,7 +532,7 @@ class PostgresSearchQueryCompiler(BaseSearchQueryCompiler):
         rank_expression = self._build_rank_expression(vectors, config)
 
         combined_vector = vectors[0][0]
-        for vector, boost in vectors[1:]:
+        for vector, _boost in vectors[1:]:
             combined_vector = combined_vector._combine(vector, "||", False)
 
         queryset = self.queryset.annotate(_vector_=combined_vector).filter(
