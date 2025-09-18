@@ -19,7 +19,7 @@ class PersonQuerySet(SearchableQuerySetMixin, QuerySet):
 
 class Person(index.Indexed, models.Model);
 	# ...
-    
+
     objects = PersonQuerySet.as_manager()
 
 ```
@@ -189,4 +189,3 @@ filters == {
 
 query == PlainText("my query string") & Phrase("this is a phrase")
 ```
-
