@@ -9,6 +9,7 @@ maxdepth: 2
 indexing
 searching
 backends
+developing
 ```
 
 ## Installation
@@ -43,7 +44,7 @@ MODELSEARCH_BACKENDS = {
         'INDEX_PREFIX': 'test_',  # Indexes are named {prefix}{app_label}_{model_name}
         'TIMEOUT': 5,
         'OPTIONS': {
-            # Options to pass a kwargs to the client 
+            # Options to pass a kwargs to the client
         },
         'INDEX_SETTINGS': {
             # Additional index settings
@@ -100,7 +101,7 @@ class PersonQuerySet(SearchableQuerySetMixin, QuerySet):
 
 class Person(index.Indexed, models.Model);
 	# ...
-    
+
     objects = PersonQuerySet.as_manager()
 
 ```
