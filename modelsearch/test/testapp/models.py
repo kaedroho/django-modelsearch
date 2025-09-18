@@ -135,3 +135,6 @@ class UnindexedBook(index.Indexed, models.Model):
     tags = TaggableManager()
 
     search_fields = []
+
+    def __str__(self):
+        return self.title
