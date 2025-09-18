@@ -293,7 +293,7 @@ class Index:
         data_sql = ", ".join(
             [
                 f"(%s, %s, {a}, {b}, {c}, 1.0)"
-                for a, b, c in zip(title_sql, autocomplete_sql, body_sql)
+                for a, b, c in zip(title_sql, autocomplete_sql, body_sql, strict=True)
             ]
         )
 
