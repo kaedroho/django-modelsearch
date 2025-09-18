@@ -94,24 +94,21 @@ class Migration(migrations.Migration):
                                 ("body", models.TextField(null=True)),
                                 ("autocomplete", models.TextField(null=True)),
                             ],
-                            options={"db_table": "%s_fts" % IndexEntry._meta.db_table},
+                            options={"db_table": f"{IndexEntry._meta.db_table}_fts"},
                         ),
                     ],
                     database_operations=[
                         migrations.RunSQL(
                             sql=(
-                                "CREATE VIRTUAL TABLE %s_fts USING fts5(autocomplete, body, title)"
-                                % IndexEntry._meta.db_table
+                                f"CREATE VIRTUAL TABLE {IndexEntry._meta.db_table}_fts USING fts5(autocomplete, body, title)"
                             ),
                             reverse_sql=(
-                                "DROP TABLE IF EXISTS %s_fts"
-                                % IndexEntry._meta.db_table
+                                f"DROP TABLE IF EXISTS {IndexEntry._meta.db_table}_fts"
                             ),
                         ),
                         migrations.RunSQL(
                             sql=(
-                                "CREATE TRIGGER insert_modelsearch_indexentry_fts AFTER INSERT ON %s BEGIN INSERT INTO %s_fts(title, body, autocomplete, rowid) VALUES (NEW.title, NEW.body, NEW.autocomplete, NEW.id); END"
-                                % (IndexEntry._meta.db_table, IndexEntry._meta.db_table)
+                                f"CREATE TRIGGER insert_modelsearch_indexentry_fts AFTER INSERT ON {IndexEntry._meta.db_table} BEGIN INSERT INTO {IndexEntry._meta.db_table}_fts(title, body, autocomplete, rowid) VALUES (NEW.title, NEW.body, NEW.autocomplete, NEW.id); END"
                             ),
                             reverse_sql=(
                                 "DROP TRIGGER IF EXISTS insert_modelsearch_indexentry_fts"
@@ -119,8 +116,7 @@ class Migration(migrations.Migration):
                         ),
                         migrations.RunSQL(
                             sql=(
-                                "CREATE TRIGGER update_modelsearch_indexentry_fts AFTER UPDATE ON %s BEGIN UPDATE %s_fts SET title=NEW.title, body=NEW.body, autocomplete=NEW.autocomplete WHERE rowid=NEW.id; END"
-                                % (IndexEntry._meta.db_table, IndexEntry._meta.db_table)
+                                f"CREATE TRIGGER update_modelsearch_indexentry_fts AFTER UPDATE ON {IndexEntry._meta.db_table} BEGIN UPDATE {IndexEntry._meta.db_table}_fts SET title=NEW.title, body=NEW.body, autocomplete=NEW.autocomplete WHERE rowid=NEW.id; END"
                             ),
                             reverse_sql=(
                                 "DROP TRIGGER IF EXISTS update_modelsearch_indexentry_fts"
@@ -128,8 +124,7 @@ class Migration(migrations.Migration):
                         ),
                         migrations.RunSQL(
                             sql=(
-                                "CREATE TRIGGER delete_modelsearch_indexentry_fts AFTER DELETE ON %s BEGIN DELETE FROM %s_fts WHERE rowid=OLD.id; END"
-                                % (IndexEntry._meta.db_table, IndexEntry._meta.db_table)
+                                f"CREATE TRIGGER delete_modelsearch_indexentry_fts AFTER DELETE ON {IndexEntry._meta.db_table} BEGIN DELETE FROM {IndexEntry._meta.db_table}_fts WHERE rowid=OLD.id; END"
                             ),
                             reverse_sql=(
                                 "DROP TRIGGER IF EXISTS delete_modelsearch_indexentry_fts"

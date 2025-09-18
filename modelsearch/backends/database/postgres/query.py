@@ -43,7 +43,8 @@ class Lexeme(LexemeCombinable, Value):
         super().__init__(value, output_field=output_field)
 
     def as_sql(self, compiler, connection):
-        param = "'%s'" % self.value.replace("'", "''").replace("\\", "\\\\")
+        escaped_value = self.value.replace("'", "''").replace("\\", "\\\\")
+        param = f"'{escaped_value}'"
 
         template = "%s"
 

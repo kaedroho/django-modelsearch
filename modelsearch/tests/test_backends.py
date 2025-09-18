@@ -52,7 +52,7 @@ class BackendTests(ModelSearchTestCase):
         else:
             # no conf entry found - skip tests for this backend
             raise unittest.SkipTest(
-                "No MODELSEARCH_BACKENDS entry for the backend %s" % self.backend_path
+                f"No MODELSEARCH_BACKENDS entry for the backend {self.backend_path}"
             )
 
         # HACK: This is a hack to delete all the index entries that may be present in the test database before each test is run.
@@ -736,7 +736,7 @@ class BackendTests(ModelSearchTestCase):
         index = self.backend.get_index_for_model(models.Book)
         for i in range(10):
             obj = models.Book.objects.create(
-                title="Rank %s" % i,
+                title=f"Rank {i}",
                 publication_date=date(2017, 10, 18),
                 number_of_pages=100,
             )

@@ -355,7 +355,7 @@ class BaseSearchResults:
         data = list(self[:21])
         if len(data) > 20:
             data[-1] = "...(remaining elements truncated)..."
-        return "<SearchResults %r>" % data
+        return f"<SearchResults {data!r}>"
 
     def annotate_score(self, field_name):
         clone = self._clone()

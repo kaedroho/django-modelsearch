@@ -152,8 +152,7 @@ class DatabaseSearchQueryCompiler(BaseSearchQueryCompiler):
             return OR(subqueries)
 
         raise NotImplementedError(
-            "`%s` is not supported by the database search backend."
-            % query.__class__.__name__
+            f"`{query.__class__.__name__}` is not supported by the database search backend."
         )
 
 
