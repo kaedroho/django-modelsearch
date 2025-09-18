@@ -142,6 +142,9 @@ elif connection.vendor == "sqlite":
             class Meta:
                 db_table = "modelsearch_indexentry_fts"
 
+            def __str__(self):
+                return f"SQLiteFTSIndexEntry: {self.index_entry}"
+
 else:
     AbstractIndexEntry = BaseIndexEntry
 
