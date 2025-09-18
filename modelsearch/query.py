@@ -36,9 +36,7 @@ class PlainText(SearchQuery):
         self.boost = boost
 
     def __repr__(self):
-        return "<PlainText {} operator={} boost={}>".format(
-            repr(self.query_string), repr(self.operator), repr(self.boost)
-        )
+        return f"<PlainText {repr(self.query_string)} operator={repr(self.operator)} boost={repr(self.boost)}>"
 
 
 class Phrase(SearchQuery):

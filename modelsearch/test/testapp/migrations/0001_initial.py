@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 import taggit.managers
+
 from django.db import migrations, models
 
 import modelsearch.index

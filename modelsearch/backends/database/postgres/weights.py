@@ -5,6 +5,7 @@ from django.apps import apps
 from modelsearch.index import Indexed
 from modelsearch.utils import get_search_fields
 
+
 # This file contains the implementation of weights for PostgreSQL tsvectors. Only PostgreSQL has support for them, so that's why we define them here.
 
 

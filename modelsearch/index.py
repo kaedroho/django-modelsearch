@@ -9,6 +9,7 @@ from django.db.models.fields.related import ForeignObjectRel, OneToOneRel, Relat
 
 from modelsearch.backends import get_search_backends_with_name
 
+
 logger = logging.getLogger("modelsearch.index")
 
 

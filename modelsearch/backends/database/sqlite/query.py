@@ -186,9 +186,7 @@ class MatchExpression(Expression):
             compiled_query[1]
         )  # Substitute the params in the query
         params = [
-            "{{{column}}} : ({query})".format(
-                column=joined_columns, query=formatted_query
-            )
+            f"{{{joined_columns}}} : ({formatted_query})"
         ]  # Build the full MATCH search query. It will be a parameter to the template, so no SQL injections are possible here.
         return (self.template, params)
 

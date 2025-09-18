@@ -1,5 +1,6 @@
 import operator
 import re
+
 from collections.abc import Mapping
 from functools import partial
 
@@ -10,6 +11,7 @@ from django.http import QueryDict
 from modelsearch.index import RelatedFields, SearchField
 
 from .query import MATCH_NONE, Phrase, PlainText
+
 
 NOT_SET = object()
 
