@@ -109,8 +109,8 @@ class SearchQueryCombinable:
     def _combine(self, other, connector: str, reversed: bool = False):
         if not isinstance(other, SearchQueryCombinable):
             raise TypeError(
-                "SearchQuery can only be combined with other SearchQuery "
-                "instances, got %s." % type(other).__name__
+                f"SearchQuery can only be combined with other SearchQuery "
+                f"instances, got {type(other).__name__}."
             )
         if reversed:
             return CombinedSearchQueryExpression(other, connector, self)
@@ -139,7 +139,7 @@ class SearchQueryExpression(SearchQueryCombinable, Expression):
         self.extra = extra
         if isinstance(value, str):  # If the value is a string, we assume it's a phrase
             self.value = Value(
-                '"%s"' % value
+                f'"{value}"'
             )  # We wrap it in quotes to make sure it's parsed as a phrase
         else:  # Otherwise, we assume it's a lexeme
             self.value = value
@@ -162,7 +162,7 @@ class CombinedSearchQueryExpression(SearchQueryCombinable, CombinedExpression):
         super().__init__(lhs, connector, rhs, output_field)
 
     def __str__(self):
-        return "(%s)" % super().__str__()
+        return f"({super().__str__()})"
 
 
 class MatchExpression(Expression):

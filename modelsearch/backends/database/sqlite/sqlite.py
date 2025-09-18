@@ -420,8 +420,7 @@ class SQLiteSearchQueryCompiler(BaseSearchQueryCompiler):
                 return reduce(lambda a, b: a | b, subquery_lexemes)
 
         raise NotImplementedError(
-            "`%s` is not supported by the SQLite search backend."
-            % query.__class__.__name__
+            f"`{query.__class__.__name__}` is not supported by the SQLite search backend."
         )
 
     def build_search_query(self, query, config=None):
@@ -461,8 +460,7 @@ class SQLiteSearchQueryCompiler(BaseSearchQueryCompiler):
             ) / (len(query.subqueries) or 1)
 
         raise NotImplementedError(
-            "`%s` is not supported by the SQLite search backend."
-            % query.__class__.__name__
+            f"`{query.__class__.__name__}` is not supported by the SQLite search backend."
         )
 
     def get_index_vectors(self):

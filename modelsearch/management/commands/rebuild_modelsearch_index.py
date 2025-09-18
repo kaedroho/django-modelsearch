@@ -70,17 +70,17 @@ class Command(BaseCommand):
         backend = get_search_backend(backend_name)
 
         if not backend.rebuilder_class:
-            self.write("Backend '%s' doesn't require rebuilding" % backend_name)
+            self.write(f"Backend '{backend_name}' doesn't require rebuilding")
             return
 
         models_grouped_by_index = group_models_by_index(
             backend, get_indexed_models()
         ).items()
         if not models_grouped_by_index:
-            self.write(backend_name + ": No indices to rebuild")
+            self.write(f"{backend_name}: No indices to rebuild")
 
         for index, models in models_grouped_by_index:
-            self.write(backend_name + ": Rebuilding index %s" % index)
+            self.write(f"{backend_name}: Rebuilding index {index}")
 
             # Start rebuild
             rebuilder = backend.rebuilder_class(index)
@@ -95,7 +95,9 @@ class Command(BaseCommand):
             if not schema_only:
                 for model in models:
                     self.write(
-                        f"{backend_name}: {model._meta.app_label}.{model.__name__} ".ljust(35),
+                        f"{backend_name}: {model._meta.app_label}.{model.__name__} ".ljust(
+                            35
+                        ),
                         ending="",
                     )
 
@@ -113,7 +115,7 @@ class Command(BaseCommand):
             # Finish rebuild
             rebuilder.finish()
 
-            self.write(backend_name + ": indexed %d objects" % object_count)
+            self.write(f"{backend_name}: indexed {object_count} objects")
             self.print_newline()
 
     def add_arguments(self, parser):
