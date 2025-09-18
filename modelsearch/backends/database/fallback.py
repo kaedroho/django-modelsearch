@@ -81,7 +81,10 @@ class DatabaseSearchQueryCompiler(BaseSearchQueryCompiler):
 
     def check_boost(self, query, boost=1.0):
         if query.boost * boost != 1.0:
-            warn("Database search backend does not support term boosting.")
+            warn(
+                "Database search backend does not support term boosting.",
+                stacklevel=7,
+            )
 
     def build_database_filter(self, query, boost=1.0):
         if isinstance(query, PlainText):

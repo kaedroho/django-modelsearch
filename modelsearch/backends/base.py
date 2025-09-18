@@ -50,6 +50,7 @@ class BaseSearchQueryCompiler:
             warn(
                 "Querying `None` is deprecated, use `MATCH_ALL` instead.",
                 DeprecationWarning,
+                stacklevel=5,
             )
             query = MATCH_ALL
         elif isinstance(query, str):
