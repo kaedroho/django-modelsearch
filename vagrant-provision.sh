@@ -80,6 +80,22 @@ su - $DEV_USER -c "python -m venv $ES8_VIRTUALENV_DIR"
 su - $DEV_USER -c "$ES8_PIP install 'elasticsearch>=8.0.0,<9.0.0'"
 su - $DEV_USER -c "$ES8_PIP install -e $PROJECT_DIR[test]"
 
+# Elasticsearch 9
+ES9_VERSION=9.1.4
+ES9_DOWNLOAD_FILE=elasticsearch-$ES9_VERSION-linux-`uname -p`.tar.gz
+ES9_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/$ES9_DOWNLOAD_FILE
+ES9_ROOT=/home/$DEV_USER/elasticsearch-$ES9_VERSION
+ES9_VIRTUALENV_DIR=/home/$DEV_USER/.virtualenvs/modelsearches9
+ES9_PIP=$ES9_VIRTUALENV_DIR/bin/pip
+
+su - $DEV_USER -c "wget $ES9_DOWNLOAD_URL -P /home/$DEV_USER"
+su - $DEV_USER -c "cd /home/$DEV_USER && tar xzf $ES9_DOWNLOAD_FILE"
+su - $DEV_USER -c "$ES9_ROOT/bin/elasticsearch-users useradd modelsearch -p modelsearch -r superuser"
+
+su - $DEV_USER -c "python -m venv $ES9_VIRTUALENV_DIR"
+su - $DEV_USER -c "$ES9_PIP install 'elasticsearch>=9.0.0,<10.0.0'"
+su - $DEV_USER -c "$ES9_PIP install -e $PROJECT_DIR[test]"
+
 if [[ "$(uname -p)" == "aarch64" ]]; then
     OPENSEARCH_ARCH="arm64"
 else
