@@ -7,6 +7,7 @@ vagrantcoverage:
 	coverage erase
 	DATABASE_URL="sqlite:///test_modelsearch.sqlite" ~/.virtualenvs/modelsearch/bin/coverage run -p runtests.py --backend db
 	DATABASE_URL="postgres:///modelsearch" ~/.virtualenvs/modelsearch/bin/coverage run -p runtests.py --backend db
+	DATABASE_URL="mysql://vagrant:vagrant@localhost/modelsearch" ~/.virtualenvs/modelsearch/bin/coverage run -p runtests.py --backend db
 
 	/home/vagrant/elasticsearch-7.17.29/bin/elasticsearch -q &
 	sleep 10

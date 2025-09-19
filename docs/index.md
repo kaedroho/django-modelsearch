@@ -32,7 +32,7 @@ INSTALLED_APPS = [
 
 ## Configuration
 
-Django Modelsearch indexes into database by default and it'll use the built-in full text search features of SQLite and PostgreSQL with a fallback for other databases.
+Django Modelsearch indexes into database by default and it'll use the built-in full text search features of SQLite, MySQL, MariaDB and PostgreSQL with a fallback for other databases.
 
 To configure an external server like Elasticsearch or OpenSearch, set the `MODELSEARCH_BACKENDS` setting in your Django settings:
 

@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 ]
 ```
 
-By default, Django ModelSearch will index into the database configured in `DATABASES["default"]` and use PostgreSQL FTS or SQLite FTS, if available.
+By default, Django ModelSearch will index into the database configured in `DATABASES["default"]` and use PostgreSQL FTS, MySQL FTS, MariaDB FTS or SQLite FTS, if available.
 
 You can change the indexing configuration, or add additional backends with the `MODALSEARCH_BACKENDS` setting. For example, to configure Elasticsearch:
 
