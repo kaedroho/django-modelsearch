@@ -80,6 +80,22 @@ su - $DEV_USER -c "python -m venv $ES8_VIRTUALENV_DIR"
 su - $DEV_USER -c "$ES8_PIP install 'elasticsearch>=8.0.0,<9.0.0'"
 su - $DEV_USER -c "$ES8_PIP install -e $PROJECT_DIR[test]"
 
+# Opensearch 1
+OPENSEARCH1_VERSION=1.3.20
+OPENSEARCH1_DOWNLOAD_FILE=opensearch-min-$OPENSEARCH1_VERSION-linux-arm64.tar.gz
+OPENSEARCH1_DOWNLOAD_URL=https://artifacts.opensearch.org/releases/core/opensearch/$OPENSEARCH1_VERSION/$OPENSEARCH1_DOWNLOAD_FILE
+OPENSEARCH1_ROOT=/home/$DEV_USER/opensearch-$OPENSEARCH1_VERSION
+OPENSEARCH1_VIRTUALENV_DIR=/home/$DEV_USER/.virtualenvs/modelsearchopensearch1
+OPENSEARCH1_PIP=$OPENSEARCH1_VIRTUALENV_DIR/bin/pip
+
+su - $DEV_USER -c "wget $OPENSEARCH1_DOWNLOAD_URL -P /home/$DEV_USER"
+su - $DEV_USER -c "cd /home/$DEV_USER && tar xzf $OPENSEARCH1_DOWNLOAD_FILE"
+
+su - $DEV_USER -c "python -m venv $OPENSEARCH1_VIRTUALENV_DIR"
+su - $DEV_USER -c "$OPENSEARCH1_PIP install 'opensearch-py>=1,<2'"
+su - $DEV_USER -c "$OPENSEARCH1_PIP install 'requests>=2.4.0, <3.0.0'"  # missing from opensearch-py 1 dependencies - https://github.com/opensearch-project/opensearch-py/pull/142
+su - $DEV_USER -c "$OPENSEARCH1_PIP install -e $PROJECT_DIR[test]"
+
 # Opensearch 2
 OPENSEARCH2_VERSION=2.19.3
 OPENSEARCH2_DOWNLOAD_FILE=opensearch-min-$OPENSEARCH2_VERSION-linux-arm64.tar.gz
