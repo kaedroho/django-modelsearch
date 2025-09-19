@@ -80,9 +80,15 @@ su - $DEV_USER -c "python -m venv $ES8_VIRTUALENV_DIR"
 su - $DEV_USER -c "$ES8_PIP install 'elasticsearch>=8.0.0,<9.0.0'"
 su - $DEV_USER -c "$ES8_PIP install -e $PROJECT_DIR[test]"
 
+if [[ "$(uname -p)" == "aarch64" ]]; then
+    OPENSEARCH_ARCH="arm64"
+else
+    OPENSEARCH_ARCH="x64"
+fi
+
 # Opensearch 1
 OPENSEARCH1_VERSION=1.3.20
-OPENSEARCH1_DOWNLOAD_FILE=opensearch-min-$OPENSEARCH1_VERSION-linux-arm64.tar.gz
+OPENSEARCH1_DOWNLOAD_FILE=opensearch-min-$OPENSEARCH1_VERSION-linux-$OPENSEARCH_ARCH.tar.gz
 OPENSEARCH1_DOWNLOAD_URL=https://artifacts.opensearch.org/releases/core/opensearch/$OPENSEARCH1_VERSION/$OPENSEARCH1_DOWNLOAD_FILE
 OPENSEARCH1_ROOT=/home/$DEV_USER/opensearch-$OPENSEARCH1_VERSION
 OPENSEARCH1_VIRTUALENV_DIR=/home/$DEV_USER/.virtualenvs/modelsearchopensearch1
@@ -98,7 +104,7 @@ su - $DEV_USER -c "$OPENSEARCH1_PIP install -e $PROJECT_DIR[test]"
 
 # Opensearch 2
 OPENSEARCH2_VERSION=2.19.3
-OPENSEARCH2_DOWNLOAD_FILE=opensearch-min-$OPENSEARCH2_VERSION-linux-arm64.tar.gz
+OPENSEARCH2_DOWNLOAD_FILE=opensearch-min-$OPENSEARCH2_VERSION-linux-$OPENSEARCH_ARCH.tar.gz
 OPENSEARCH2_DOWNLOAD_URL=https://artifacts.opensearch.org/releases/core/opensearch/$OPENSEARCH2_VERSION/$OPENSEARCH2_DOWNLOAD_FILE
 OPENSEARCH2_ROOT=/home/$DEV_USER/opensearch-$OPENSEARCH2_VERSION
 OPENSEARCH2_VIRTUALENV_DIR=/home/$DEV_USER/.virtualenvs/modelsearchopensearch2
@@ -113,7 +119,7 @@ su - $DEV_USER -c "$OPENSEARCH2_PIP install -e $PROJECT_DIR[test]"
 
 # Opensearch 3
 OPENSEARCH3_VERSION=3.2.0
-OPENSEARCH3_DOWNLOAD_FILE=opensearch-min-$OPENSEARCH3_VERSION-linux-arm64.tar.gz
+OPENSEARCH3_DOWNLOAD_FILE=opensearch-min-$OPENSEARCH3_VERSION-linux-$OPENSEARCH_ARCH.tar.gz
 OPENSEARCH3_DOWNLOAD_URL=https://artifacts.opensearch.org/releases/core/opensearch/$OPENSEARCH3_VERSION/$OPENSEARCH3_DOWNLOAD_FILE
 OPENSEARCH3_ROOT=/home/$DEV_USER/opensearch-$OPENSEARCH3_VERSION
 OPENSEARCH3_VIRTUALENV_DIR=/home/$DEV_USER/.virtualenvs/modelsearchopensearch3
