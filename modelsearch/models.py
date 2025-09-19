@@ -145,6 +145,22 @@ elif connection.vendor == "sqlite":
             def __str__(self):
                 return f"SQLiteFTSIndexEntry: {self.index_entry}"
 
+elif connection.vendor == "mysql":
+
+    class AbstractMySQLIndexEntry(BaseIndexEntry):
+        """
+        This class is the specific IndexEntry model for MySQL database systems.
+        """
+
+        autocomplete = TextField(null=True)  # NOQA: DJ001
+        title = TextField(null=False)
+        body = TextField(null=True)  # NOQA: DJ001
+
+        class Meta(BaseIndexEntry.Meta):
+            abstract = True
+
+    AbstractIndexEntry = AbstractMySQLIndexEntry
+
 else:
     AbstractIndexEntry = BaseIndexEntry
 

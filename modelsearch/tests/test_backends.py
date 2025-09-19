@@ -33,10 +33,9 @@ from modelsearch.query import (
     PlainText,
 )
 from modelsearch.test.testapp import models
-from modelsearch.test.utils import ModelSearchTestCase
 
 
-class BackendTests(ModelSearchTestCase):
+class BackendTests:
     # To test a specific backend, subclass BackendTests and define self.backend_path.
     backend_path = None
 
@@ -1057,6 +1056,33 @@ class TestBackendLoader(TestCase):
 
         db = get_search_backend(backend="modelsearch.backends.database.SearchBackend")
         self.assertIsInstance(db, PostgresSearchBackend)
+
+    @unittest.skipIf(
+        connection.vendor != "mysql", "Only applicable to MySQL database systems"
+    )
+    def test_import_by_name_mysql_db_vendor(self):
+        from modelsearch.backends.database.mysql.mysql import MySQLSearchBackend
+
+        db = get_search_backend(backend="default")
+        self.assertIsInstance(db, MySQLSearchBackend)
+
+    @unittest.skipIf(
+        connection.vendor != "mysql", "Only applicable to MySQL database systems"
+    )
+    def test_import_by_path_mysql_db_vendor(self):
+        from modelsearch.backends.database.mysql.mysql import MySQLSearchBackend
+
+        db = get_search_backend(backend="modelsearch.backends.database")
+        self.assertIsInstance(db, MySQLSearchBackend)
+
+    @unittest.skipIf(
+        connection.vendor != "mysql", "Only applicable to MySQL database systems"
+    )
+    def test_import_by_full_path_mysql_db_vendor(self):
+        from modelsearch.backends.database.mysql.mysql import MySQLSearchBackend
+
+        db = get_search_backend(backend="modelsearch.backends.database.SearchBackend")
+        self.assertIsInstance(db, MySQLSearchBackend)
 
     @unittest.skipIf(
         connection.vendor != "sqlite", "Only applicable to SQLite database systems"
