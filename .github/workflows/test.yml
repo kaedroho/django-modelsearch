@@ -33,6 +33,10 @@ jobs:
             backend: db
           - database: postgresql
             backend: db
+          - database: mysql
+            backend: db
+          - database: mariadb
+            backend: db
           - database: sqlite
             backend: elasticsearch7
           - database: sqlite
@@ -60,6 +64,32 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U user -d testdb"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -uroot -proot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: testdb
+        ports:
+          - 3307:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -164,6 +194,10 @@ jobs:
         run: |
           if [[ "${{ matrix.database }}" == "postgresql" ]]; then
               export DATABASE_URL="postgresql://user:password@localhost:5432/testdb"
+          elif [[ "${{ matrix.database }}" == "mysql" ]]; then
+              export DATABASE_URL="mysql://root:root@127.0.0.1:3306/testdb"
+          elif [[ "${{ matrix.database }}" == "mariadb" ]]; then
+              export DATABASE_URL="mysql://root:root@127.0.0.1:3307/testdb"
           fi
 
           export OPENSEARCH_URL="http://localhost:9200"

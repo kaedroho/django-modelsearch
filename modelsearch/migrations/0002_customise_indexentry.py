@@ -133,3 +133,101 @@ class Migration(migrations.Migration):
                     ],
                 )
             )
+
+    elif connection.vendor == "mysql":
+        operations = [
+            migrations.AddField(
+                model_name="indexentry",
+                name="autocomplete",
+                field=models.TextField(null=True),
+            ),
+            migrations.AddField(
+                model_name="indexentry",
+                name="body",
+                field=models.TextField(null=True),
+            ),
+            migrations.AddField(
+                model_name="indexentry",
+                name="title",
+                field=models.TextField(default=""),
+                preserve_default=False,
+            ),
+        ]
+
+        # Create FULLTEXT indexes
+        # We need to add these indexes manually because Django imposes an artificial limitation
+        # that forces to specify the max length of the TextFields that get referenced by the
+        # FULLTEXT index. If we do it manually, it works, because Django can't check that we are
+        # defining a new index.
+        operations.append(
+            migrations.RunSQL(
+                sql="""
+                ALTER TABLE modelsearch_indexentry
+                    ADD FULLTEXT INDEX `fulltext_body` (`body`)
+                """,
+                reverse_sql="""
+                ALTER TABLE modelsearch_indexentry
+                    DROP INDEX `fulltext_body`
+                """,
+            )
+        )
+
+        # We create two separate FULLTEXT indexes for the 'body' and 'title' columns, so that we are able to handle them separately afterwards.
+        # We handle them separately, for example, when we do scoring: there, we multiply the 'title' score by the value of the 'title_norm' column. This can't be done if we index 'title' and 'body' in the same index, because MySQL doesn't allow to search on subparts of a defined index (we need to search all the columns of the index at the same time).
+        operations.append(
+            migrations.RunSQL(
+                sql="""
+                ALTER TABLE modelsearch_indexentry
+                    ADD FULLTEXT INDEX `fulltext_title` (`title`)
+                """,
+                reverse_sql="""
+                ALTER TABLE modelsearch_indexentry
+                    DROP INDEX `fulltext_title`
+                """,
+            )
+        )
+
+        # We also need to create a joint index on 'title' and 'body', to be able to query both at the same time. If we don't have this, some queries may return wrong results. For example, if we match 'A AND (NOT B)' against 'A, B', it returns false, but if we do (match 'A AND (NOT B)' against 'A') or (match 'A AND (NOT B)' against 'B'), the first one would return True, and the whole expression would be True (wrong result). That's the same as saying that testing subsets does not necessarily produce the same result as testing the whole set.
+        operations.append(
+            migrations.RunSQL(
+                sql="""
+                ALTER TABLE modelsearch_indexentry
+                    ADD FULLTEXT INDEX `fulltext_title_body` (`title`, `body`)
+                """,
+                reverse_sql="""
+                ALTER TABLE modelsearch_indexentry
+                    DROP INDEX `fulltext_title_body`
+                """,
+            )
+        )
+
+        # We use an ngram parser for autocomplete, so that it matches partial search queries.
+        # The index on body and title doesn't match partial queries by default.
+        # Note that this is not supported on MariaDB. See https://jira.mariadb.org/browse/MDEV-10267
+        if connection.mysql_is_mariadb:
+            operations.append(
+                migrations.RunSQL(
+                    sql="""
+                    ALTER TABLE modelsearch_indexentry
+                        ADD FULLTEXT INDEX `fulltext_autocomplete` (`autocomplete`)
+                    """,
+                    reverse_sql="""
+                    ALTER TABLE modelsearch_indexentry
+                        DROP INDEX `fulltext_autocomplete`
+                    """,
+                )
+            )
+        else:
+            operations.append(
+                migrations.RunSQL(
+                    sql="""
+                    ALTER TABLE modelsearch_indexentry
+                        ADD FULLTEXT INDEX `fulltext_autocomplete` (`autocomplete`)
+                        WITH PARSER ngram
+                    """,
+                    reverse_sql="""
+                    ALTER TABLE modelsearch_indexentry
+                        DROP INDEX `fulltext_autocomplete`
+                    """,
+                )
+            )

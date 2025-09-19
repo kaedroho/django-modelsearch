@@ -17,13 +17,13 @@
 
 Django ModelSearch allows you to index Django models and [search them using the ORM](https://django-modelsearch.readthedocs.io/en/latest/searching.html)!
 
-It supports PostgreSQL FTS, SQLite FTS5, Elasticsearch (7.x, 8.x, and 9.x), and OpenSearch (1.x, 2.x, and 3.x).
+It supports PostgreSQL FTS, SQLite FTS5, MySQL FTS, MariaDB FTS, Elasticsearch (7.x, 8.x, and 9.x), and OpenSearch (1.x, 2.x, and 3.x).
 
 Features:
 
 - Index models in Elasticsearch and OpenSearch and query with the Django ORM
 - Reuse existing QuerySets for search, works with Django paginators and `django-filter`
-- Also supports PostgreSQL FTS and SQLite FTS5
+- Also supports PostgreSQL FTS, MySQL FTS, MariaDB FTS and SQLite FTS5
 - [Autocomplete](https://django-modelsearch.readthedocs.io/en/latest/searching.html#autocomplete-search)
 - [Faceting](https://django-modelsearch.readthedocs.io/en/latest/searching.html#facet-field-name)
 - [Per-field boosting](https://django-modelsearch.readthedocs.io/en/latest/indexing.html#boosting-search-fields)
