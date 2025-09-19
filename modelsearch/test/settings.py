@@ -93,7 +93,7 @@ SEARCH_BACKEND = os.getenv("SEARCH_BACKEND", "db")
 MODELSEARCH_BACKENDS = {
     "default": {
         "BACKEND": {
-            "db": "modelsearch.backends.db",
+            "db": "modelsearch.backends.database",
             "elasticsearch7": "modelsearch.backends.elasticsearch7",
             "elasticsearch8": "modelsearch.backends.elasticsearch8",
             "elasticsearch9": "modelsearch.backends.elasticsearch9",
