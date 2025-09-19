@@ -5,7 +5,6 @@ from django.test import TestCase, override_settings
 
 from modelsearch import index
 from modelsearch.test.testapp import models
-from modelsearch.test.utils import ModelSearchTestCase
 
 
 class TestGetIndexedInstance(TestCase):
@@ -45,7 +44,7 @@ class TestGetIndexedInstance(TestCase):
         "default": {"BACKEND": "modelsearch.tests.DummySearchBackend"}
     }
 )
-class TestInsertOrUpdateObject(ModelSearchTestCase):
+class TestInsertOrUpdateObject(TestCase):
     def test_inserts_object(self, backend):
         obj = models.Book.objects.create(
             title="Test", publication_date=date(2017, 10, 18), number_of_pages=100
@@ -109,7 +108,7 @@ class TestInsertOrUpdateObject(ModelSearchTestCase):
         "default": {"BACKEND": "modelsearch.tests.DummySearchBackend"}
     }
 )
-class TestRemoveObject(ModelSearchTestCase):
+class TestRemoveObject(TestCase):
     def test_removes_object(self, backend):
         obj = models.Book.objects.create(
             title="Test", publication_date=date(2017, 10, 18), number_of_pages=100
@@ -156,7 +155,7 @@ class TestRemoveObject(ModelSearchTestCase):
         "default": {"BACKEND": "modelsearch.tests.DummySearchBackend"}
     }
 )
-class TestSignalHandlers(ModelSearchTestCase):
+class TestSignalHandlers(TestCase):
     def test_index_on_create(self, backend):
         backend().reset_mock()
         with self.captureOnCommitCallbacks(execute=True):
@@ -241,7 +240,7 @@ class TestSignalHandlers(ModelSearchTestCase):
         "default": {"BACKEND": "modelsearch.tests.DummySearchBackend"}
     }
 )
-class TestSignalHandlersSearchDisabled(ModelSearchTestCase):
+class TestSignalHandlersSearchDisabled(TestCase):
     def test_index_on_create_and_update(self, backend):
         obj = models.UnindexedBook.objects.create(
             title="Test", publication_date=date(2017, 10, 18), number_of_pages=100

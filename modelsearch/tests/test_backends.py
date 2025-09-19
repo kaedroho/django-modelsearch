@@ -33,10 +33,9 @@ from modelsearch.query import (
     PlainText,
 )
 from modelsearch.test.testapp import models
-from modelsearch.test.utils import ModelSearchTestCase
 
 
-class BackendTests(ModelSearchTestCase):
+class BackendTests:
     # To test a specific backend, subclass BackendTests and define self.backend_path.
     backend_path = None
 
