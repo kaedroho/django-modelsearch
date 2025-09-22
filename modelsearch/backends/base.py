@@ -416,8 +416,8 @@ class BaseIndex:
         """
         pass
 
-    def add_item(self, item):
-        pass
+    def add_item(self, obj):
+        self.add_items(obj._meta.model, [obj])
 
     def add_items(self, model, items):
         pass
