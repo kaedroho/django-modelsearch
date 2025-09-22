@@ -175,7 +175,10 @@ class BaseSearchQueryCompiler:
             )
 
         elif isinstance(where_node, NothingNode):
-            return self._process_match_none()
+            if check_only:
+                return
+            else:
+                return self._process_match_none()
 
         elif isinstance(where_node, WhereNode):
             # Get child filters

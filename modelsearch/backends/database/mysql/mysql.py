@@ -17,7 +17,6 @@ from django.db.models.fields import BooleanField, FloatField, TextField
 from django.db.models.functions.comparison import Cast
 from django.db.models.functions.text import Length
 from django.db.models.manager import Manager
-from django.db.models.query_utils import Q
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 
@@ -522,9 +521,6 @@ class MySQLSearchQueryCompiler(BaseSearchQueryCompiler):
         results = self.queryset.filter(id__in=object_ids)
 
         return results
-
-    def _process_match_none(self):
-        return Q(pk__in=[])
 
 
 class MySQLAutocompleteQueryCompiler(MySQLSearchQueryCompiler):
