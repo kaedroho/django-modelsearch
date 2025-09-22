@@ -395,6 +395,12 @@ class BaseIndex:
     def __init__(self, backend):
         self.backend = backend
 
+    def get_key(self):
+        """
+        Returns a hashable value that uniquely identifies this index within the search backend.
+        """
+        return "default"
+
     def add_model(self, model):
         pass
 
