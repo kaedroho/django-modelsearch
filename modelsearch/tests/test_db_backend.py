@@ -3,6 +3,8 @@ import unittest
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from modelsearch.test.testapp import models
+
 from .test_backends import BackendTests
 
 
@@ -60,3 +62,12 @@ class TestDBBackend(BackendTests, TestCase):
     @unittest.expectedFailure
     def test_boost(self):
         super().test_boost()
+
+    def test_reset_indexes(self):
+        """
+        After running backend.reset_indexes(), search should still return results (because there's
+        no actual index to reset)
+        """
+        self.backend.reset_indexes()
+        results = self.backend.search("JavaScript", models.Book)
+        self.assertEqual(results.count(), 2)

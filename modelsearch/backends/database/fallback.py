@@ -232,9 +232,6 @@ class DatabaseSearchBackend(BaseSearchBackend):
     autocomplete_query_compiler_class = DatabaseSearchQueryCompiler
     results_class = DatabaseSearchResults
 
-    def reset_index(self):
-        pass  # Not needed
-
     def add_type(self, model):
         pass  # Not needed
 

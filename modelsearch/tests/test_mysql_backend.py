@@ -191,3 +191,11 @@ class TestMySQLSearchBackend(BackendTests, TransactionTestCase):
     @skip("The MySQL backend doesn't guarantee correct ranking of results.")
     def test_ranking(self):
         return super().test_ranking()
+
+    def test_reset_indexes(self):
+        """
+        After running backend.reset_indexes(), search should return no results.
+        """
+        self.backend.reset_indexes()
+        results = self.backend.search("JavaScript", models.Book)
+        self.assertEqual(results.count(), 0)

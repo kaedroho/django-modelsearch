@@ -8,6 +8,7 @@ from django.test.testcases import TestCase
 from django.test.utils import override_settings
 
 from modelsearch.backends.database.sqlite.utils import fts5_available
+from modelsearch.test.testapp import models
 from modelsearch.tests.test_backends import BackendTests
 
 
@@ -51,3 +52,11 @@ class TestSQLiteSearchBackend(BackendTests, TestCase):
     @skip("The SQLite backend doesn't guarantee correct ranking of results.")
     def test_ranking(self):
         return super().test_ranking()
+
+    def test_reset_indexes(self):
+        """
+        After running backend.reset_indexes(), search should return no results.
+        """
+        self.backend.reset_indexes()
+        results = self.backend.search("JavaScript", models.Book)
+        self.assertEqual(results.count(), 0)
