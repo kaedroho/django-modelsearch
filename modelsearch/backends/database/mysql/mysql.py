@@ -224,7 +224,19 @@ class MySQLIndex(BaseIndex):
             if not model._meta.parents:
                 self.delete_stale_model_entries(model)
 
-    def add_items_update_then_create(self, content_type_pk, indexers):
+    def add_items(self, model, objs):
+        search_fields = model.get_search_fields()
+        if not search_fields:
+            return
+
+        indexers = [ObjectIndexer(obj, self.backend) for obj in objs]
+
+        # TODO: Delete unindexed objects while dealing with proxy models.
+        if not indexers:
+            return
+
+        content_type_pk = get_content_type_pk(model)
+
         ids_and_data = {}
         for indexer in indexers:
             ids_and_data[indexer.id] = (
@@ -262,20 +274,6 @@ class MySQLIndex(BaseIndex):
         self.entries.bulk_create(to_be_created)
 
         self._refresh_title_norms()
-
-    def add_items(self, model, objs):
-        search_fields = model.get_search_fields()
-        if not search_fields:
-            return
-
-        indexers = [ObjectIndexer(obj, self.backend) for obj in objs]
-
-        # TODO: Delete unindexed objects while dealing with proxy models.
-        if indexers:
-            content_type_pk = get_content_type_pk(model)
-
-            update_method = self.add_items_update_then_create
-            update_method(content_type_pk, indexers)
 
     def delete_item(self, item):
         item.index_entries.all()._raw_delete(using=self.write_connection.alias)
