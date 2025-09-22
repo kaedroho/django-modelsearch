@@ -997,6 +997,27 @@ class BackendTests:
         )
         self.assertFalse(stdout.getvalue())
 
+    def test_refresh_all_indexes(self):
+        """
+        Backends should provide a refresh_indexes method that refreshes all indexes. We don't care
+        what this does (and it will often be a no-op), beyond ensuring that searches return
+        recently-updated data afterwards.
+        """
+        book = models.Book.objects.create(
+            title="To Kill A Mockingbird",
+            publication_date=date(2017, 10, 18),
+            number_of_pages=100,
+        )
+        self.backend.add(book)
+        author = models.Author.objects.create(name="Harper Lee")
+        self.backend.add(author)
+        self.backend.refresh_indexes()
+
+        results = self.backend.search("mockingbird", models.Book)
+        self.assertEqual(results.count(), 1)
+        results = self.backend.search("harper", models.Author)
+        self.assertEqual(results.count(), 1)
+
 
 @override_settings(
     MODELSEARCH_BACKENDS={"default": {"BACKEND": "modelsearch.backends.database"}}
