@@ -1018,6 +1018,30 @@ class BackendTests:
         results = self.backend.search("harper", models.Author)
         self.assertEqual(results.count(), 1)
 
+    def test_add_bulk(self):
+        books = [
+            models.Book.objects.create(
+                title="Fifty Shades of Grey",
+                publication_date=date(2020, 1, 1),
+                number_of_pages=100,
+            ),
+            models.Book.objects.create(
+                title="Fifty Shades Darker",
+                publication_date=date(2020, 2, 1),
+                number_of_pages=200,
+            ),
+            models.Book.objects.create(
+                title="Fifty Shades Freed",
+                publication_date=date(2020, 3, 1),
+                number_of_pages=300,
+            ),
+        ]
+        self.backend.add_bulk(models.Book, books)
+        self.backend.get_index_for_model(models.Book).refresh()
+
+        results = self.backend.search("Fifty Shades", models.Book)
+        self.assertEqual(results.count(), 3)
+
 
 @override_settings(
     MODELSEARCH_BACKENDS={"default": {"BACKEND": "modelsearch.backends.database"}}

@@ -409,7 +409,8 @@ class ElasticsearchBaseIndex(BaseIndex):
             actions.append(action)
 
         # Run the actions
-        self.backend.bulk(self.es, actions, index=self.name)
+        if actions:
+            self.backend.bulk(self.es, actions, index=self.name)
 
     def delete_item(self, item):
         # Make sure the object can be indexed
