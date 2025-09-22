@@ -1,6 +1,8 @@
 import uuid
 
 from django.db import models
+from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
 from taggit.managers import TaggableManager
 
 from modelsearch import index
@@ -140,6 +142,37 @@ class UnindexedBook(index.Indexed, models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Advert(models.Model):
+    text = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.text
+
+
+class BlogCategory(models.Model):
+    name = models.CharField(unique=True, max_length=80)
+
+    def __str__(self):
+        return self.name
+
+
+class BlogCategoryBlogPage(models.Model):
+    category = models.ForeignKey(
+        BlogCategory, related_name="+", on_delete=models.CASCADE
+    )
+    page = ParentalKey(
+        "ManyToManyBlogPage", related_name="categories", on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return f"BlogCategoryBlogPage: {self.category} - {self.page}"
+
+
+class ManyToManyBlogPage(ClusterableModel):
+    title = models.CharField(max_length=255)
+    adverts = models.ManyToManyField(Advert, blank=True)
 
 
 class AdvertWithCustomUUIDPrimaryKey(index.Indexed, models.Model):
