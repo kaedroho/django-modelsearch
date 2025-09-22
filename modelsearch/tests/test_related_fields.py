@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from modelsearch import index
-from modelsearch.test.testapp.models import Book, Novel
+from modelsearch.test.testapp.models import Advert, Book, ManyToManyBlogPage, Novel
 
 
 class TestSelectOnQuerySet(TestCase):
@@ -33,31 +33,30 @@ class TestSelectOnQuerySet(TestCase):
         self.assertFalse(queryset._prefetch_related_lookups)
         self.assertIn("book_ptr", queryset.query.select_related)
 
-    # TODO: Replace with non-wagtail model
-    # def test_select_on_queryset_with_many_to_many(self):
-    #     fields = index.RelatedFields(
-    #         "adverts",
-    #         [
-    #             index.SearchField("title"),
-    #         ],
-    #     )
+    def test_select_on_queryset_with_many_to_many(self):
+        fields = index.RelatedFields(
+            "adverts",
+            [
+                index.SearchField("title"),
+            ],
+        )
 
-    #     queryset = fields.select_on_queryset(ManyToManyBlogPage.objects.all())
+        queryset = fields.select_on_queryset(ManyToManyBlogPage.objects.all())
 
-    #     # ManyToManyField should be prefetch_related
-    #     self.assertIn("adverts", queryset._prefetch_related_lookups)
-    #     self.assertFalse(queryset.query.select_related)
+        # ManyToManyField should be prefetch_related
+        self.assertIn("adverts", queryset._prefetch_related_lookups)
+        self.assertFalse(queryset.query.select_related)
 
-    # def test_select_on_queryset_with_reverse_foreign_key(self):
-    #     fields = index.RelatedFields(
-    #         "categories", [index.RelatedFields("category", [index.SearchField("name")])]
-    #     )
+    def test_select_on_queryset_with_reverse_foreign_key(self):
+        fields = index.RelatedFields(
+            "categories", [index.RelatedFields("category", [index.SearchField("name")])]
+        )
 
-    #     queryset = fields.select_on_queryset(ManyToManyBlogPage.objects.all())
+        queryset = fields.select_on_queryset(ManyToManyBlogPage.objects.all())
 
-    #     # reverse ForeignKey should be prefetch_related
-    #     self.assertIn("categories", queryset._prefetch_related_lookups)
-    #     self.assertFalse(queryset.query.select_related)
+        # reverse ForeignKey should be prefetch_related
+        self.assertIn("categories", queryset._prefetch_related_lookups)
+        self.assertFalse(queryset.query.select_related)
 
     def test_select_on_queryset_with_reverse_one_to_one(self):
         fields = index.RelatedFields(
@@ -73,20 +72,19 @@ class TestSelectOnQuerySet(TestCase):
         self.assertFalse(queryset._prefetch_related_lookups)
         self.assertIn("novel", queryset.query.select_related)
 
-    # TODO: Replace with non-Wagtail model
-    # def test_select_on_queryset_with_reverse_many_to_many(self):
-    #     fields = index.RelatedFields(
-    #         "manytomanyblogpage",
-    #         [
-    #             index.SearchField("title"),
-    #         ],
-    #     )
+    def test_select_on_queryset_with_reverse_many_to_many(self):
+        fields = index.RelatedFields(
+            "manytomanyblogpage",
+            [
+                index.SearchField("title"),
+            ],
+        )
 
-    #     queryset = fields.select_on_queryset(Advert.objects.all())
+        queryset = fields.select_on_queryset(Advert.objects.all())
 
-    #     # reverse ManyToManyField should be prefetch_related
-    #     self.assertIn("manytomanyblogpage", queryset._prefetch_related_lookups)
-    #     self.assertFalse(queryset.query.select_related)
+        # reverse ManyToManyField should be prefetch_related
+        self.assertIn("manytomanyblogpage", queryset._prefetch_related_lookups)
+        self.assertFalse(queryset.query.select_related)
 
     def test_select_on_queryset_with_taggable_manager(self):
         fields = index.RelatedFields(
