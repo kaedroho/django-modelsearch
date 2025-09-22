@@ -721,10 +721,6 @@ class PostgresSearchBackend(BaseSearchBackend):
     def add(self, obj):
         self.get_index_for_object(obj).add_item(obj)
 
-    def add_bulk(self, model, obj_list):
-        if obj_list:
-            self.get_index_for_object(obj_list[0]).add_items(model, obj_list)
-
     def delete(self, obj):
         self.get_index_for_object(obj).delete_item(obj)
 
