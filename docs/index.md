@@ -30,6 +30,8 @@ INSTALLED_APPS = [
 ]
 ```
 
+If you are using PostgreSQL, you must additionally add `django.contrib.postgres` to your [`INSTALLED_APPS`](https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-INSTALLED_APPS) setting.
+
 ## Configuration
 
 Django Modelsearch indexes into database by default and it'll use the built-in full text search features of SQLite, MySQL, MariaDB and PostgreSQL with a fallback for other databases.

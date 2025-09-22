@@ -85,6 +85,9 @@ DATABASES = {
     "default": dj_database_url.config(default="sqlite:///test_modelsearch.sqlite")
 }
 
+if DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
+    INSTALLED_APPS.append("django.contrib.postgres")
+
 
 # Search backend
 
