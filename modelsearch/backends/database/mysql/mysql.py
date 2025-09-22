@@ -22,6 +22,7 @@ from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 
 from modelsearch.backends.base import (
+    BaseIndex,
     BaseSearchBackend,
     BaseSearchQueryCompiler,
     BaseSearchResults,
@@ -157,9 +158,9 @@ class ObjectIndexer:
         return " ".join(texts)
 
 
-class Index:
+class MySQLIndex(BaseIndex):
     def __init__(self, backend):
-        self.backend = backend
+        super().__init__(backend)
         self.name = self.backend.index_name
 
         self.read_connection = connections[router.db_for_read(IndexEntry)]
@@ -174,12 +175,6 @@ class Index:
             )
 
         self.entries = IndexEntry._default_manager.all()
-
-    def add_model(self, model):
-        pass
-
-    def refresh(self):
-        pass
 
     def _refresh_title_norms(self, full=False):
         """
@@ -650,6 +645,7 @@ class MySQLSearchBackend(BaseSearchBackend):
     query_compiler_class = MySQLSearchQueryCompiler
     autocomplete_query_compiler_class = MySQLAutocompleteQueryCompiler
 
+    index_class = MySQLIndex
     results_class = MySQLSearchResults
     rebuilder_class = MySQLSearchRebuilder
     atomic_rebuilder_class = MySQLSearchAtomicRebuilder
@@ -664,9 +660,6 @@ class MySQLSearchBackend(BaseSearchBackend):
 
         if params.get("ATOMIC_REBUILD", False):
             self.rebuilder_class = self.atomic_rebuilder_class
-
-    def get_index_for_model(self, model):
-        return Index(self)
 
     def get_index_for_object(self, obj):
         return self.get_index_for_model(obj._meta.model)

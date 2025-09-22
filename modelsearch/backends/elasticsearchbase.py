@@ -11,6 +11,7 @@ from django.db.models.sql.constants import MULTI, SINGLE
 from django.utils.crypto import get_random_string
 
 from modelsearch.backends.base import (
+    BaseIndex,
     BaseSearchBackend,
     BaseSearchQueryCompiler,
     BaseSearchResults,
@@ -310,9 +311,9 @@ class ElasticsearchBaseMapping:
         return f"<ElasticsearchMapping: {self.model.__name__}>"
 
 
-class ElasticsearchBaseIndex:
+class ElasticsearchBaseIndex(BaseIndex):
     def __init__(self, backend, name):
-        self.backend = backend
+        super().__init__(backend)
         self.es = backend.es
         self.mapping_class = backend.mapping_class
         self.name = name
