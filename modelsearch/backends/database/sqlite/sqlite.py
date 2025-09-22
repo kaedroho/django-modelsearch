@@ -25,6 +25,7 @@ from ....utils import (
     get_descendants_content_types_pks,
 )
 from ...base import (
+    BaseIndex,
     BaseSearchBackend,
     BaseSearchQueryCompiler,
     BaseSearchResults,
@@ -149,9 +150,9 @@ class ObjectIndexer:
         return " ".join(texts)
 
 
-class Index:
+class SQLiteIndex(BaseIndex):
     def __init__(self, backend):
-        self.backend = backend
+        super().__init__(backend)
 
         self.read_connection = connections[router.db_for_read(IndexEntry)]
         self.write_connection = connections[router.db_for_write(IndexEntry)]
@@ -165,12 +166,6 @@ class Index:
             )
 
         self.entries = IndexEntry._default_manager.all()
-
-    def add_model(self, model):
-        pass
-
-    def refresh(self):
-        pass
 
     def _refresh_title_norms(self, full=False):
         """
@@ -663,6 +658,7 @@ class SQLiteSearchBackend(BaseSearchBackend):
     query_compiler_class = SQLiteSearchQueryCompiler
     autocomplete_query_compiler_class = SQLiteAutocompleteQueryCompiler
 
+    index_class = SQLiteIndex
     results_class = SQLiteSearchResults
     rebuilder_class = SQLiteSearchRebuilder
     atomic_rebuilder_class = SQLiteSearchAtomicRebuilder
@@ -675,9 +671,6 @@ class SQLiteSearchBackend(BaseSearchBackend):
 
         if params.get("ATOMIC_REBUILD", True):
             self.rebuilder_class = self.atomic_rebuilder_class
-
-    def get_index_for_model(self, model):
-        return Index(self)
 
     def get_index_for_object(self, obj):
         return self.get_index_for_model(obj._meta.model)
