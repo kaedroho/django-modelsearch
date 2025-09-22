@@ -440,12 +440,6 @@ class BaseSearchBackend:
     def get_index_for_model(self, model):
         return self.index_class(self)
 
-    def get_rebuilder(self):
-        return None
-
-    def add_type(self, model):
-        self.get_index_for_model(model).add_model(model)
-
     def all_indexes(self):
         """
         Returns a sequence of all indexes used by this backend.
