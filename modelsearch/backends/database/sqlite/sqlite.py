@@ -139,15 +139,6 @@ class ObjectIndexer:
 
         return " ".join(texts)
 
-    def as_vector(self, texts, for_autocomplete=False):
-        """
-        Converts an array of strings into a SearchVector that can be indexed.
-        """
-        texts = [(text.strip(), weight) for text, weight in texts]
-        texts = [(text, weight) for text, weight in texts if text]
-
-        return " ".join(texts)
-
 
 class SQLiteIndex(BaseIndex):
     def __init__(self, backend):
