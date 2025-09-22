@@ -703,8 +703,7 @@ class BackendTests:
             self.backend.add(book)
 
         index = self.backend.get_index_for_model(models.Book)
-        if index:
-            index.refresh()
+        index.refresh()
 
         fantasy_tag = Tag.objects.get(name="Fantasy")
         scifi_tag = Tag.objects.get(name="Science Fiction")
@@ -755,9 +754,8 @@ class BackendTests:
 
         # Delete from the search index
         index = self.backend.get_index_for_model(models.Novel)
-        if index:
-            index.delete_item(foundation)
-            index.refresh()
+        index.delete_item(foundation)
+        index.refresh()
 
         # Delete from the database
         foundation.delete()
@@ -1159,16 +1157,14 @@ class TestBackendLoader(TestCase):
         backends = list(get_search_backends())
 
         self.assertEqual(len(backends), 1)
-        if not issubclass(type(backends[0]), BaseSearchBackend):
-            self.fail()
+        self.assertTrue(issubclass(type(backends[0]), BaseSearchBackend))
 
     @override_settings(MODELSEARCH_BACKENDS={})
     def test_get_search_backends_with_no_default_defined(self):
         backends = list(get_search_backends())
 
         self.assertEqual(len(backends), 1)
-        if not issubclass(type(backends[0]), BaseSearchBackend):
-            self.fail()
+        self.assertTrue(issubclass(type(backends[0]), BaseSearchBackend))
 
     @override_settings(
         MODELSEARCH_BACKENDS={
