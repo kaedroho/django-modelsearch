@@ -83,13 +83,7 @@ class BaseSearchQueryCompiler:
 
         if field is None:
             raise FilterFieldError(
-                'Cannot filter search results with field "'
-                + field_attname
-                + "\". Please add index.FilterField('"
-                + field_attname
-                + "') to "
-                + self.queryset.model.__name__
-                + ".search_fields.",
+                f'Cannot filter search results with field "{field_attname}". Please add index.FilterField("{field_attname}") to {self.queryset.model.__name__}.search_fields.',
                 field_name=field_attname,
             )
 
@@ -99,15 +93,7 @@ class BaseSearchQueryCompiler:
 
         if result is None:
             raise FilterError(
-                'Could not apply filter on search results: "'
-                + field_attname
-                + "__"
-                + lookup
-                + " = "
-                + str(value)
-                + '". Lookup "'
-                + lookup
-                + '"" not recognised.'
+                f'Could not apply filter on search results: "{field_attname}__{lookup} = {value}". Lookup "{lookup}" not recognised.'
             )
 
         return result
@@ -118,9 +104,7 @@ class BaseSearchQueryCompiler:
             if isinstance(where_node.lhs, ExtractDate):
                 if not isinstance(where_node.lhs, ExtractYear):
                     raise FilterError(
-                        'Cannot apply filter on search results: "'
-                        + where_node.lhs.lookup_name
-                        + '" queries are not supported.'
+                        f'Cannot apply filter on search results: "{where_node.lhs.lookup_name}" queries are not supported.'
                     )
                 else:
                     field_attname = where_node.lhs.lhs.target.attname
@@ -166,9 +150,7 @@ class BaseSearchQueryCompiler:
                             )
                     else:
                         raise FilterError(
-                            'Cannot apply filter on search results: "'
-                            + where_node.lhs.lookup_name
-                            + '" queries are not supported.'
+                            f'Cannot apply filter on search results: "{where_node.lhs.lookup_name}" queries are not supported.'
                         )
             else:
                 field_attname = where_node.lhs.target.attname
@@ -205,8 +187,7 @@ class BaseSearchQueryCompiler:
 
         else:
             raise FilterError(
-                "Could not apply filter on search results: Unknown where node: "
-                + str(type(where_node))
+                f"Could not apply filter on search results: Unknown where node: {type(where_node)}"
             )
 
     def _get_filters_from_queryset(self):
@@ -227,13 +208,7 @@ class BaseSearchQueryCompiler:
 
             if field is None:
                 raise OrderByFieldError(
-                    'Cannot sort search results with field "'
-                    + field_name
-                    + "\". Please add index.FilterField('"
-                    + field_name
-                    + "') to "
-                    + self.queryset.model.__name__
-                    + ".search_fields.",
+                    f'Cannot sort search results with field "{field_name}". Please add index.FilterField("{field_name}") to {self.queryset.model.__name__}.search_fields.',
                     field_name=field_name,
                 )
 
@@ -250,13 +225,7 @@ class BaseSearchQueryCompiler:
             for field_name in self.fields:
                 if field_name not in allowed_fields:
                     raise SearchFieldError(
-                        'Cannot search with field "'
-                        + field_name
-                        + "\". Please add index.SearchField('"
-                        + field_name
-                        + "') to "
-                        + self.queryset.model.__name__
-                        + ".search_fields.",
+                        f'Cannot search with field "{field_name}". Please add index.SearchField("{field_name}") to {self.queryset.model.__name__}.search_fields.',
                         field_name=field_name,
                     )
 
