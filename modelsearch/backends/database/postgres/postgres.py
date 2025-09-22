@@ -235,9 +235,6 @@ class PostgresIndex(BaseIndex):
             if not model._meta.parents:
                 self.delete_stale_model_entries(model)
 
-    def add_item(self, obj):
-        self.add_items(obj._meta.model, [obj])
-
     def add_items(self, model, objs):
         search_fields = model.get_search_fields()
         if not search_fields:

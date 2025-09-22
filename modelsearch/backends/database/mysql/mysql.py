@@ -224,9 +224,6 @@ class MySQLIndex(BaseIndex):
             if not model._meta.parents:
                 self.delete_stale_model_entries(model)
 
-    def add_item(self, obj):
-        self.add_items(obj._meta.model, [obj])
-
     def add_items_update_then_create(self, content_type_pk, indexers):
         ids_and_data = {}
         for indexer in indexers:
