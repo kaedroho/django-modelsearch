@@ -405,6 +405,9 @@ class BaseIndex:
         pass
 
     def refresh(self):
+        """
+        Performs any housekeeping required by the index so that recently-updated data is visible to searches.
+        """
         pass
 
     def add_item(self, item):
@@ -440,13 +443,25 @@ class BaseSearchBackend:
     def add_type(self, model):
         self.get_index_for_model(model).add_model(model)
 
-    def refresh_index(self):
-        refreshed_indexes = []
+    def all_indexes(self):
+        """
+        Returns a sequence of all indexes used by this backend.
+        """
+        seen_keys = set()
         for model in get_indexed_models():
             index = self.get_index_for_model(model)
-            if index not in refreshed_indexes:
-                index.refresh()
-                refreshed_indexes.append(index)
+            key = index.get_key()
+            if key not in seen_keys:
+                seen_keys.add(key)
+                yield index
+
+    def refresh_indexes(self):
+        """
+        Refreshes all indexes used by this backend. This performs any housekeeping required by the
+        index so that recently-updated data is visible to searches.
+        """
+        for index in self.all_indexes():
+            index.refresh()
 
     def add(self, obj):
         self.get_index_for_model(type(obj)).add_item(obj)
