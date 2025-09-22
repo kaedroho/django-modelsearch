@@ -99,12 +99,12 @@ class BaseSearchQueryCompiler:
         if not check_only:
             result = self._process_lookup(field, lookup, value)
 
-        if result is None:
-            raise FilterError(
-                f'Could not apply filter on search results: "{field_attname}__{lookup} = {value}". Lookup "{lookup}" not recognised.'
-            )
+            if result is None:
+                raise FilterError(
+                    f'Could not apply filter on search results: "{field_attname}__{lookup} = {value}". Lookup "{lookup}" not recognised.'
+                )
 
-        return result
+            return result
 
     def _get_filters_from_where_node(self, where_node, check_only=False):
         # Check if this is a leaf node
@@ -181,7 +181,7 @@ class BaseSearchQueryCompiler:
             # Get child filters
             connector = where_node.connector
             child_filters = [
-                self._get_filters_from_where_node(child)
+                self._get_filters_from_where_node(child, check_only=check_only)
                 for child in where_node.children
             ]
 
@@ -198,8 +198,10 @@ class BaseSearchQueryCompiler:
                 f"Could not apply filter on search results: Unknown where node: {type(where_node)}"
             )
 
-    def _get_filters_from_queryset(self):
-        return self._get_filters_from_where_node(self.queryset.query.where)
+    def _get_filters_from_queryset(self, check_only=False):
+        return self._get_filters_from_where_node(
+            self.queryset.query.where, check_only=check_only
+        )
 
     def _get_order_by(self):
         if self.order_by_relevance:
@@ -239,7 +241,7 @@ class BaseSearchQueryCompiler:
 
         # Check where clause
         # Raises FilterFieldError if an unindexed field is being filtered on
-        self._get_filters_from_where_node(self.queryset.query.where, check_only=True)
+        self._get_filters_from_queryset(check_only=True)
 
         # Check order by
         # Raises OrderByFieldError if an unindexed field is being used to order by
