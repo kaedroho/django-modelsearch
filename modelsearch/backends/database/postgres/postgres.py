@@ -10,7 +10,7 @@ from django.db import (
     router,
     transaction,
 )
-from django.db.models import Avg, Count, F, Manager, Q, TextField, Value
+from django.db.models import Avg, Count, F, Manager, TextField, Value
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.functions import Cast, Length
 from django.db.models.sql.subqueries import InsertQuery
@@ -550,9 +550,6 @@ class PostgresSearchQueryCompiler(BaseSearchQueryCompiler):
             queryset = queryset.annotate(**{score_field: rank_expression})
 
         return queryset[start:stop]
-
-    def _process_match_none(self):
-        return Q(pk__in=[])
 
 
 class PostgresAutocompleteQueryCompiler(PostgresSearchQueryCompiler):

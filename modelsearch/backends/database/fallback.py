@@ -52,9 +52,6 @@ class DatabaseSearchQueryCompiler(BaseSearchQueryCompiler):
             else:
                 yield field_name
 
-    def _process_match_none(self):
-        return models.Q(pk__in=[])
-
     def build_single_term_filter(self, term):
         term_query = models.Q()
         for field_name in self.fields_names:
