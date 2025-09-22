@@ -52,26 +52,8 @@ class DatabaseSearchQueryCompiler(BaseSearchQueryCompiler):
             else:
                 yield field_name
 
-    def _process_lookup(self, field, lookup, value):
-        return models.Q(
-            **{field.get_attname(self.queryset.model) + "__" + lookup: value}
-        )
-
     def _process_match_none(self):
         return models.Q(pk__in=[])
-
-    def _connect_filters(self, filters, connector, negated):
-        if connector == "AND":
-            q = models.Q(*filters)
-        elif connector == "OR":
-            q = OR([models.Q(fil) for fil in filters])
-        else:
-            return
-
-        if negated:
-            q = ~q
-
-        return q
 
     def build_single_term_filter(self, term):
         term_query = models.Q()
@@ -171,10 +153,6 @@ class DatabaseSearchResults(BaseSearchResults):
 
     def get_queryset(self):
         queryset = self.query_compiler.queryset
-
-        # Run _get_filters_from_queryset to test that no fields that are not
-        # a FilterField have been used in the query.
-        self.query_compiler._get_filters_from_queryset()
 
         q = self.query_compiler.build_database_filter(self.query_compiler.query)
 
