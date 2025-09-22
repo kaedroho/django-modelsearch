@@ -672,9 +672,6 @@ class MySQLSearchBackend(BaseSearchBackend):
     def get_index_for_object(self, obj):
         return self.get_index_for_model(obj._meta.model)
 
-    def add_type(self, model):
-        pass  # Not needed.
-
     def add(self, obj):
         self.get_index_for_object(obj).add_item(obj)
 
