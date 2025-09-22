@@ -440,6 +440,9 @@ class BaseSearchBackend:
     def get_index_for_model(self, model):
         return self.index_class(self)
 
+    def get_index_for_object(self, obj):
+        return self.get_index_for_model(obj._meta.model)
+
     def all_indexes(self):
         """
         Returns a sequence of all indexes used by this backend.
@@ -468,13 +471,13 @@ class BaseSearchBackend:
             index.reset()
 
     def add(self, obj):
-        self.get_index_for_model(type(obj)).add_item(obj)
+        self.get_index_for_object(obj).add_item(obj)
 
     def add_bulk(self, model, obj_list):
         self.get_index_for_model(model).add_items(model, obj_list)
 
     def delete(self, obj):
-        self.get_index_for_model(type(obj)).delete_item(obj)
+        self.get_index_for_object(obj).delete_item(obj)
 
     def _search(self, query_compiler_class, query, model_or_queryset, **kwargs):
         # Find model/queryset
