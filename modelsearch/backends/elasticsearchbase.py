@@ -1071,6 +1071,8 @@ class ElasticsearchAtomicIndexRebuilder(ElasticsearchIndexRebuilder):
     def reset_index(self):
         # Delete old index using the alias
         # This should delete both the alias and the index
+        # FIXME: it doesn't - it just fails with "The provided expression [...] matches an alias, specify the corresponding concrete indices instead."
+        # Just as well this isn't actually called anywhere then...
         self.alias.delete()
 
         # Create new index

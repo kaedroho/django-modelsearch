@@ -1,3 +1,5 @@
+import unittest
+
 from datetime import date
 from io import StringIO
 
@@ -257,3 +259,14 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
             indexes,
             ["modelsearchtest_searchtests_author", "modelsearchtest_searchtests_book"],
         )
+
+    @unittest.skip(
+        "ElasticsearchBaseIndex.delete does not correctly handle aliases, so fails with ATOMIC_REBUILD"
+    )
+    def test_reset_indexes(self):
+        """
+        After running backend.reset_indexes(), search should return no results.
+        """
+        self.backend.reset_indexes()
+        results = self.backend.search("JavaScript", models.Book)
+        self.assertEqual(results.count(), 0)
