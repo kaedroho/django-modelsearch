@@ -23,7 +23,6 @@ from ....query import And, Boost, MatchAll, Not, Or, Phrase, PlainText
 from ....utils import (
     ADD,
     MUL,
-    OR,
     get_content_type_pk,
     get_descendants_content_types_pks,
 )
@@ -552,27 +551,8 @@ class PostgresSearchQueryCompiler(BaseSearchQueryCompiler):
 
         return queryset[start:stop]
 
-    def _process_lookup(self, field, lookup, value):
-        lhs = field.get_attname(self.queryset.model) + "__" + lookup
-        return Q(**{lhs: value})
-
     def _process_match_none(self):
         return Q(pk__in=[])
-
-    def _connect_filters(self, filters, connector, negated):
-        if connector == "AND":
-            q = Q(*filters)
-
-        elif connector == "OR":
-            q = OR([Q(fil) for fil in filters])
-
-        else:
-            return
-
-        if negated:
-            q = ~q
-
-        return q
 
 
 class PostgresAutocompleteQueryCompiler(PostgresSearchQueryCompiler):
