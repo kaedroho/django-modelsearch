@@ -81,6 +81,7 @@ class BackendTests:
             [r.title for r in results],
             ["JavaScript: The good parts", "JavaScript: The Definitive Guide"],
         )
+        self.assertEqual(results.model, models.Book)
 
     def test_search_count(self):
         results = self.backend.search("JavaScript", models.Book)
