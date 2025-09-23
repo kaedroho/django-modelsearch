@@ -529,11 +529,8 @@ class SQLiteSearchQueryCompiler(BaseSearchQueryCompiler):
         )
 
         if self.order_by_relevance:
+            # FIXME: this has no effect because the final query is just running an id__in filter, without preserving order.
             objs = objs.order_by(BM25().desc())
-        elif not objs.query.order_by:
-            # Adds a default ordering to avoid issue #3729.
-            queryset = objs.order_by("-pk")
-            rank_expression = F("pk")
 
         from django.db import connection
         from django.db.models.sql.subqueries import InsertQuery
@@ -561,8 +558,14 @@ class SQLiteSearchQueryCompiler(BaseSearchQueryCompiler):
                 id__in=obj_ids
             )  # We exclude the objects that matched the search query from the source queryset, if the query is negated.
 
+        # FIXME: this fails because `rank_expression` is only valid in the `objs` query we constructed above, not `queryset`.
         if score_field is not None:
             queryset = queryset.annotate(**{score_field: rank_expression})
+
+        if not self.order_by_relevance and not queryset.query.order_by:
+            # Add a default ordering to keep results consistent across pages
+            # (see https://github.com/wagtail/wagtail/issues/3729).
+            queryset = queryset.order_by("-pk")
 
         return queryset[start:stop]
 

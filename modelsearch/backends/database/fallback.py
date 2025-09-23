@@ -160,6 +160,11 @@ class DatabaseSearchResults(BaseSearchResults):
         else:
             queryset = queryset.filter(q)
 
+        if not self.query_compiler.order_by_relevance and not queryset.query.order_by:
+            # Add a default ordering to keep results consistent across pages
+            # (see https://github.com/wagtail/wagtail/issues/3729).
+            queryset = queryset.order_by("-pk")
+
         return queryset.distinct()[self.start : self.stop]
 
     def _do_search(self):

@@ -471,6 +471,7 @@ class MySQLSearchQueryCompiler(BaseSearchQueryCompiler):
         if not negated:
             index_entries = index_entries.filter(match_expression)
             if self.order_by_relevance:  # Only applies to the case where the outermost query is not a Not(), because if it is, the relevance score is always 0 (anything that matches is excluded from the results).
+                # FIXME: This has no effect because the final query is just running an id__in filter, without preserving order.
                 index_entries = index_entries.order_by(score_expression.desc())
         else:
             index_entries = index_entries.exclude(match_expression)
@@ -481,7 +482,13 @@ class MySQLSearchQueryCompiler(BaseSearchQueryCompiler):
             index_entry.object_id for index_entry in index_entries
         }  # Get the set of IDs from the indexed objects, removes duplicates too
 
-        results = self.queryset.filter(id__in=object_ids)
+        queryset = self.queryset
+        if not self.order_by_relevance and not queryset.query.order_by:
+            # Add a default ordering to keep results consistent across pages
+            # (see https://github.com/wagtail/wagtail/issues/3729).
+            queryset = queryset.order_by("-pk")
+
+        results = queryset.filter(id__in=object_ids)
 
         return results
 
