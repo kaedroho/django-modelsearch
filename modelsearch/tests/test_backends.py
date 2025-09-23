@@ -737,7 +737,7 @@ class BackendTests:
 
     # ORDER BY RELEVANCE
 
-    def test_order_by_relevance(self):
+    def test_order_by_relevance_match_all(self):
         results = self.backend.search(
             MATCH_ALL,
             models.Novel.objects.order_by("number_of_pages"),
@@ -756,6 +756,53 @@ class BackendTests:
                 "A Game of Thrones",
                 "A Clash of Kings",
                 "A Storm of Swords",
+            ],
+        )
+
+    def test_order_by_relevance_false_with_real_search(self):
+        # MATCH_ALL searches will often short-circuit the actual search query logic, so
+        # we should do a non-MATCH_ALL query to ensure full coverage
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by("number_of_pages"),
+            order_by_relevance=False,
+        )
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The good parts",
+                "JavaScript: The Definitive Guide",
+            ],
+        )
+
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by("-number_of_pages"),
+            order_by_relevance=False,
+        )
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The Definitive Guide",
+                "JavaScript: The good parts",
+            ],
+        )
+
+    def test_order_by_relevance_false_with_no_ordering_set(self):
+        # If no ordering is set on the queryset, order by PK descending
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by(),
+            order_by_relevance=False,
+        )
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The Definitive Guide",
+                "JavaScript: The good parts",
             ],
         )
 
@@ -897,7 +944,7 @@ class BackendTests:
 
     def test_same_rank_pages(self):
         # Checks that results with a same ranking cannot be found multiple times
-        # across pages (see issue #3729).
+        # across pages (see https://github.com/wagtail/wagtail/issues/3729).
         same_rank_objects = set()
 
         index = self.backend.get_index_for_model(models.Book)
