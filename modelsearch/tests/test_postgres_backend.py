@@ -168,6 +168,20 @@ class TestPostgresSearchBackend(BackendTests, TestCase):
         results = self.backend.search("JavaScript", models.Book)
         self.assertEqual(results.count(), 0)
 
+    @unittest.expectedFailure
+    def test_get_search_field_for_related_fields(self):
+        """
+        The get_search_field method of PostgresSearchQueryCompiler attempts to support retrieving
+        search fields across relations with double-underscore notation. This is not yet supported
+        in actual searches, so test this in isolation.
+        """
+        # retrieve an arbitrary SearchResults object to extract a compiler object from
+        results = self.backend.search("JavaScript", models.Book)
+        compiler = results.query_compiler
+        search_field = compiler.get_search_field("authors__name")
+        self.assertIsNotNone(search_field)
+        self.assertEqual(search_field.field_name, "name")
+
 
 @unittest.skipUnless(
     connection.vendor == "postgresql", "The current database is not PostgreSQL"

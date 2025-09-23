@@ -339,8 +339,16 @@ class MySQLSearchQueryCompiler(BaseSearchQueryCompiler):
             # Note: Searching on a specific related field using
             # `.search(fields=…)` is not yet supported by Wagtail.
             # This method anticipates by already implementing it.
-            if isinstance(field, RelatedFields) and field.field_name == field_lookup:
-                return self.get_search_field(sub_field_name, field.fields)
+            # FIXME: this doesn't work because the list we're looping over comes from
+            # get_search_fields_for_model, which only returns `SearchField` records, not `RelatedFields`
+            if (
+                isinstance(field, RelatedFields)
+                and field.field_name == field_lookup
+                and sub_field_name is not None
+            ):
+                return self.get_search_field(
+                    sub_field_name, field.fields
+                )  # pragma: no cover
 
     def build_search_query_content(self, query, invert=False):
         if isinstance(query, PlainText):
