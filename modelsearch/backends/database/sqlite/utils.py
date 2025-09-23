@@ -9,12 +9,12 @@ def fts5_available():
         # Prior to version 3.19, SQLite doesn't support FTS5 queries with
         # column filters ('{column_1 column_2} : query'), which the sqlite
         # fulltext backend needs
-        return False
+        return False  # pragma: no cover
 
     tmp_db = sqlite3.connect(":memory:")
     try:
         tmp_db.execute("CREATE VIRTUAL TABLE fts5test USING fts5 (data);")
-    except sqlite3.OperationalError:
+    except sqlite3.OperationalError:  # pragma: no cover
         return False
     finally:
         tmp_db.close()
@@ -29,7 +29,7 @@ def fts_table_exists():
         # ignore result of query; we are only interested in the query failing,
         # not the presence of index entries
         SQLiteFTSIndexEntry.objects.exists()
-    except OperationalError:
+    except OperationalError:  # pragma: no cover
         return False
 
     return True

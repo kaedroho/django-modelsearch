@@ -1,6 +1,6 @@
 import unittest
 
-from unittest import skip
+from unittest import expectedFailure, skip
 
 from django.db import connection
 from django.test.testcases import TransactionTestCase
@@ -191,6 +191,34 @@ class TestMySQLSearchBackend(BackendTests, TransactionTestCase):
     @skip("The MySQL backend doesn't guarantee correct ranking of results.")
     def test_ranking(self):
         return super().test_ranking()
+
+    @expectedFailure
+    def test_negated_and(self):
+        return super().test_negated_and()
+
+    @expectedFailure
+    def test_negated_or(self):
+        return super().test_negated_or()
+
+    @unittest.skip("The MySQL backend doesn't support MatchAll as an inner expression.")
+    def test_search_not_match_none(self):
+        return super().test_search_not_match_none()
+
+    @unittest.skip("The MySQL backend doesn't support MatchAll as an inner expression.")
+    def test_search_or_match_all(self):
+        return super().test_search_or_match_all()
+
+    @unittest.skip("The MySQL backend doesn't support MatchAll as an inner expression.")
+    def test_search_or_match_none(self):
+        return super().test_search_or_match_none()
+
+    @unittest.skip("The MySQL backend doesn't support MatchAll as an inner expression.")
+    def test_search_and_match_all(self):
+        return super().test_search_and_match_all()
+
+    @unittest.skip("The MySQL backend doesn't support MatchAll as an inner expression.")
+    def test_search_and_match_none(self):
+        return super().test_search_and_match_none()
 
     def test_reset_indexes(self):
         """

@@ -22,9 +22,9 @@ def SearchBackend(params):
         if USE_SQLITE_FTS is None:
             from .sqlite.utils import fts5_available, fts_table_exists
 
-            if not fts5_available():
+            if not fts5_available():  # pragma: no cover
                 USE_SQLITE_FTS = False
-            elif not fts_table_exists():
+            elif not fts_table_exists():  # pragma: no cover
                 USE_SQLITE_FTS = False
             else:
                 USE_SQLITE_FTS = True
@@ -33,7 +33,7 @@ def SearchBackend(params):
             from .sqlite.sqlite import SQLiteSearchBackend
 
             return SQLiteSearchBackend(params)
-        else:
+        else:  # pragma: no cover
             from .fallback import DatabaseSearchBackend
 
             return DatabaseSearchBackend(params)

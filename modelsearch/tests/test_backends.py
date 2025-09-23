@@ -8,7 +8,7 @@ from unittest import mock
 from django.conf import settings
 from django.core import management
 from django.db import connection
-from django.db.models import Subquery
+from django.db.models import Q, Subquery
 from django.test import TestCase
 from django.test.utils import override_settings
 from taggit.models import Tag
@@ -83,6 +83,22 @@ class BackendTests:
         )
         self.assertEqual(results.model, models.Book)
 
+    def test_search_via_queryset(self):
+        results = models.Book.objects.search("JavaScript", backend=self.backend_name)
+        self.assertUnsortedListEqual(
+            [r.title for r in results],
+            ["JavaScript: The good parts", "JavaScript: The Definitive Guide"],
+        )
+
+    def test_search_via_queryset_with_filter(self):
+        results = models.Book.objects.filter(number_of_pages__gt=500).search(
+            "JavaScript", backend=self.backend_name
+        )
+        self.assertUnsortedListEqual(
+            [r.title for r in results],
+            ["JavaScript: The Definitive Guide"],
+        )
+
     def test_search_count(self):
         results = self.backend.search("JavaScript", models.Book)
         self.assertEqual(results.count(), 2)
@@ -96,8 +112,38 @@ class BackendTests:
         results = self.backend.search(MATCH_ALL, models.Book)
         self.assertSetEqual(set(results), set(models.Book.objects.all()))
 
-    def test_search_none(self):
+    def test_search_match_none(self):
         results = self.backend.search(MATCH_NONE, models.Book)
+        self.assertFalse(list(results))
+
+    def test_search_not_match_none(self):
+        results = self.backend.search(Not(MATCH_NONE), models.Book)
+        self.assertSetEqual(set(results), set(models.Book.objects.all()))
+
+    def test_search_not_match_all(self):
+        results = self.backend.search(Not(MATCH_ALL), models.Book)
+        self.assertFalse(list(results))
+
+    def test_search_or_match_none(self):
+        results = self.backend.search(PlainText("javascript") | MATCH_NONE, models.Book)
+        self.assertUnsortedListEqual(
+            [r.title for r in results],
+            ["JavaScript: The good parts", "JavaScript: The Definitive Guide"],
+        )
+
+    def test_search_or_match_all(self):
+        results = self.backend.search(PlainText("javascript") | MATCH_ALL, models.Book)
+        self.assertSetEqual(set(results), set(models.Book.objects.all()))
+
+    def test_search_and_match_all(self):
+        results = self.backend.search(PlainText("javascript") & MATCH_ALL, models.Book)
+        self.assertUnsortedListEqual(
+            [r.title for r in results],
+            ["JavaScript: The good parts", "JavaScript: The Definitive Guide"],
+        )
+
+    def test_search_and_match_none(self):
+        results = self.backend.search(PlainText("javascript") & MATCH_NONE, models.Book)
         self.assertFalse(list(results))
 
     def test_search_does_not_return_results_from_wrong_model(self):
@@ -273,6 +319,28 @@ class BackendTests:
             ],
         )
 
+    def test_autocomplete_via_queryset(self):
+        results = models.Book.objects.autocomplete("Py", backend=self.backend_name)
+
+        self.assertUnsortedListEqual(
+            [r.title for r in results],
+            [
+                "Learning Python",
+            ],
+        )
+
+    def test_autocomplete_via_queryset_with_filter(self):
+        results = models.Book.objects.filter(number_of_pages__gt=500).autocomplete(
+            "Javasc", backend=self.backend_name
+        )
+
+        self.assertUnsortedListEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The Definitive Guide",
+            ],
+        )
+
     def test_autocomplete_uses_autocompletefield(self):
         # Autocomplete should only require an AutocompleteField, not a SearchField
         # TODO: given that partial_match=True has no effect as of Wagtail 5, also test that
@@ -421,6 +489,35 @@ class BackendTests:
                 "Two Scoops of Django 1.11",
                 "A Storm of Swords",
                 "Programming Rust",
+            ],
+        )
+
+    def test_filter_or(self):
+        results = self.backend.search(
+            MATCH_ALL,
+            models.Book.objects.filter(
+                Q(number_of_pages=440) | Q(number_of_pages=1160)
+            ),
+        )
+
+        self.assertUnsortedListEqual(
+            [r.title for r in results],
+            [
+                "The Return of the King",
+                "The Rust Programming Language",
+                "Learning Python",
+            ],
+        )
+
+    def test_filter_not(self):
+        results = self.backend.search(
+            MATCH_ALL, models.Book.objects.filter(~Q(number_of_pages__gt=200))
+        )
+
+        self.assertUnsortedListEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The good parts",
             ],
         )
 
@@ -915,6 +1012,15 @@ class BackendTests:
         results = self.backend.search(MATCH_ALL, models.Book.objects.all())
         self.assertEqual(len(results), 14)
 
+    def test_search_none(self):
+        """Passing None as a search term should be treated as MATCH_ALL, but with a deprecation warning."""
+        with self.assertWarnsMessage(
+            Warning,
+            "Querying `None` is deprecated, use `MATCH_ALL` instead.",
+        ):
+            results = self.backend.search(None, models.Book.objects.all())
+        self.assertEqual(len(results), 14)
+
     def test_and(self):
         results = self.backend.search(
             And([PlainText("javascript"), PlainText("definitive")]),
@@ -995,6 +1101,30 @@ class BackendTests:
                 "The Two Towers",
                 "The Rust Programming Language",
                 "Two Scoops of Django 1.11",
+                "Programming Rust",
+            },
+        )
+
+    def test_negated_and(self):
+        results = self.backend.search(
+            (PlainText("rust") & ~(PlainText("programming") & PlainText("language"))),
+            models.Book.objects.all(),
+        )
+        self.assertSetEqual(
+            {r.title for r in results},
+            {
+                "Programming Rust",
+            },
+        )
+
+    def test_negated_or(self):
+        results = self.backend.search(
+            (PlainText("rust") & ~(PlainText("language") | PlainText("crabs"))),
+            models.Book.objects.all(),
+        )
+        self.assertSetEqual(
+            {r.title for r in results},
+            {
                 "Programming Rust",
             },
         )
@@ -1158,7 +1288,7 @@ class TestBackendLoader(TestCase):
     )
     def test_import_by_name_sqlite_db_vendor(self):
         # This should return the fallback backend, because the SQLite backend doesn't support versions less than 3.19.0
-        if not fts5_available():
+        if not fts5_available():  # pragma: no cover
             from modelsearch.backends.database.fallback import DatabaseSearchBackend
 
             db = get_search_backend(backend="default")
@@ -1176,7 +1306,7 @@ class TestBackendLoader(TestCase):
     )
     def test_import_by_path_sqlite_db_vendor(self):
         # Same as above
-        if not fts5_available():
+        if not fts5_available():  # pragma: no cover
             from modelsearch.backends.database.fallback import DatabaseSearchBackend
 
             db = get_search_backend(backend="modelsearch.backends.database")

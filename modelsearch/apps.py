@@ -31,7 +31,7 @@ class ModelSearchAppConfig(AppConfig):
 
             from modelsearch.backends.database.sqlite.utils import fts5_available
 
-            if sqlite3.sqlite_version_info < (3, 19, 0):
+            if sqlite3.sqlite_version_info < (3, 19, 0):  # pragma: no cover
                 return [
                     Warning(
                         "Your SQLite version is older than 3.19.0. A fallback search backend will be used instead.",
@@ -40,7 +40,7 @@ class ModelSearchAppConfig(AppConfig):
                         obj=ModelSearchAppConfig,
                     )
                 ]
-            elif not fts5_available():
+            elif not fts5_available():  # pragma: no cover
                 return [
                     Warning(
                         "Your SQLite installation is missing the fts5 extension. A fallback search backend will be used instead.",
