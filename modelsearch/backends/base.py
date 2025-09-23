@@ -35,6 +35,14 @@ class OrderByFieldError(FieldError):
 
 
 class BaseSearchQueryCompiler:
+    """
+    Represents a search query translated into an expression that the search backend can understand,
+    incorporating the necessary filters, ordering, and other query parameters originating from
+    either the search query or the queryset. No actual querying happens at the point of
+    instantiating this; that's initiated by the _do_search() or _do_count() methods of the
+    associated SearchResults object.
+    """
+
     DEFAULT_OPERATOR = "or"
 
     def __init__(
@@ -270,6 +278,12 @@ class BaseSearchQueryCompiler:
 
 
 class BaseSearchResults:
+    """
+    A lazily-evaluated object representing the results of a search query. This emulates the
+    slicing behaviour of a Django QuerySet, but with the results not necessarily coming from
+    the database.
+    """
+
     supports_facet = False
 
     def __init__(self, backend, query_compiler, prefetch_related=None):
@@ -300,6 +314,9 @@ class BaseSearchResults:
                 self.start = self.start + start
 
     def _clone(self):
+        """
+        Returns a copy of this object with the same options in place.
+        """
         klass = self.__class__
         new = klass(
             self.backend, self.query_compiler, prefetch_related=self.prefetch_related
@@ -310,17 +327,29 @@ class BaseSearchResults:
         return new
 
     def _do_search(self):
+        """
+        To be implemented by subclasses - performs the actual search query.
+        """
         raise NotImplementedError
 
     def _do_count(self):
+        """
+        To be implemented by subclasses - returns the result count.
+        """
         raise NotImplementedError
 
     def results(self):
+        """
+        Returns the search results, caching them to avoid repeated queries.
+        """
         if self._results_cache is None:
             self._results_cache = list(self._do_search())
         return self._results_cache
 
     def count(self):
+        """
+        Returns the count of search results, caching it to avoid repeated queries.
+        """
         if self._count_cache is None:
             if self._results_cache is not None:
                 self._count_cache = len(self._results_cache)
