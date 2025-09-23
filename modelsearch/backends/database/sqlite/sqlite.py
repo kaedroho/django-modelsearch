@@ -531,17 +531,15 @@ class SQLiteSearchQueryCompiler(BaseSearchQueryCompiler):
             # FIXME: this has no effect because the final query is just running an id__in filter, without preserving order.
             objs = objs.order_by(BM25().desc())
 
-        obj_ids = [
-            obj.index_entry.object_id for obj in objs
-        ]  # Get the IDs of the objects that matched. They're stored in the IndexEntry model, so we need to get that first.
+        obj_ids = objs.values_list("index_entry__object_id", flat=True)
 
         if not negated:
             queryset = self.queryset.filter(
-                id__in=obj_ids
+                pk__in=obj_ids
             )  # We need to filter the source queryset to get the objects that matched the search query.
         else:
             queryset = self.queryset.exclude(
-                id__in=obj_ids
+                pk__in=obj_ids
             )  # We exclude the objects that matched the search query from the source queryset, if the query is negated.
 
         # FIXME: this fails because `rank_expression` is only valid in the `objs` query we constructed above, not `queryset`.

@@ -790,6 +790,33 @@ class BackendTests:
             ],
         )
 
+    def test_order_by_relevance_sliced(self):
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by("number_of_pages"),
+            order_by_relevance=False,
+        )[:1]
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The good parts",
+            ],
+        )
+
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by("-number_of_pages"),
+            order_by_relevance=False,
+        )[:1]
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The Definitive Guide",
+            ],
+        )
+
     def test_order_by_relevance_false_with_no_ordering_set(self):
         # If no ordering is set on the queryset, order by PK descending
         results = self.backend.search(
