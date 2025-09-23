@@ -10,7 +10,6 @@ from django.db import (
 from django.db.models import Avg, Count, F, Manager, TextField
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.functions import Cast, Length
-from django.db.utils import OperationalError
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 
@@ -532,22 +531,9 @@ class SQLiteSearchQueryCompiler(BaseSearchQueryCompiler):
             # FIXME: this has no effect because the final query is just running an id__in filter, without preserving order.
             objs = objs.order_by(BM25().desc())
 
-        from django.db import connection
-        from django.db.models.sql.subqueries import InsertQuery
-
-        compiler = InsertQuery(IndexEntry).get_compiler(connection=connection)
-
-        try:
-            obj_ids = [
-                obj.index_entry.object_id for obj in objs
-            ]  # Get the IDs of the objects that matched. They're stored in the IndexEntry model, so we need to get that first.
-        except OperationalError as e:
-            raise OperationalError(
-                str(e)
-                + " The original query was: "
-                + compiler.compile(objs.query)[0]
-                + str(compiler.compile(objs.query)[1])
-            ) from e
+        obj_ids = [
+            obj.index_entry.object_id for obj in objs
+        ]  # Get the IDs of the objects that matched. They're stored in the IndexEntry model, so we need to get that first.
 
         if not negated:
             queryset = self.queryset.filter(
