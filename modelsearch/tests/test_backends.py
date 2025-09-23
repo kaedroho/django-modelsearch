@@ -8,7 +8,7 @@ from unittest import mock
 from django.conf import settings
 from django.core import management
 from django.db import connection
-from django.db.models import Q, Subquery
+from django.db.models import F, Q, Subquery
 from django.test import TestCase
 from django.test.utils import override_settings
 from taggit.models import Tag
@@ -842,6 +842,21 @@ class BackendTests:
                     order_by_relevance=False,
                 )
             )
+
+    def test_order_by_expression(self):
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by(F("title").asc(nulls_first=True)),
+            order_by_relevance=False,
+        )
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The Definitive Guide",
+                "JavaScript: The good parts",
+            ],
+        )
 
     # SLICING TESTS
 

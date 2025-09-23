@@ -33,6 +33,7 @@ class DatabaseSearchQueryCompiler(BaseSearchQueryCompiler):
         "and": AND,
         "or": OR,
     }
+    HANDLES_ORDER_BY_EXPRESSIONS = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
