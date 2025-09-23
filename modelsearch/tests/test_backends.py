@@ -183,6 +183,29 @@ class BackendTests:
         for result in results:
             self.assertIsInstance(result._score, float)
 
+    def test_multiple_slice(self):
+        results = self.backend.search(MATCH_ALL, models.Book)
+        sliced_results = results[:3][:6]
+        self.assertEqual(len(sliced_results), 3)
+
+    def test_count_should_respect_slicing(self):
+        results = self.backend.search(MATCH_ALL, models.Book)
+        sliced_results = results[2:5]
+        self.assertEqual(sliced_results.count(), 3)
+
+    def test_count_cache(self):
+        results = self.backend.search("JavaScript", models.Book)
+        self.assertEqual(results.count(), 2)
+        with self.assertNumQueries(0):
+            self.assertEqual(results.count(), 2)
+
+    def test_results_cache(self):
+        results = self.backend.search("JavaScript", models.Book)
+        self.assertEqual(len(list(results)), 2)
+        with self.assertNumQueries(0):
+            self.assertEqual(results.count(), 2)
+            self.assertEqual(len(list(results)), 2)
+
     def test_search_and_operator(self):
         # Should not return "JavaScript: The good parts" as it does not have "Definitive"
         results = self.backend.search(
@@ -278,7 +301,9 @@ class BackendTests:
     def test_search_all_unindexed(self):
         # There should be no index entries for UnindexedBook
         results = self.backend.search(MATCH_ALL, models.UnindexedBook)
+        self.assertEqual(results.count(), 0)
         self.assertEqual(len(results), 0)
+        self.assertEqual(results[:10].count(), 0)
 
     # AUTOCOMPLETE TESTS
 
@@ -800,8 +825,7 @@ class BackendTests:
             self.backend.add(book)
 
         index = self.backend.get_index_for_model(models.Book)
-        if index:
-            index.refresh()
+        index.refresh()
 
         fantasy_tag = Tag.objects.get(name="Fantasy")
         scifi_tag = Tag.objects.get(name="Science Fiction")
@@ -852,9 +876,8 @@ class BackendTests:
 
         # Delete from the search index
         index = self.backend.get_index_for_model(models.Novel)
-        if index:
-            index.delete_item(foundation)
-            index.refresh()
+        index.delete_item(foundation)
+        index.refresh()
 
         # Delete from the database
         foundation.delete()
@@ -1129,6 +1152,51 @@ class BackendTests:
         )
         self.assertFalse(stdout.getvalue())
 
+    def test_refresh_all_indexes(self):
+        """
+        Backends should provide a refresh_indexes method that refreshes all indexes. We don't care
+        what this does (and it will often be a no-op), beyond ensuring that searches return
+        recently-updated data afterwards.
+        """
+        book = models.Book.objects.create(
+            title="To Kill A Mockingbird",
+            publication_date=date(2017, 10, 18),
+            number_of_pages=100,
+        )
+        self.backend.add(book)
+        author = models.Author.objects.create(name="Harper Lee")
+        self.backend.add(author)
+        self.backend.refresh_indexes()
+
+        results = self.backend.search("mockingbird", models.Book)
+        self.assertEqual(results.count(), 1)
+        results = self.backend.search("harper", models.Author)
+        self.assertEqual(results.count(), 1)
+
+    def test_add_bulk(self):
+        books = [
+            models.Book.objects.create(
+                title="Fifty Shades of Grey",
+                publication_date=date(2020, 1, 1),
+                number_of_pages=100,
+            ),
+            models.Book.objects.create(
+                title="Fifty Shades Darker",
+                publication_date=date(2020, 2, 1),
+                number_of_pages=200,
+            ),
+            models.Book.objects.create(
+                title="Fifty Shades Freed",
+                publication_date=date(2020, 3, 1),
+                number_of_pages=300,
+            ),
+        ]
+        self.backend.add_bulk(models.Book, books)
+        self.backend.get_index_for_model(models.Book).refresh()
+
+        results = self.backend.search("Fifty Shades", models.Book)
+        self.assertEqual(results.count(), 3)
+
 
 @override_settings(
     MODELSEARCH_BACKENDS={"default": {"BACKEND": "modelsearch.backends.database"}}
@@ -1289,16 +1357,14 @@ class TestBackendLoader(TestCase):
         backends = list(get_search_backends())
 
         self.assertEqual(len(backends), 1)
-        if not issubclass(type(backends[0]), BaseSearchBackend):
-            self.fail()
+        self.assertTrue(issubclass(type(backends[0]), BaseSearchBackend))
 
     @override_settings(MODELSEARCH_BACKENDS={})
     def test_get_search_backends_with_no_default_defined(self):
         backends = list(get_search_backends())
 
         self.assertEqual(len(backends), 1)
-        if not issubclass(type(backends[0]), BaseSearchBackend):
-            self.fail()
+        self.assertTrue(issubclass(type(backends[0]), BaseSearchBackend))
 
     @override_settings(
         MODELSEARCH_BACKENDS={

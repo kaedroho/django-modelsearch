@@ -35,6 +35,14 @@ class OrderByFieldError(FieldError):
 
 
 class BaseSearchQueryCompiler:
+    """
+    Represents a search query translated into an expression that the search backend can understand,
+    incorporating the necessary filters, ordering, and other query parameters originating from
+    either the search query or the queryset. No actual querying happens at the point of
+    instantiating this; that's initiated by the _do_search() or _do_count() methods of the
+    associated SearchResults object.
+    """
+
     DEFAULT_OPERATOR = "or"
 
     def __init__(
@@ -270,6 +278,12 @@ class BaseSearchQueryCompiler:
 
 
 class BaseSearchResults:
+    """
+    A lazily-evaluated object representing the results of a search query. This emulates the
+    slicing behaviour of a Django QuerySet, but with the results not necessarily coming from
+    the database.
+    """
+
     supports_facet = False
 
     def __init__(self, backend, query_compiler, prefetch_related=None):
@@ -300,6 +314,9 @@ class BaseSearchResults:
                 self.start = self.start + start
 
     def _clone(self):
+        """
+        Returns a copy of this object with the same options in place.
+        """
         klass = self.__class__
         new = klass(
             self.backend, self.query_compiler, prefetch_related=self.prefetch_related
@@ -310,17 +327,29 @@ class BaseSearchResults:
         return new
 
     def _do_search(self):
+        """
+        To be implemented by subclasses - performs the actual search query.
+        """
         raise NotImplementedError
 
     def _do_count(self):
+        """
+        To be implemented by subclasses - returns the result count.
+        """
         raise NotImplementedError
 
     def results(self):
+        """
+        Returns the search results, caching them to avoid repeated queries.
+        """
         if self._results_cache is None:
             self._results_cache = list(self._do_search())
         return self._results_cache
 
     def count(self):
+        """
+        Returns the count of search results, caching it to avoid repeated queries.
+        """
         if self._count_cache is None:
             if self._results_cache is not None:
                 self._count_cache = len(self._results_cache)
@@ -385,32 +414,64 @@ class EmptySearchResults(BaseSearchResults):
         return 0
 
 
-class NullIndex:
+class BaseIndex:
     """
-    Index class that provides do-nothing implementations of the indexing operations required by
-    BaseSearchBackend. Use this for search backends that do not maintain an index, such as the
-    database backend.
+    Manages some subset of objects in the data store.
+    The base class provides do-nothing implementations of the indexing operations. Use this
+    directly for search backends that do not maintain an index, such as the fallback database
+    backend. Subclass it for backends that need to do something.
     """
 
+    def __init__(self, backend):
+        self.backend = backend
+
+    def get_key(self):
+        """
+        Returns a hashable value that uniquely identifies this index within the search backend.
+        """
+        return "default"
+
     def add_model(self, model):
+        """
+        Performs any configuration required for this index to accept documents of the given model.
+        """
         pass
 
     def refresh(self):
+        """
+        Performs any housekeeping required by the index so that recently-updated data is visible to searches.
+        """
         pass
 
-    def add_item(self, item):
+    def reset(self):
+        """
+        Resets the index to its initial state, deleting all data.
+        """
         pass
+
+    def add_item(self, obj):
+        """
+        Adds a single object to the index.
+        """
+        self.add_items(obj._meta.model, [obj])
 
     def add_items(self, model, items):
+        """
+        Adds multiple objects of the same model to the index.
+        """
         pass
 
     def delete_item(self, item):
+        """
+        Deletes a single object from the index.
+        """
         pass
 
 
 class BaseSearchBackend:
     query_compiler_class = None
     autocomplete_query_compiler_class = None
+    index_class = BaseIndex
     results_class = None
     rebuilder_class = None
     catch_indexing_errors = False
@@ -419,33 +480,61 @@ class BaseSearchBackend:
         pass
 
     def get_index_for_model(self, model):
-        return NullIndex()
+        """
+        Returns the index to be used for the given model.
+        """
+        return self.index_class(self)
 
-    def get_rebuilder(self):
-        return None
+    def get_index_for_object(self, obj):
+        """
+        Returns the index to be used for the given model instance.
+        """
+        return self.get_index_for_model(obj._meta.model)
 
-    def reset_index(self):
-        raise NotImplementedError
-
-    def add_type(self, model):
-        self.get_index_for_model(model).add_model(model)
-
-    def refresh_index(self):
-        refreshed_indexes = []
+    def all_indexes(self):
+        """
+        Returns a sequence of all indexes used by this backend.
+        """
+        seen_keys = set()
         for model in get_indexed_models():
             index = self.get_index_for_model(model)
-            if index not in refreshed_indexes:
-                index.refresh()
-                refreshed_indexes.append(index)
+            key = index.get_key()
+            if key not in seen_keys:
+                seen_keys.add(key)
+                yield index
+
+    def refresh_indexes(self):
+        """
+        Refreshes all indexes used by this backend. This performs any housekeeping required by the
+        index so that recently-updated data is visible to searches.
+        """
+        for index in self.all_indexes():
+            index.refresh()
+
+    def reset_indexes(self):
+        """
+        Resets all indexes used by this backend. This deletes all data from the indexes.
+        """
+        for index in self.all_indexes():
+            index.reset()
 
     def add(self, obj):
-        self.get_index_for_model(type(obj)).add_item(obj)
+        """
+        Adds a single object to the data store managed by this backend.
+        """
+        self.get_index_for_object(obj).add_item(obj)
 
     def add_bulk(self, model, obj_list):
+        """
+        Adds multiple objects of the same model to the data store managed by this backend.
+        """
         self.get_index_for_model(model).add_items(model, obj_list)
 
     def delete(self, obj):
-        self.get_index_for_model(type(obj)).delete_item(obj)
+        """
+        Deletes a single object from the data store managed by this backend.
+        """
+        self.get_index_for_object(obj).delete_item(obj)
 
     def _search(self, query_compiler_class, query, model_or_queryset, **kwargs):
         # Find model/queryset
@@ -480,6 +569,9 @@ class BaseSearchBackend:
         operator=None,
         order_by_relevance=True,
     ):
+        """
+        Performs a whole-word search.
+        """
         return self._search(
             self.query_compiler_class,
             query,
@@ -497,6 +589,9 @@ class BaseSearchBackend:
         operator=None,
         order_by_relevance=True,
     ):
+        """
+        Performs an autocomplete (partial word match) search.
+        """
         if self.autocomplete_query_compiler_class is None:
             raise NotImplementedError(
                 "This search backend does not support the autocomplete API"

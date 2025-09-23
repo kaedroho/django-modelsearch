@@ -1,3 +1,5 @@
+import unittest
+
 from datetime import date
 from io import StringIO
 
@@ -249,3 +251,26 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
         in_jan = models.Book.objects.filter(publication_date__month=1)
         with self.assertRaises(FilterError):
             self.backend.search(MATCH_ALL, in_jan)
+
+    def test_all_indexes(self):
+        indexes = [index.get_key() for index in self.backend.all_indexes()]
+
+        self.assertUnsortedListEqual(
+            indexes,
+            [
+                "modelsearchtest_searchtests_author",
+                "modelsearchtest_searchtests_book",
+                "modelsearchtest_searchtests_advertwithcustomuuidprimarykey",
+            ],
+        )
+
+    @unittest.skip(
+        "ElasticsearchBaseIndex.delete does not correctly handle aliases, so fails with ATOMIC_REBUILD"
+    )
+    def test_reset_indexes(self):
+        """
+        After running backend.reset_indexes(), search should return no results.
+        """
+        self.backend.reset_indexes()
+        results = self.backend.search("JavaScript", models.Book)
+        self.assertEqual(results.count(), 0)

@@ -232,24 +232,6 @@ class DatabaseSearchBackend(BaseSearchBackend):
     autocomplete_query_compiler_class = DatabaseSearchQueryCompiler
     results_class = DatabaseSearchResults
 
-    def reset_index(self):
-        pass  # Not needed
-
-    def add_type(self, model):
-        pass  # Not needed
-
-    def refresh_index(self):
-        pass  # Not needed
-
-    def add(self, obj):
-        pass  # Not needed
-
-    def add_bulk(self, model, obj_list):
-        return  # Not needed
-
-    def delete(self, obj):
-        pass  # Not needed
-
 
 # This line allows using 'modelsearch.backends.database.fallback' as the backend, bypassing the automatic selection of the backend that would get run if the user chose 'modelsearch.backends.database'
 SearchBackend = DatabaseSearchBackend

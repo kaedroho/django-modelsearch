@@ -51,6 +51,16 @@ def import_backend(dotted_path):
 
 
 def get_search_backend(backend="default", **kwargs):
+    """
+    Get the search backend instance for the given backend name. This name can be:
+    - An identifier for a backend as defined in MODELSEARCH_BACKENDS
+    - A dotted path to a backend class (in the form modelsearch.backends.elasticsearch or modelsearch.backends.elasticsearch.ElasticsearchSearchBackend)
+
+    If no name is specified, `default` will be used; this defaults to the `modelsearch.backends.database` backend if not specified in MODELSEARCH_BACKENDS.
+
+    All options within the MODELSEARCH_BACKENDS entry (except for `BACKEND` itself) will be passed to the backend class during instantiation. Additional
+    keyword arguments will also be passed to the backend class (and override options from MODELSEARCH_BACKENDS).
+    """
     search_backends = get_search_backend_config()
 
     # Try to find the backend

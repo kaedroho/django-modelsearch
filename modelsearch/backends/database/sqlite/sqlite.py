@@ -25,6 +25,7 @@ from ....utils import (
     get_descendants_content_types_pks,
 )
 from ...base import (
+    BaseIndex,
     BaseSearchBackend,
     BaseSearchQueryCompiler,
     BaseSearchResults,
@@ -149,9 +150,9 @@ class ObjectIndexer:
         return " ".join(texts)
 
 
-class Index:
+class SQLiteIndex(BaseIndex):
     def __init__(self, backend):
-        self.backend = backend
+        super().__init__(backend)
 
         self.read_connection = connections[router.db_for_read(IndexEntry)]
         self.write_connection = connections[router.db_for_write(IndexEntry)]
@@ -165,12 +166,6 @@ class Index:
             )
 
         self.entries = IndexEntry._default_manager.all()
-
-    def add_model(self, model):
-        pass
-
-    def refresh(self):
-        pass
 
     def _refresh_title_norms(self, full=False):
         """
@@ -220,10 +215,19 @@ class Index:
             if not model._meta.parents:
                 self.delete_stale_model_entries(model)
 
-    def add_item(self, obj):
-        self.add_items(obj._meta.model, [obj])
+    def add_items(self, model, objs):
+        search_fields = model.get_search_fields()
+        if not search_fields:
+            return
 
-    def add_items_update_then_create(self, content_type_pk, indexers):
+        indexers = [ObjectIndexer(obj, self.backend) for obj in objs]
+
+        # TODO: Delete unindexed objects while dealing with proxy models.
+        if not indexers:
+            return
+
+        content_type_pk = get_content_type_pk(model)
+
         ids_and_data = {}
         for indexer in indexers:
             ids_and_data[indexer.id] = (
@@ -262,22 +266,16 @@ class Index:
 
         self._refresh_title_norms()
 
-    def add_items(self, model, objs):
-        search_fields = model.get_search_fields()
-        if not search_fields:
-            return
-
-        indexers = [ObjectIndexer(obj, self.backend) for obj in objs]
-
-        # TODO: Delete unindexed objects while dealing with proxy models.
-        if indexers:
-            content_type_pk = get_content_type_pk(model)
-
-            update_method = self.add_items_update_then_create
-            update_method(content_type_pk, indexers)
-
     def delete_item(self, item):
         item.index_entries.all()._raw_delete(using=self.write_connection.alias)
+
+    def reset(self):
+        for connection in [
+            connection
+            for connection in connections.all()
+            if connection.vendor == "sqlite"
+        ]:
+            IndexEntry._default_manager.all()._raw_delete(using=connection.alias)
 
 
 class SQLiteSearchRebuilder:
@@ -365,8 +363,16 @@ class SQLiteSearchQueryCompiler(BaseSearchQueryCompiler):
             # Note: Searching on a specific related field using
             # `.search(fields=…)` is not yet supported by Wagtail.
             # This method anticipates by already implementing it.
-            if isinstance(field, RelatedFields) and field.field_name == field_lookup:
-                return self.get_search_field(sub_field_name, field.fields)
+            # FIXME: this doesn't work because the list we're looping over comes from
+            # get_search_fields_for_model, which only returns `SearchField` records, not `RelatedFields`
+            if (
+                isinstance(field, RelatedFields)
+                and field.field_name == field_lookup
+                and sub_field_name is not None
+            ):
+                return self.get_search_field(
+                    sub_field_name, field.fields
+                )  # pragma: no cover
 
     def build_search_query_content(self, query, config=None):
         """
@@ -609,18 +615,11 @@ class SQLiteAutocompleteQueryCompiler(SQLiteSearchQueryCompiler):
 
 
 class SQLiteSearchResults(BaseSearchResults):
-    def get_queryset(self, for_count=False):
-        if for_count:
-            start = None
-            stop = None
-        else:
-            start = self.start
-            stop = self.stop
-
+    def get_queryset(self):
         return self.query_compiler.search(
             self.query_compiler.get_config(self.backend),
-            start,
-            stop,
+            self.start,
+            self.stop,
             score_field=self._score_field,
         )
 
@@ -628,7 +627,7 @@ class SQLiteSearchResults(BaseSearchResults):
         return list(self.get_queryset())
 
     def _do_count(self):
-        return self.get_queryset(for_count=True).count()
+        return self.get_queryset().count()
 
     supports_facet = True
 
@@ -663,6 +662,7 @@ class SQLiteSearchBackend(BaseSearchBackend):
     query_compiler_class = SQLiteSearchQueryCompiler
     autocomplete_query_compiler_class = SQLiteAutocompleteQueryCompiler
 
+    index_class = SQLiteIndex
     results_class = SQLiteSearchResults
     rebuilder_class = SQLiteSearchRebuilder
     atomic_rebuilder_class = SQLiteSearchAtomicRebuilder
@@ -675,36 +675,6 @@ class SQLiteSearchBackend(BaseSearchBackend):
 
         if params.get("ATOMIC_REBUILD", True):
             self.rebuilder_class = self.atomic_rebuilder_class
-
-    def get_index_for_model(self, model):
-        return Index(self)
-
-    def get_index_for_object(self, obj):
-        return self.get_index_for_model(obj._meta.model)
-
-    def reset_index(self):
-        for connection in [
-            connection
-            for connection in connections.all()
-            if connection.vendor == "sqlite"
-        ]:
-            IndexEntry._default_manager.all()._raw_delete(using=connection.alias)
-
-    def add_type(self, model):
-        pass  # Not needed.
-
-    def refresh_index(self):
-        pass  # Not needed.
-
-    def add(self, obj):
-        self.get_index_for_object(obj).add_item(obj)
-
-    def add_bulk(self, model, obj_list):
-        if obj_list:
-            self.get_index_for_object(obj_list[0]).add_items(model, obj_list)
-
-    def delete(self, obj):
-        self.get_index_for_object(obj).delete_item(obj)
 
 
 SearchBackend = SQLiteSearchBackend
