@@ -137,6 +137,24 @@ class BackendTests:
         for result in results:
             self.assertIsInstance(result._score, float)
 
+    def test_multiple_slice(self):
+        results = self.backend.search(MATCH_ALL, models.Book)
+        sliced_results = results[:3][:6]
+        self.assertEqual(len(sliced_results), 3)
+
+    def test_count_cache(self):
+        results = self.backend.search("JavaScript", models.Book)
+        self.assertEqual(results.count(), 2)
+        with self.assertNumQueries(0):
+            self.assertEqual(results.count(), 2)
+
+    def test_results_cache(self):
+        results = self.backend.search("JavaScript", models.Book)
+        self.assertEqual(len(list(results)), 2)
+        with self.assertNumQueries(0):
+            self.assertEqual(results.count(), 2)
+            self.assertEqual(len(list(results)), 2)
+
     def test_search_and_operator(self):
         # Should not return "JavaScript: The good parts" as it does not have "Definitive"
         results = self.backend.search(
@@ -232,7 +250,9 @@ class BackendTests:
     def test_search_all_unindexed(self):
         # There should be no index entries for UnindexedBook
         results = self.backend.search(MATCH_ALL, models.UnindexedBook)
+        self.assertEqual(results.count(), 0)
         self.assertEqual(len(results), 0)
+        self.assertEqual(results[:10].count(), 0)
 
     # AUTOCOMPLETE TESTS
 
