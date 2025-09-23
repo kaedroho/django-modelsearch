@@ -241,4 +241,3 @@ class TestMySQLSearchBackend(BackendTests, TransactionTestCase):
         search_field = compiler.get_search_field("authors__name")
         self.assertIsNotNone(search_field)
         self.assertEqual(search_field.field_name, "name")
-
