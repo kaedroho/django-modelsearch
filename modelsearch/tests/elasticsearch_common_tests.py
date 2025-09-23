@@ -257,7 +257,11 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
 
         self.assertUnsortedListEqual(
             indexes,
-            ["modelsearchtest_searchtests_author", "modelsearchtest_searchtests_book"],
+            [
+                "modelsearchtest_searchtests_author",
+                "modelsearchtest_searchtests_book",
+                "modelsearchtest_searchtests_advertwithcustomuuidprimarykey",
+            ],
         )
 
     @unittest.skip(
