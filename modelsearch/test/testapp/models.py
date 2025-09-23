@@ -2,6 +2,7 @@ from django.db import models
 from taggit.managers import TaggableManager
 
 from modelsearch import index
+from modelsearch.queryset import SearchableQuerySetMixin
 
 
 class Author(index.Indexed, models.Model):
@@ -16,6 +17,10 @@ class Author(index.Indexed, models.Model):
 
     def __str__(self):
         return self.name
+
+
+class BookQuerySet(SearchableQuerySetMixin, models.QuerySet):
+    pass
 
 
 class Book(index.Indexed, models.Model):
@@ -44,6 +49,8 @@ class Book(index.Indexed, models.Model):
         ),
         index.FilterField("tags"),
     ]
+
+    objects = BookQuerySet.as_manager()
 
     def __str__(self):
         return self.title

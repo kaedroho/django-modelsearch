@@ -2,6 +2,8 @@ from modelsearch.backends import get_search_backend
 
 
 class SearchableQuerySetMixin:
+    """Extends a QuerySet class with search functionality."""
+
     def search(
         self,
         query,
