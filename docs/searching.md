@@ -6,7 +6,7 @@
 
 ## Searching QuerySets
 
-Django Modelsearch is built on Django's [QuerySet API](inv:django#ref/models/querysets). You should be able to search any Django QuerySet provided the model and the fields being filtered have been added to the search index.
+Django Modelsearch is built on Django's [QuerySet API](https://docs.djangoproject.com/en/stable/ref/models/querysets/). You should be able to search any Django QuerySet provided the model and the fields being filtered have been added to the search index.
 
 ### Making a model searchable
 
