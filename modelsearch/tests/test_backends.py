@@ -116,6 +116,14 @@ class BackendTests:
         results = self.backend.search(MATCH_NONE, models.Book)
         self.assertFalse(list(results))
 
+    def test_search_not_match_none(self):
+        results = self.backend.search(Not(MATCH_NONE), models.Book)
+        self.assertSetEqual(set(results), set(models.Book.objects.all()))
+
+    def test_search_not_match_all(self):
+        results = self.backend.search(Not(MATCH_ALL), models.Book)
+        self.assertFalse(list(results))
+
     def test_search_does_not_return_results_from_wrong_model(self):
         # https://github.com/wagtail/wagtail/issues/10188 - if a term matches some other
         # model to the one being searched, this match should not leak into the results

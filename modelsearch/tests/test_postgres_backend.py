@@ -160,6 +160,12 @@ class TestPostgresSearchBackend(BackendTests, TestCase):
         results = self.backend.autocomplete("first <-> second", models.Book)
         self.assertUnsortedListEqual([r.title for r in results], [])
 
+    @unittest.skip(
+        "The Postgres backend doesn't support MatchAll as an inner expression."
+    )
+    def test_search_not_match_none(self):
+        return super().test_search_not_match_none()
+
 
 @unittest.skipUnless(
     connection.vendor == "postgresql", "The current database is not PostgreSQL"
