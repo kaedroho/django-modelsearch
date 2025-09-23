@@ -295,6 +295,7 @@ class MySQLSearchQueryCompiler(BaseSearchQueryCompiler):
     LAST_TERM_IS_PREFIX = False
     TARGET_SEARCH_FIELD_TYPE = SearchField
     FTS_TABLE_FIELDS = ["title", "body"]
+    HANDLES_ORDER_BY_EXPRESSIONS = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -510,17 +511,20 @@ class MySQLSearchQueryCompiler(BaseSearchQueryCompiler):
         if not negated:
             index_entries = index_entries.filter(match_expression)
             if self.order_by_relevance:  # Only applies to the case where the outermost query is not a Not(), because if it is, the relevance score is always 0 (anything that matches is excluded from the results).
+                # FIXME: This has no effect because the final query is just running an id__in filter, without preserving order.
                 index_entries = index_entries.order_by(score_expression.desc())
         else:
             index_entries = index_entries.exclude(match_expression)
 
-        index_entries = index_entries[start:stop]  # Trim the results
+        index_entries = index_entries.values_list("object_id", flat=True)
 
-        object_ids = {
-            index_entry.object_id for index_entry in index_entries
-        }  # Get the set of IDs from the indexed objects, removes duplicates too
+        queryset = self.queryset
+        if not self.order_by_relevance and not queryset.query.order_by:
+            # Add a default ordering to keep results consistent across pages
+            # (see https://github.com/wagtail/wagtail/issues/3729).
+            queryset = queryset.order_by("-pk")
 
-        results = self.queryset.filter(id__in=object_ids)
+        results = queryset.filter(pk__in=index_entries)[start:stop]
 
         return results
 

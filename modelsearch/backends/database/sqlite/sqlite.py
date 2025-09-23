@@ -10,7 +10,6 @@ from django.db import (
 from django.db.models import Avg, Count, F, Manager, Q, TextField
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.functions import Cast, Length
-from django.db.utils import OperationalError
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 
@@ -319,6 +318,7 @@ class SQLiteSearchQueryCompiler(BaseSearchQueryCompiler):
     LAST_TERM_IS_PREFIX = False
     TARGET_SEARCH_FIELD_TYPE = SearchField
     FTS_TABLE_FIELDS = ["title", "body"]
+    HANDLES_ORDER_BY_EXPRESSIONS = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -539,40 +539,28 @@ class SQLiteSearchQueryCompiler(BaseSearchQueryCompiler):
         )
 
         if self.order_by_relevance:
+            # FIXME: this has no effect because the final query is just running an id__in filter, without preserving order.
             objs = objs.order_by(BM25().desc())
-        elif not objs.query.order_by:
-            # Adds a default ordering to avoid issue #3729.
-            queryset = objs.order_by("-pk")
-            rank_expression = F("pk")
 
-        from django.db import connection
-        from django.db.models.sql.subqueries import InsertQuery
-
-        compiler = InsertQuery(IndexEntry).get_compiler(connection=connection)
-
-        try:
-            obj_ids = [
-                obj.index_entry.object_id for obj in objs
-            ]  # Get the IDs of the objects that matched. They're stored in the IndexEntry model, so we need to get that first.
-        except OperationalError as e:
-            raise OperationalError(
-                str(e)
-                + " The original query was: "
-                + compiler.compile(objs.query)[0]
-                + str(compiler.compile(objs.query)[1])
-            ) from e
+        obj_ids = objs.values_list("index_entry__object_id", flat=True)
 
         if not negated:
             queryset = self.queryset.filter(
-                id__in=obj_ids
+                pk__in=obj_ids
             )  # We need to filter the source queryset to get the objects that matched the search query.
         else:
             queryset = self.queryset.exclude(
-                id__in=obj_ids
+                pk__in=obj_ids
             )  # We exclude the objects that matched the search query from the source queryset, if the query is negated.
 
+        # FIXME: this fails because `rank_expression` is only valid in the `objs` query we constructed above, not `queryset`.
         if score_field is not None:
             queryset = queryset.annotate(**{score_field: rank_expression})
+
+        if not self.order_by_relevance and not queryset.query.order_by:
+            # Add a default ordering to keep results consistent across pages
+            # (see https://github.com/wagtail/wagtail/issues/3729).
+            queryset = queryset.order_by("-pk")
 
         return queryset[start:stop]
 

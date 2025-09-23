@@ -33,6 +33,7 @@ class DatabaseSearchQueryCompiler(BaseSearchQueryCompiler):
         "and": AND,
         "or": OR,
     }
+    HANDLES_ORDER_BY_EXPRESSIONS = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -184,6 +185,11 @@ class DatabaseSearchResults(BaseSearchResults):
             queryset = queryset.none()
         else:
             queryset = queryset.filter(q)
+
+        if not self.query_compiler.order_by_relevance and not queryset.query.order_by:
+            # Add a default ordering to keep results consistent across pages
+            # (see https://github.com/wagtail/wagtail/issues/3729).
+            queryset = queryset.order_by("-pk")
 
         return queryset.distinct()[self.start : self.stop]
 

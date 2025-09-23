@@ -8,7 +8,7 @@ from unittest import mock
 from django.conf import settings
 from django.core import management
 from django.db import connection
-from django.db.models import Subquery
+from django.db.models import F, Subquery
 from django.test import TestCase
 from django.test.utils import override_settings
 from taggit.models import Tag
@@ -594,7 +594,7 @@ class BackendTests:
 
     # ORDER BY RELEVANCE
 
-    def test_order_by_relevance(self):
+    def test_order_by_relevance_match_all(self):
         results = self.backend.search(
             MATCH_ALL,
             models.Novel.objects.order_by("number_of_pages"),
@@ -616,6 +616,80 @@ class BackendTests:
             ],
         )
 
+    def test_order_by_relevance_false_with_real_search(self):
+        # MATCH_ALL searches will often short-circuit the actual search query logic, so
+        # we should do a non-MATCH_ALL query to ensure full coverage
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by("number_of_pages"),
+            order_by_relevance=False,
+        )
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The good parts",
+                "JavaScript: The Definitive Guide",
+            ],
+        )
+
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by("-number_of_pages"),
+            order_by_relevance=False,
+        )
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The Definitive Guide",
+                "JavaScript: The good parts",
+            ],
+        )
+
+    def test_order_by_relevance_sliced(self):
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by("number_of_pages"),
+            order_by_relevance=False,
+        )[:1]
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The good parts",
+            ],
+        )
+
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by("-number_of_pages"),
+            order_by_relevance=False,
+        )[:1]
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The Definitive Guide",
+            ],
+        )
+
+    def test_order_by_relevance_false_with_no_ordering_set(self):
+        # If no ordering is set on the queryset, order by PK descending
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by(),
+            order_by_relevance=False,
+        )
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The Definitive Guide",
+                "JavaScript: The good parts",
+            ],
+        )
+
     def test_order_by_non_filterable_field(self):
         with self.assertRaises(FieldError):
             list(
@@ -625,6 +699,21 @@ class BackendTests:
                     order_by_relevance=False,
                 )
             )
+
+    def test_order_by_expression(self):
+        results = self.backend.search(
+            "javascript",
+            models.Book.objects.order_by(F("title").asc(nulls_first=True)),
+            order_by_relevance=False,
+        )
+
+        self.assertEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The Definitive Guide",
+                "JavaScript: The good parts",
+            ],
+        )
 
     # SLICING TESTS
 
@@ -754,7 +843,7 @@ class BackendTests:
 
     def test_same_rank_pages(self):
         # Checks that results with a same ranking cannot be found multiple times
-        # across pages (see issue #3729).
+        # across pages (see https://github.com/wagtail/wagtail/issues/3729).
         same_rank_objects = set()
 
         index = self.backend.get_index_for_model(models.Book)
