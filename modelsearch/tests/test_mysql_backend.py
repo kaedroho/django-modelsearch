@@ -203,3 +203,11 @@ class TestMySQLSearchBackend(BackendTests, TransactionTestCase):
     @unittest.skip("The MySQL backend doesn't support MatchAll as an inner expression.")
     def test_search_not_match_none(self):
         return super().test_search_not_match_none()
+
+    @unittest.skip("The MySQL backend doesn't support MatchAll as an inner expression.")
+    def test_search_or_match_all(self):
+        return super().test_search_or_match_all()
+
+    @unittest.skip("The MySQL backend doesn't support MatchAll as an inner expression.")
+    def test_search_or_match_none(self):
+        return super().test_search_or_match_none()
