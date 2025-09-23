@@ -178,6 +178,18 @@ class TestPostgresSearchBackend(BackendTests, TestCase):
     def test_search_or_match_none(self):
         return super().test_search_or_match_none()
 
+    @unittest.skip(
+        "The Postgres backend doesn't support MatchAll as an inner expression."
+    )
+    def test_search_and_match_all(self):
+        return super().test_search_and_match_all()
+
+    @unittest.skip(
+        "The Postgres backend doesn't support MatchAll as an inner expression."
+    )
+    def test_search_and_match_none(self):
+        return super().test_search_and_match_none()
+
 
 @unittest.skipUnless(
     connection.vendor == "postgresql", "The current database is not PostgreSQL"
