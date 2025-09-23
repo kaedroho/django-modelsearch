@@ -476,11 +476,7 @@ class MySQLSearchQueryCompiler(BaseSearchQueryCompiler):
         else:
             index_entries = index_entries.exclude(match_expression)
 
-        index_entries = index_entries[start:stop]  # Trim the results
-
-        object_ids = {
-            index_entry.object_id for index_entry in index_entries
-        }  # Get the set of IDs from the indexed objects, removes duplicates too
+        index_entries = index_entries.values_list("object_id", flat=True)
 
         queryset = self.queryset
         if not self.order_by_relevance and not queryset.query.order_by:
@@ -488,7 +484,7 @@ class MySQLSearchQueryCompiler(BaseSearchQueryCompiler):
             # (see https://github.com/wagtail/wagtail/issues/3729).
             queryset = queryset.order_by("-pk")
 
-        results = queryset.filter(id__in=object_ids)
+        results = queryset.filter(pk__in=index_entries)[start:stop]
 
         return results
 
