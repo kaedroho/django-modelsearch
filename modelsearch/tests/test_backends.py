@@ -8,7 +8,7 @@ from unittest import mock
 from django.conf import settings
 from django.core import management
 from django.db import connection
-from django.db.models import Subquery
+from django.db.models import Q, Subquery
 from django.test import TestCase
 from django.test.utils import override_settings
 from taggit.models import Tag
@@ -434,6 +434,35 @@ class BackendTests:
                 "Two Scoops of Django 1.11",
                 "A Storm of Swords",
                 "Programming Rust",
+            ],
+        )
+
+    def test_filter_or(self):
+        results = self.backend.search(
+            MATCH_ALL,
+            models.Book.objects.filter(
+                Q(number_of_pages=440) | Q(number_of_pages=1160)
+            ),
+        )
+
+        self.assertUnsortedListEqual(
+            [r.title for r in results],
+            [
+                "The Return of the King",
+                "The Rust Programming Language",
+                "Learning Python",
+            ],
+        )
+
+    def test_filter_not(self):
+        results = self.backend.search(
+            MATCH_ALL, models.Book.objects.filter(~Q(number_of_pages__gt=200))
+        )
+
+        self.assertUnsortedListEqual(
+            [r.title for r in results],
+            [
+                "JavaScript: The good parts",
             ],
         )
 
