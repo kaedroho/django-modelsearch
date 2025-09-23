@@ -558,18 +558,11 @@ class MySQLAutocompleteQueryCompiler(MySQLSearchQueryCompiler):
 
 
 class MySQLSearchResults(BaseSearchResults):
-    def get_queryset(self, for_count=False):
-        if for_count:
-            start = None
-            stop = None
-        else:
-            start = self.start
-            stop = self.stop
-
+    def get_queryset(self):
         return self.query_compiler.search(
             self.query_compiler.get_config(self.backend),
-            start,
-            stop,
+            self.start,
+            self.stop,
             score_field=self._score_field,
         )
 
@@ -577,7 +570,7 @@ class MySQLSearchResults(BaseSearchResults):
         return list(self.get_queryset())
 
     def _do_count(self):
-        return self.get_queryset(for_count=True).count()
+        return self.get_queryset().count()
 
     supports_facet = True
 

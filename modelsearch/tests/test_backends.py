@@ -142,6 +142,11 @@ class BackendTests:
         sliced_results = results[:3][:6]
         self.assertEqual(len(sliced_results), 3)
 
+    def test_count_should_respect_slicing(self):
+        results = self.backend.search(MATCH_ALL, models.Book)
+        sliced_results = results[2:5]
+        self.assertEqual(sliced_results.count(), 3)
+
     def test_count_cache(self):
         results = self.backend.search("JavaScript", models.Book)
         self.assertEqual(results.count(), 2)
