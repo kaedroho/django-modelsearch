@@ -2,6 +2,7 @@ import datetime
 
 from warnings import warn
 
+from django.db.models import OrderBy
 from django.db.models.functions.datetime import Extract as ExtractDate
 from django.db.models.functions.datetime import ExtractYear
 from django.db.models.lookups import Lookup
@@ -44,6 +45,7 @@ class BaseSearchQueryCompiler:
     """
 
     DEFAULT_OPERATOR = "or"
+    HANDLES_ORDER_BY_EXPRESSIONS = False
 
     def __init__(
         self,
@@ -212,6 +214,15 @@ class BaseSearchQueryCompiler:
 
         for field_name in self.queryset.query.order_by:
             reverse = False
+
+            if isinstance(field_name, OrderBy):
+                if self.HANDLES_ORDER_BY_EXPRESSIONS:
+                    continue
+                else:
+                    raise OrderByFieldError(
+                        f'Sorting search results with "{field_name}" is not supported by this search backend.',
+                        field_name=field_name,
+                    )
 
             if field_name.startswith("-"):
                 reverse = True
