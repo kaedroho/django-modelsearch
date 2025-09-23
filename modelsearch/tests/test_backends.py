@@ -112,7 +112,7 @@ class BackendTests:
         results = self.backend.search(MATCH_ALL, models.Book)
         self.assertSetEqual(set(results), set(models.Book.objects.all()))
 
-    def test_search_none(self):
+    def test_search_match_none(self):
         results = self.backend.search(MATCH_NONE, models.Book)
         self.assertFalse(list(results))
 
@@ -957,6 +957,15 @@ class BackendTests:
 
     def test_match_all(self):
         results = self.backend.search(MATCH_ALL, models.Book.objects.all())
+        self.assertEqual(len(results), 14)
+
+    def test_search_none(self):
+        """Passing None as a search term should be treated as MATCH_ALL, but with a deprecation warning."""
+        with self.assertWarnsMessage(
+            Warning,
+            "Querying `None` is deprecated, use `MATCH_ALL` instead.",
+        ):
+            results = self.backend.search(None, models.Book.objects.all())
         self.assertEqual(len(results), 14)
 
     def test_and(self):
