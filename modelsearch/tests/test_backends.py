@@ -1052,6 +1052,30 @@ class BackendTests:
             },
         )
 
+    def test_negated_and(self):
+        results = self.backend.search(
+            (PlainText("rust") & ~(PlainText("programming") & PlainText("language"))),
+            models.Book.objects.all(),
+        )
+        self.assertSetEqual(
+            {r.title for r in results},
+            {
+                "Programming Rust",
+            },
+        )
+
+    def test_negated_or(self):
+        results = self.backend.search(
+            (PlainText("rust") & ~(PlainText("language") | PlainText("crabs"))),
+            models.Book.objects.all(),
+        )
+        self.assertSetEqual(
+            {r.title for r in results},
+            {
+                "Programming Rust",
+            },
+        )
+
     def test_phrase(self):
         results = self.backend.search(
             Phrase("rust programming"), models.Book.objects.all()
