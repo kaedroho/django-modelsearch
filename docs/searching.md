@@ -6,7 +6,7 @@
 
 ## Searching QuerySets
 
-Django Modelsearch is built on Django's [QuerySet API](inv:django#ref/models/querysets). You should be able to search any Django QuerySet provided the model and the fields being filtered have been added to the search index.
+Django Modelsearch is built on Django's [QuerySet API](https://docs.djangoproject.com/en/stable/ref/models/querysets/). You should be able to search any Django QuerySet provided the model and the fields being filtered have been added to the search index.
 
 ### Making a model searchable
 
@@ -76,13 +76,20 @@ Book.objects.search(Phrase("Peace and War"))
 
 #### Custom ordering
 
-Use Django's `.order_by()` before `search(..., order_by_relevance=False)` to order by that field. This will disable ranking and just do a basic match search:
+Pass an `order_by` argument to `search()` to order by that field. This will disable ranking and just do a basic match search:
+
+```python
+Book.objects.search("The Hobbit", order_by="release_date")
+```
+
+Note the field being ordered by must be indexed with `index.FilterField`.
+
+Alternatively, passing `order_by_relevance=False` when calling `search` will preserve any ordering already defined on the queryset:
 
 ```python
 Book.objects.order_by('release_date').search("The Hobbit", order_by_relevance=False)
 ```
 
-Note the field being ordered by must be indexed with `index.FilterField`
 
 #### Changing the search operator
 
