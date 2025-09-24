@@ -160,6 +160,36 @@ class TestPostgresSearchBackend(BackendTests, TestCase):
         results = self.backend.autocomplete("first <-> second", models.Book)
         self.assertUnsortedListEqual([r.title for r in results], [])
 
+    @unittest.skip(
+        "The Postgres backend doesn't support MatchAll as an inner expression."
+    )
+    def test_search_not_match_none(self):
+        return super().test_search_not_match_none()
+
+    @unittest.skip(
+        "The Postgres backend doesn't support MatchAll as an inner expression."
+    )
+    def test_search_or_match_all(self):
+        return super().test_search_or_match_all()
+
+    @unittest.skip(
+        "The Postgres backend doesn't support MatchAll as an inner expression."
+    )
+    def test_search_or_match_none(self):
+        return super().test_search_or_match_none()
+
+    @unittest.skip(
+        "The Postgres backend doesn't support MatchAll as an inner expression."
+    )
+    def test_search_and_match_all(self):
+        return super().test_search_and_match_all()
+
+    @unittest.skip(
+        "The Postgres backend doesn't support MatchAll as an inner expression."
+    )
+    def test_search_and_match_none(self):
+        return super().test_search_and_match_none()
+
     def test_reset_indexes(self):
         """
         After running backend.reset_indexes(), search should return no results.
@@ -167,6 +197,20 @@ class TestPostgresSearchBackend(BackendTests, TestCase):
         self.backend.reset_indexes()
         results = self.backend.search("JavaScript", models.Book)
         self.assertEqual(results.count(), 0)
+
+    @unittest.expectedFailure
+    def test_get_search_field_for_related_fields(self):
+        """
+        The get_search_field method of PostgresSearchQueryCompiler attempts to support retrieving
+        search fields across relations with double-underscore notation. This is not yet supported
+        in actual searches, so test this in isolation.
+        """
+        # retrieve an arbitrary SearchResults object to extract a compiler object from
+        results = self.backend.search("JavaScript", models.Book)
+        compiler = results.query_compiler
+        search_field = compiler.get_search_field("authors__name")
+        self.assertIsNotNone(search_field)
+        self.assertEqual(search_field.field_name, "name")
 
 
 @unittest.skipUnless(
