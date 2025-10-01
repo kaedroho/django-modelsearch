@@ -17,8 +17,9 @@ from django.db.models.sql.subqueries import InsertQuery
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 
+from modelsearch import get_app_config
+
 from ....index import AutocompleteField, RelatedFields, SearchField, get_indexed_models
-from ....models import IndexEntry
 from ....query import And, Boost, MatchAll, Not, Or, Phrase, PlainText
 from ....utils import (
     ADD,
@@ -37,6 +38,7 @@ from .query import Lexeme
 from .weights import get_sql_weights, get_weight
 
 
+IndexEntry = get_app_config().get_model("IndexEntry", require_ready=False)
 EMPTY_VECTOR = SearchVector(Value("", output_field=TextField()))
 
 
