@@ -8,23 +8,11 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
 
+from modelsearch import get_app_config
+
 
 class InvalidSearchBackendError(ImproperlyConfigured):
     pass
-
-
-def get_search_backend_config():
-    search_backends = getattr(settings, "MODELSEARCH_BACKENDS", {})
-
-    # Make sure the default backend is always defined
-    search_backends.setdefault(
-        "default",
-        {
-            "BACKEND": "modelsearch.backends.database",
-        },
-    )
-
-    return search_backends
 
 
 def import_backend(dotted_path):
@@ -61,7 +49,7 @@ def get_search_backend(backend="default", **kwargs):
     All options within the MODELSEARCH_BACKENDS entry (except for `BACKEND` itself) will be passed to the backend class during instantiation. Additional
     keyword arguments will also be passed to the backend class (and override options from MODELSEARCH_BACKENDS).
     """
-    search_backends = get_search_backend_config()
+    search_backends = get_app_config().get_search_backend_config()
 
     # Try to find the backend
     try:
@@ -109,7 +97,7 @@ def _backend_requires_auto_update(backend_name, params):
 
 
 def get_search_backends_with_name(with_auto_update=False):
-    search_backends = get_search_backend_config()
+    search_backends = get_app_config().get_search_backend_config()
     for backend, params in search_backends.items():
         if with_auto_update and _backend_requires_auto_update(backend, params) is False:
             continue
