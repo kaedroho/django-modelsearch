@@ -13,8 +13,9 @@ from django.db.models.functions import Cast, Length
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 
+from modelsearch import get_app_config
+
 from ....index import AutocompleteField, RelatedFields, SearchField, get_indexed_models
-from ....models import IndexEntry, SQLiteFTSIndexEntry
 from ....query import And, MatchAll, Not, Or, Phrase, PlainText
 from ....utils import (
     ADD,
@@ -37,6 +38,11 @@ from .query import (
     SearchQueryExpression,
     normalize,
 )
+
+
+app_config = get_app_config()
+IndexEntry = app_config.get_model("IndexEntry", require_ready=False)
+SQLiteFTSIndexEntry = app_config.get_model("SQLiteFTSIndexEntry", require_ready=False)
 
 
 class ObjectIndexer:

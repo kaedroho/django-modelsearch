@@ -23,7 +23,9 @@ def fts5_available():
 
 
 def fts_table_exists():
-    from modelsearch.models import SQLiteFTSIndexEntry
+    from modelsearch import get_app_config
+
+    SQLiteFTSIndexEntry = get_app_config().get_model("SQLiteFTSIndexEntry")
 
     try:
         # ignore result of query; we are only interested in the query failing,

@@ -22,9 +22,7 @@ class ModelSearchAppConfig(AppConfig):
 
             set_weights()
 
-        from modelsearch.models import IndexEntry
-
-        IndexEntry.add_generic_relations()
+        self.get_model("IndexEntry").add_generic_relations()
 
     def get_search_backend_config(self):
         search_backends = getattr(settings, self.backend_setting_name, {})

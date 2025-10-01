@@ -20,6 +20,7 @@ from django.db.models.manager import Manager
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 
+from modelsearch import get_app_config
 from modelsearch.backends.base import (
     BaseIndex,
     BaseSearchBackend,
@@ -38,13 +39,15 @@ from modelsearch.index import (
     SearchField,
     get_indexed_models,
 )
-from modelsearch.models import IndexEntry
 from modelsearch.query import And, Boost, MatchAll, Not, Or, Phrase, PlainText
 from modelsearch.utils import (
     balanced_reduce,
     get_content_type_pk,
     get_descendants_content_types_pks,
 )
+
+
+IndexEntry = get_app_config().get_model("IndexEntry", require_ready=False)
 
 
 class ObjectIndexer:
