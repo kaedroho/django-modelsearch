@@ -3,7 +3,8 @@ import collections
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from modelsearch.backends import get_search_backend, get_search_backend_config
+from modelsearch import get_app_config
+from modelsearch.backends import get_search_backend
 from modelsearch.index import get_indexed_models
 
 
@@ -145,7 +146,7 @@ class Command(BaseCommand):
             backend_names = [options["backend_name"]]
         else:
             # index all backends listed in the search backend config
-            backend_names = get_search_backend_config().keys()
+            backend_names = get_app_config().get_search_backend_config().keys()
 
         # Update backends
         for backend_name in backend_names:

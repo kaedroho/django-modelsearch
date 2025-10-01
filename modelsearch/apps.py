@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.conf import settings
 from django.core.checks import Tags, Warning, register
 from django.db import connection
 
@@ -10,6 +11,7 @@ class ModelSearchAppConfig(AppConfig):
     label = "modelsearch"
     verbose_name = "Django ModelSearch"
     default_auto_field = "django.db.models.AutoField"
+    backend_setting_name = "MODELSEARCH_BACKENDS"
 
     def ready(self):
         register_signal_handlers()
@@ -23,6 +25,19 @@ class ModelSearchAppConfig(AppConfig):
         from modelsearch.models import IndexEntry
 
         IndexEntry.add_generic_relations()
+
+    def get_search_backend_config(self):
+        search_backends = getattr(settings, self.backend_setting_name, {})
+
+        # Make sure the default backend is always defined
+        search_backends.setdefault(
+            "default",
+            {
+                "BACKEND": "modelsearch.backends.database",
+            },
+        )
+
+        return search_backends
 
     @register(Tags.compatibility, Tags.database)
     def check_if_sqlite_version_is_supported(app_configs, **kwargs):
