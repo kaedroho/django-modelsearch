@@ -20,7 +20,6 @@ from django.db.models.manager import Manager
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 
-from modelsearch import get_app_config
 from modelsearch.backends.base import (
     BaseIndex,
     BaseSearchBackend,
@@ -33,6 +32,7 @@ from modelsearch.backends.database.mysql.query import (
     MatchExpression,
     SearchQuery,
 )
+from modelsearch.conf import get_app_config
 from modelsearch.index import (
     AutocompleteField,
     RelatedFields,

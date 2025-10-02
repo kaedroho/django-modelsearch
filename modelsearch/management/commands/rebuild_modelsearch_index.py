@@ -3,8 +3,8 @@ import collections
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from modelsearch import get_app_config
 from modelsearch.backends import get_search_backend
+from modelsearch.conf import get_app_config
 from modelsearch.index import get_indexed_models
 
 
