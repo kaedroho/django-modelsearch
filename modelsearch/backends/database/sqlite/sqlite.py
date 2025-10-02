@@ -13,7 +13,7 @@ from django.db.models.functions import Cast, Length
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 
-from modelsearch import get_app_config
+from modelsearch.conf import get_app_config
 
 from ....index import AutocompleteField, RelatedFields, SearchField, get_indexed_models
 from ....query import And, MatchAll, Not, Or, Phrase, PlainText

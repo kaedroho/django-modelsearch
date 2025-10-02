@@ -2,6 +2,8 @@ import sqlite3
 
 from django.db import OperationalError
 
+from modelsearch.conf import get_app_config
+
 
 def fts5_available():
     # based on https://stackoverflow.com/a/36656216/1853523
@@ -23,8 +25,6 @@ def fts5_available():
 
 
 def fts_table_exists():
-    from modelsearch import get_app_config
-
     SQLiteFTSIndexEntry = get_app_config().get_model("SQLiteFTSIndexEntry")
 
     try:

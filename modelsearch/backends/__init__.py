@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
 
-from modelsearch import get_app_config
+from modelsearch.conf import get_app_config
 
 
 class InvalidSearchBackendError(ImproperlyConfigured):

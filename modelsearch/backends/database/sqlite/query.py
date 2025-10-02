@@ -5,7 +5,7 @@ from django.db.models.expressions import CombinedExpression, Expression, Func, V
 from django.db.models.fields import BooleanField, Field, FloatField
 from django.db.models.sql.compiler import SQLCompiler
 
-from modelsearch import get_app_config
+from modelsearch.conf import get_app_config
 from modelsearch.query import And, MatchAll, Not, Or, Phrase, PlainText, SearchQuery
 
 
