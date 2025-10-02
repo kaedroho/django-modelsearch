@@ -32,19 +32,22 @@ from modelsearch.backends.database.mysql.query import (
     MatchExpression,
     SearchQuery,
 )
+from modelsearch.conf import get_app_config
 from modelsearch.index import (
     AutocompleteField,
     RelatedFields,
     SearchField,
     get_indexed_models,
 )
-from modelsearch.models import IndexEntry
 from modelsearch.query import And, Boost, MatchAll, Not, Or, Phrase, PlainText
 from modelsearch.utils import (
     balanced_reduce,
     get_content_type_pk,
     get_descendants_content_types_pks,
 )
+
+
+IndexEntry = get_app_config().get_model("IndexEntry", require_ready=False)
 
 
 class ObjectIndexer:
