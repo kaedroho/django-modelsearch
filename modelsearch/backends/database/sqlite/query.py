@@ -5,7 +5,13 @@ from django.db.models.expressions import CombinedExpression, Expression, Func, V
 from django.db.models.fields import BooleanField, Field, FloatField
 from django.db.models.sql.compiler import SQLCompiler
 
+from modelsearch import get_app_config
 from modelsearch.query import And, MatchAll, Not, Or, Phrase, PlainText, SearchQuery
+
+
+SQLiteFTSIndexEntry = get_app_config().get_model(
+    "SQLiteFTSIndexEntry", require_ready=False
+)
 
 
 class BM25(Func):
@@ -23,7 +29,7 @@ class BM25(Func):
         function=None,
         template=None,
     ):
-        sql, params = "bm25(modelsearch_indexentry_fts)", []
+        sql, params = f"bm25({SQLiteFTSIndexEntry._meta.db_table})", []
         return sql, params
 
 
@@ -167,9 +173,7 @@ class CombinedSearchQueryExpression(SearchQueryCombinable, CombinedExpression):
 
 class MatchExpression(Expression):
     filterable = True
-    template = (
-        "modelsearch_indexentry_fts MATCH %s"  # TODO: Can the table name be inferred?
-    )
+    template = f"{SQLiteFTSIndexEntry._meta.db_table} MATCH %s"  # TODO: Can the table name be inferred from the query instead?
     output_field = BooleanField()
 
     def __init__(self, columns: list[str], query: SearchQueryCombinable) -> None:
