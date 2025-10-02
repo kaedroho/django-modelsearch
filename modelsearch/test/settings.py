@@ -25,7 +25,6 @@ ALLOWED_HOSTS = ["localhost", "testserver"]
 INSTALLED_APPS = [
     "modelsearch.test.testapp",
     "modelsearch",
-    "modelcluster",
     "taggit",
     "django.contrib.admin",
     "django.contrib.auth",
