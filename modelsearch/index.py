@@ -10,6 +10,16 @@ from django.db.models.fields.related import ForeignObjectRel, OneToOneRel, Relat
 from modelsearch.backends import get_search_backends_with_name
 
 
+try:
+    from modelcluster.fields import ParentalManyToManyField
+except ImportError:
+    # Define a dummy ParentalManyToManyField - this is only used for an
+    # isinstance(field, ParentalManyToManyField) check, and if the real ParentalManyToManyField
+    # class isn't available, the check will always be False anyway.
+    class ParentalManyToManyField:
+        pass
+
+
 logger = logging.getLogger("modelsearch.index")
 
 
@@ -344,18 +354,15 @@ class RelatedFields:
         except FieldDoesNotExist:
             return queryset
 
-        if apps.is_installed("modelcluster"):
-            from modelcluster.fields import ParentalManyToManyField
+        if isinstance(field, RelatedField) and not isinstance(
+            field, ParentalManyToManyField
+        ):
+            if field.many_to_one or field.one_to_one:
+                return queryset.select_related(self.field_name)
+            elif field.one_to_many or field.many_to_many:
+                return queryset.prefetch_related(self.field_name)
 
-            if isinstance(field, RelatedField) and not isinstance(
-                field, ParentalManyToManyField
-            ):
-                if field.many_to_one or field.one_to_one:
-                    return queryset.select_related(self.field_name)
-                elif field.one_to_many or field.many_to_many:
-                    return queryset.prefetch_related(self.field_name)
-
-        if isinstance(field, ForeignObjectRel):
+        elif isinstance(field, ForeignObjectRel):
             # Reverse relation
             if isinstance(field, OneToOneRel):
                 # select_related for reverse OneToOneField
