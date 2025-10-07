@@ -36,7 +36,7 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
     def test_partial_search(self):
         results = self.backend.autocomplete("Java", models.Book)
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["JavaScript: The Definitive Guide", "JavaScript: The good parts"],
         )
@@ -44,14 +44,14 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
     def test_disabled_partial_search(self):
         results = self.backend.search("Java", models.Book)
 
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
     def test_disabled_partial_search_with_whole_term(self):
         # Making sure that there isn't a different reason why the above test
         # returned no results
         results = self.backend.search("JavaScript", models.Book)
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["JavaScript: The Definitive Guide", "JavaScript: The good parts"],
         )
@@ -60,7 +60,7 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
         # Note: Expands to "Westeros". Which is in a field on Novel.setting
         results = self.backend.autocomplete("Wes", models.Book)
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["A Game of Thrones", "A Storm of Swords", "A Clash of Kings"],
         )
@@ -76,13 +76,13 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
 
         results = self.backend.autocomplete("Hello", models.Book)
 
-        self.assertUnsortedListEqual([r.title for r in results], ["Ĥéllø"])
+        self.assertCountEqual([r.title for r in results], ["Ĥéllø"])
 
     def test_query_analyser(self):
         # This is testing that fields that use edgengram_analyzer as their index analyser do not
         # have it also as their query analyser
         results = self.backend.search("JavaScript", models.Book)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["JavaScript: The Definitive Guide", "JavaScript: The good parts"],
         )
@@ -109,7 +109,7 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
         index.refresh()
 
         results = self.backend.search("Half-Blood", models.Book)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "Harry Potter and the Half-Blood Prince",
@@ -128,7 +128,7 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
         index.refresh()
 
         results = self.backend.search("31337", models.Book)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "Harry Potter and the 31337 Goblets of Fire",
@@ -136,7 +136,7 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
         )
 
         results = self.backend.autocomplete("313", models.Book)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "Harry Potter and the 31337 Goblets of Fire",
@@ -144,7 +144,7 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
         )
 
         results = self.backend.search("31337 goblets", models.Book)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "Harry Potter and the 31337 Goblets of Fire",
@@ -152,7 +152,7 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
         )
 
         results = self.backend.autocomplete("31337 gob", models.Book)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "Harry Potter and the 31337 Goblets of Fire",
@@ -164,7 +164,7 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
         results = self.backend.search(
             "JavaScript", models.Book, operator="and", fields=["title"]
         )
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["JavaScript: The Definitive Guide", "JavaScript: The good parts"],
         )
@@ -255,7 +255,7 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
     def test_all_indexes(self):
         indexes = [index.get_key() for index in self.backend.all_indexes()]
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             indexes,
             [
                 "modelsearchtest_searchtests_author",
