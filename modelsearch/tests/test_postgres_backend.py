@@ -78,39 +78,39 @@ class TestPostgresSearchBackend(BackendTests, TestCase):
 
         # Simple quote should be escaped inside each tsquery term.
         results = self.backend.search("L'amour piqué par une abeille", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.search("'starting quote", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.search("ending quote'", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.search("double quo''te", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.search("triple quo'''te", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Now suffixes.
         results = self.backend.search("Something:B", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.search("Something:*", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.search("Something:A*BCD", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Now the AND operator.
         results = self.backend.search("first & second", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Now the OR operator.
         results = self.backend.search("first | second", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Now the NOT operator.
         results = self.backend.search("first & !second", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Now the phrase operator.
         results = self.backend.search("first <-> second", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
     def test_autocomplete_tsquery_chars(self):
         """
@@ -122,43 +122,43 @@ class TestPostgresSearchBackend(BackendTests, TestCase):
         results = self.backend.autocomplete(
             "L'amour piqué par une abeille", models.Book
         )
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.autocomplete("'starting quote", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.autocomplete("ending quote'", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.autocomplete("double quo''te", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.autocomplete("triple quo'''te", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Backslashes should be escaped inside each tsquery term.
         results = self.backend.autocomplete("backslash\\", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Now suffixes.
         results = self.backend.autocomplete("Something:B", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.autocomplete("Something:*", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
         results = self.backend.autocomplete("Something:A*BCD", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Now the AND operator.
         results = self.backend.autocomplete("first & second", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Now the OR operator.
         results = self.backend.autocomplete("first | second", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Now the NOT operator.
         results = self.backend.autocomplete("first & !second", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
         # Now the phrase operator.
         results = self.backend.autocomplete("first <-> second", models.Book)
-        self.assertUnsortedListEqual([r.title for r in results], [])
+        self.assertCountEqual([r.title for r in results], [])
 
     @unittest.skip(
         "The Postgres backend doesn't support MatchAll as an inner expression."

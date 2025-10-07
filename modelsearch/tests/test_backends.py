@@ -64,20 +64,11 @@ class BackendTests:
             chunk_size=50,
         )
 
-    def assertUnsortedListEqual(self, a, b):
-        """
-        Checks two results lists are equal while not taking into account the ordering.
-
-        Note: This is different to assertSetEqual in that duplicate results are taken
-        into account.
-        """
-        self.assertListEqual(sorted(a), sorted(b))
-
     # SEARCH TESTS
 
     def test_search_simple(self):
         results = self.backend.search("JavaScript", models.Book)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["JavaScript: The good parts", "JavaScript: The Definitive Guide"],
         )
@@ -85,7 +76,7 @@ class BackendTests:
 
     def test_search_via_queryset(self):
         results = models.Book.objects.search("JavaScript", backend=self.backend_name)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["JavaScript: The good parts", "JavaScript: The Definitive Guide"],
         )
@@ -94,7 +85,7 @@ class BackendTests:
         results = models.Book.objects.filter(number_of_pages__gt=500).search(
             "JavaScript", backend=self.backend_name
         )
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["JavaScript: The Definitive Guide"],
         )
@@ -149,7 +140,7 @@ class BackendTests:
 
     def test_search_or_match_none(self):
         results = self.backend.search(PlainText("javascript") | MATCH_NONE, models.Book)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["JavaScript: The good parts", "JavaScript: The Definitive Guide"],
         )
@@ -160,7 +151,7 @@ class BackendTests:
 
     def test_search_and_match_all(self):
         results = self.backend.search(PlainText("javascript") & MATCH_ALL, models.Book)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["JavaScript: The good parts", "JavaScript: The Definitive Guide"],
         )
@@ -181,7 +172,7 @@ class BackendTests:
         results = list(
             self.backend.search("JavaScript Definitive", models.Book, operator="or")
         )
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["JavaScript: The good parts", "JavaScript: The Definitive Guide"],
         )
@@ -234,7 +225,7 @@ class BackendTests:
         results = self.backend.search(
             "JavaScript Definitive", models.Book, operator="and"
         )
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results], ["JavaScript: The Definitive Guide"]
         )
 
@@ -250,7 +241,7 @@ class BackendTests:
         # All results should be instances of the parent class
         results = self.backend.search("Westeros", models.Book)
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["A Game of Thrones", "A Clash of Kings", "A Storm of Swords"],
         )
@@ -264,7 +255,7 @@ class BackendTests:
             "Westeros Hobbit", models.Book, fields=["title"], operator="or"
         )
 
-        self.assertUnsortedListEqual([r.title for r in results], ["The Hobbit"])
+        self.assertCountEqual([r.title for r in results], ["The Hobbit"])
 
     def test_search_on_unknown_field(self):
         with self.assertRaises(FieldError):
@@ -288,7 +279,7 @@ class BackendTests:
     def test_search_on_related_fields(self):
         results = self.backend.search("Bilbo Baggins", models.Novel)
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "The Hobbit",
@@ -307,7 +298,7 @@ class BackendTests:
         self.assertEqual(results[0].title, "The Hobbit")
 
         # The remaining results should be scored equally so their rank is undefined
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results[1:]],
             ["The Fellowship of the Ring", "The Two Towers", "The Return of the King"],
         )
@@ -317,7 +308,7 @@ class BackendTests:
         # callable field
         results = self.backend.search("Python", models.Book)
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results], ["Learning Python", "Two Scoops of Django 1.11"]
         )
 
@@ -335,7 +326,7 @@ class BackendTests:
         # isn't an autocomplete field
         results = self.backend.autocomplete("Py", models.Book)
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "Learning Python",
@@ -345,7 +336,7 @@ class BackendTests:
     def test_autocomplete_via_queryset(self):
         results = models.Book.objects.autocomplete("Py", backend=self.backend_name)
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "Learning Python",
@@ -357,7 +348,7 @@ class BackendTests:
             "Javasc", backend=self.backend_name
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "JavaScript: The Definitive Guide",
@@ -393,7 +384,7 @@ class BackendTests:
         # AutocompleteField is actually being respected, and it's not just relying on the
         # presence of a SearchField (with or without partial_match)
         results = self.backend.autocomplete("Georg", models.Author)
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.name for r in results],
             [
                 "George R.R. Martin",
@@ -402,7 +393,7 @@ class BackendTests:
 
     def test_autocomplete_with_fields_arg(self):
         results = self.backend.autocomplete("Georg", models.Author, fields=["name"])
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.name for r in results],
             [
                 "George R.R. Martin",
@@ -415,7 +406,7 @@ class BackendTests:
         # See: https://www.postgresql.org/docs/9.1/datatype-textsearch.html#DATATYPE-TSQUERY
         results = self.backend.autocomplete("Learni", models.Book)
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "Learning Python",
@@ -429,7 +420,7 @@ class BackendTests:
             MATCH_ALL, models.Book.objects.filter(number_of_pages=440)
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             ["The Return of the King", "The Rust Programming Language"],
         )
@@ -439,7 +430,7 @@ class BackendTests:
             MATCH_ALL, models.Novel.objects.filter(number_of_pages=440)
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results], ["The Return of the King"]
         )
 
@@ -461,7 +452,7 @@ class BackendTests:
                     models.Novel.objects.filter(protagonist_id=subquery),
                 )
 
-                self.assertUnsortedListEqual(
+                self.assertCountEqual(
                     [r.title for r in results],
                     ["The Fellowship of the Ring"],
                 )
@@ -471,7 +462,7 @@ class BackendTests:
             MATCH_ALL, models.Book.objects.filter(number_of_pages__lt=440)
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "The Hobbit",
@@ -487,7 +478,7 @@ class BackendTests:
             MATCH_ALL, models.Book.objects.filter(number_of_pages__lte=440)
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "The Return of the King",
@@ -505,7 +496,7 @@ class BackendTests:
             MATCH_ALL, models.Book.objects.filter(number_of_pages__gt=440)
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "JavaScript: The Definitive Guide",
@@ -523,7 +514,7 @@ class BackendTests:
             MATCH_ALL, models.Book.objects.filter(number_of_pages__gte=440)
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "The Return of the King",
@@ -546,7 +537,7 @@ class BackendTests:
             ),
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "The Return of the King",
@@ -560,7 +551,7 @@ class BackendTests:
             MATCH_ALL, models.Book.objects.filter(~Q(number_of_pages__gt=200))
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "JavaScript: The good parts",
@@ -572,7 +563,7 @@ class BackendTests:
             MATCH_ALL, models.Book.objects.filter(number_of_pages__in=[440, 1160])
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "The Return of the King",
@@ -586,7 +577,7 @@ class BackendTests:
             MATCH_ALL, models.Book.objects.filter(number_of_pages__in=iter([440, 1160]))
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "The Return of the King",
@@ -609,7 +600,7 @@ class BackendTests:
                     MATCH_ALL, models.Book.objects.filter(number_of_pages__in=subquery)
                 )
 
-                self.assertUnsortedListEqual(
+                self.assertCountEqual(
                     [r.title for r in results],
                     [
                         "The Hobbit",
@@ -626,7 +617,7 @@ class BackendTests:
             MATCH_ALL, models.Author.objects.filter(date_of_birth__isnull=True)
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.name for r in results],
             [
                 "David Ascher",
@@ -648,7 +639,7 @@ class BackendTests:
             MATCH_ALL, models.Author.objects.filter(date_of_birth__isnull=False)
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.name for r in results],
             ["Isaac Asimov", "George R.R. Martin", "J. R. R. Tolkien"],
         )
@@ -658,7 +649,7 @@ class BackendTests:
             MATCH_ALL, models.Book.objects.filter(title__startswith="Th")
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "The Hobbit",
@@ -676,7 +667,7 @@ class BackendTests:
             & models.Book.objects.filter(publication_date=date(1955, 10, 20)),
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results], ["The Return of the King"]
         )
 
@@ -687,7 +678,7 @@ class BackendTests:
             | models.Book.objects.filter(number_of_pages=1160),
         )
 
-        self.assertUnsortedListEqual(
+        self.assertCountEqual(
             [r.title for r in results],
             [
                 "Learning Python",
