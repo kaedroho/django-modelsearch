@@ -430,9 +430,7 @@ class BackendTests:
             MATCH_ALL, models.Novel.objects.filter(number_of_pages=440)
         )
 
-        self.assertCountEqual(
-            [r.title for r in results], ["The Return of the King"]
-        )
+        self.assertCountEqual([r.title for r in results], ["The Return of the King"])
 
     def test_filter_exact_values_list_subquery(self):
         protagonist = (
@@ -667,9 +665,7 @@ class BackendTests:
             & models.Book.objects.filter(publication_date=date(1955, 10, 20)),
         )
 
-        self.assertCountEqual(
-            [r.title for r in results], ["The Return of the King"]
-        )
+        self.assertCountEqual([r.title for r in results], ["The Return of the King"])
 
     def test_filter_or_operator(self):
         results = self.backend.search(
