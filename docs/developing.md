@@ -20,7 +20,7 @@ To run the test suite, run:
 python ./runtests.py --backend BACKEND
 ```
 
-where BACKEND is one of: `db`, `elasticsearch7`, `elasticsearch8`, `elasticsearch9`, `opensearch1`, `opensearch2`, `opensearch3`.
+where BACKEND is one of: `db`, `elasticsearch7`, `elasticsearch8`, `elasticsearch9`, `opensearch2`, `opensearch3`.
 
 ## Linting
 

@@ -13,7 +13,7 @@ def main():
     parser.add_argument(
         "--backend",
         required=True,
-        help="Specify the search backend (db, elasticsearch7, elasticsearch8, elasticsearch9, opensearch1, opensearch2, opensearch3).",
+        help="Specify the search backend (db, elasticsearch7, elasticsearch8, elasticsearch9, opensearch2, opensearch3).",
     )
 
     args = parser.parse_args()

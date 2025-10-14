@@ -60,7 +60,7 @@ If you use the PostgreSQL database backend, you must add `django.contrib.postgre
 
 ### Elasticsearch/OpenSearch Backends
 
-Elasticsearch versions 7, 8, and 9 are supported. OpenSearch 1, 2, and 3 are supported.
+Elasticsearch versions 7, 8, and 9 are supported. OpenSearch 2 and 3 are supported.
 
 You'll need to install the [elasticsearch-py](https://elasticsearch-py.readthedocs.io/) package for Elasticsearch and for OpenSearch, you'll need the [opensearch-py](https://pypi.org/project/opensearch-py/) package. The major version of the package must match the installed version of Elasticsearch/OpenSearch:
 
@@ -74,10 +74,6 @@ pip install "elasticsearch>=8,<9"  # for Elasticsearch 8.x
 
 ```sh
 pip install "elasticsearch>=9,<10"  # for Elasticsearch 9.x
-```
-
-```sh
-pip install "opensearch-py>=1,<2"  # for OpenSearch 1.x
 ```
 
 ```sh
@@ -112,7 +108,6 @@ Set the `BACKEND` for the version of Elasticsearch/OpenSearch you are using:
 -   `modelsearch.backends.elasticsearch7` (Elasticsearch 7.x)
 -   `modelsearch.backends.elasticsearch8` (Elasticsearch 8.x)
 -   `modelsearch.backends.elasticsearch9` (Elasticsearch 9.x)
--   `modelsearch.backends.opensearch1` (OpenSearch 1.x)
 -   `modelsearch.backends.opensearch2` (OpenSearch 2.x)
 -   `modelsearch.backends.opensearch3` (OpenSearch 3.x)
 

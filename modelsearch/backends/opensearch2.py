@@ -1,39 +1,47 @@
-from modelsearch.backends.opensearch1 import (
-    OpenSearch1AutocompleteQueryCompiler,
-    OpenSearch1Index,
-    OpenSearch1Mapping,
-    OpenSearch1SearchBackend,
-    OpenSearch1SearchQueryCompiler,
-    OpenSearch1SearchResults,
+from opensearchpy import NotFoundError, OpenSearch
+from opensearchpy.helpers import bulk
+
+from modelsearch.backends.elasticsearchbase import (
+    ElasticsearchBaseAutocompleteQueryCompiler,
+    ElasticsearchBaseIndex,
+    ElasticsearchBaseMapping,
+    ElasticsearchBaseSearchBackend,
+    ElasticsearchBaseSearchQueryCompiler,
+    ElasticsearchBaseSearchResults,
 )
 
 
-class OpenSearch2Mapping(OpenSearch1Mapping):
+class OpenSearch2Mapping(ElasticsearchBaseMapping):
     pass
 
 
-class OpenSearch2Index(OpenSearch1Index):
+class OpenSearch2Index(ElasticsearchBaseIndex):
     pass
 
 
-class OpenSearch2SearchQueryCompiler(OpenSearch1SearchQueryCompiler):
+class OpenSearch2SearchQueryCompiler(ElasticsearchBaseSearchQueryCompiler):
     mapping_class = OpenSearch2Mapping
 
 
-class OpenSearch2SearchResults(OpenSearch1SearchResults):
+class OpenSearch2SearchResults(ElasticsearchBaseSearchResults):
     pass
 
 
-class OpenSearch2AutocompleteQueryCompiler(OpenSearch1AutocompleteQueryCompiler):
+class OpenSearch2AutocompleteQueryCompiler(ElasticsearchBaseAutocompleteQueryCompiler):
     mapping_class = OpenSearch2Mapping
 
 
-class OpenSearch2SearchBackend(OpenSearch1SearchBackend):
+class OpenSearch2SearchBackend(ElasticsearchBaseSearchBackend):
     mapping_class = OpenSearch2Mapping
     index_class = OpenSearch2Index
     query_compiler_class = OpenSearch2SearchQueryCompiler
     autocomplete_query_compiler_class = OpenSearch2AutocompleteQueryCompiler
     results_class = OpenSearch2SearchResults
+    NotFoundError = NotFoundError
+    client_class = OpenSearch
+
+    def bulk(self, *args, **kwargs):
+        return bulk(*args, **kwargs)
 
 
 SearchBackend = OpenSearch2SearchBackend
