@@ -153,7 +153,6 @@ class ObjectIndexer:
 class MySQLIndex(BaseIndex):
     def __init__(self, backend):
         super().__init__(backend)
-        self.name = self.backend.index_name
 
         self.read_connection = connections[router.db_for_read(IndexEntry)]
         self.write_connection = connections[router.db_for_write(IndexEntry)]
@@ -277,9 +276,6 @@ class MySQLIndex(BaseIndex):
             if connection.vendor == "mysql"
         ]:
             IndexEntry._default_manager.all()._raw_delete(using=connection.alias)
-
-    def __str__(self):
-        return self.name
 
 
 class MySQLSearchQueryCompiler(BaseSearchQueryCompiler):
@@ -596,8 +592,6 @@ class MySQLSearchBackend(BaseSearchBackend):
 
     def __init__(self, params):
         super().__init__(params)
-        self.index_name = params.get("INDEX", "default")
-
         # MySQL backend currently has no config options
         self.config = None
         self.autocomplete_config = None
