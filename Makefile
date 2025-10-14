@@ -25,11 +25,6 @@ vagrantcoverage:
 	ELASTICSEARCH_URL=https://modelsearch:modelsearch@localhost:9200 ELASTICSEARCH_CA_CERTS=~/elasticsearch-9.1.4/config/certs/http_ca.crt ~/.virtualenvs/modelsearches9/bin/coverage run -p runtests.py --backend elasticsearch9
 	killall java
 
-	/home/vagrant/opensearch-1.3.20/bin/opensearch -q &
-	sleep 10
-	~/.virtualenvs/modelsearchopensearch1/bin/coverage run -p runtests.py --backend opensearch1
-	killall java
-
 	/home/vagrant/opensearch-2.19.3/bin/opensearch -q &
 	sleep 10
 	~/.virtualenvs/modelsearchopensearch2/bin/coverage run -p runtests.py --backend opensearch2

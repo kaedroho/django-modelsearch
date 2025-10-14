@@ -60,7 +60,6 @@ Set the `BACKEND` for the version of Elasticsearch/OpenSearch you are using:
 -   `modelsearch.backends.elasticsearch7` (Elasticsearch 7.x)
 -   `modelsearch.backends.elasticsearch8` (Elasticsearch 8.x)
 -   `modelsearch.backends.elasticsearch9` (Elasticsearch 9.x)
--   `modelsearch.backends.opensearch1` (OpenSearch 1.x)
 -   `modelsearch.backends.opensearch2` (OpenSearch 2.x)
 -   `modelsearch.backends.opensearch3` (OpenSearch 3.x)
 
