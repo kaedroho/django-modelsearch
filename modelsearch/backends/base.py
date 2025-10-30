@@ -82,12 +82,33 @@ class BaseSearchQueryCompiler:
         return field
 
     def _process_lookup(self, field, lookup, value):
+        """
+        To be implemented by subclasses if they wish to call ``_get_filters_from_queryset`` with
+        ``check_only=False``. Returns the data structure corresponding to a filter lookup on an
+        individual field.
+
+        :param field: The ``FilterField`` instance for the field being filtered on.
+        :param lookup: The identifier for the type of lookup being performed, such as ``"exact"`` or ``"lt"``.
+        :param value: The lookup value.
+        """
         raise NotImplementedError
 
     def _process_match_none(self):
+        """
+        To be implemented by subclasses if they wish to call ``_get_filters_from_queryset`` with
+        ``check_only=False``. Returns the data structure corresponding to a lookup that returns an empty result set.
+        """
         raise NotImplementedError
 
     def _connect_filters(self, filters, connector, negated):
+        """
+        To be implemented by subclasses if they wish to call ``_get_filters_from_queryset`` with
+        ``check_only=False``. Returns the data structure corresponding to the combination of multiple filters.
+
+        :param filters: The data structures for the sub-expressions to be combined.
+        :param connector: The clause used to connect the filters - ``"AND"`` or ``"OR"``.
+        :param negated: Whether the final expression should be negated.
+        """
         raise NotImplementedError
 
     def _process_filter(self, field_attname, lookup, value, check_only=False):

@@ -63,4 +63,7 @@
     .. automethod:: _get_filters_from_queryset
     .. automethod:: _get_filters_from_where_node
     .. automethod:: _get_order_by
+    .. automethod:: _process_lookup
+    .. automethod:: _process_match_none
+    .. automethod:: _connect_filters
 ```
