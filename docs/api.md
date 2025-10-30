@@ -55,4 +55,9 @@
 
     .. automethod:: _do_search
     .. automethod:: _do_count
+
+.. autoclass:: BaseSearchQueryCompiler
+
+    .. autoattribute:: HANDLES_ORDER_BY_EXPRESSIONS
+    .. automethod:: check
 ```

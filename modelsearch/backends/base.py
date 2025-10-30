@@ -40,11 +40,14 @@ class BaseSearchQueryCompiler:
     Represents a search query translated into an expression that the search backend can understand,
     incorporating the necessary filters, ordering, and other query parameters originating from
     either the search query or the queryset. No actual querying happens at the point of
-    instantiating this; that's initiated by the _do_search() or _do_count() methods of the
-    associated SearchResults object.
+    instantiating this; that happens when the associated :py:class:`BaseSearchResults` object is evaluated.
     """
 
     DEFAULT_OPERATOR = "or"
+
+    #: Whether this query compiler can handle complex expressions in the ``order_by`` clause of the queryset,
+    #: such as ``F("title").asc(nulls_first=True)``. If true, the ``check()`` method will not raise an
+    #: exception when such expressions are encountered.
     HANDLES_ORDER_BY_EXPRESSIONS = False
 
     def __init__(
@@ -239,6 +242,17 @@ class BaseSearchQueryCompiler:
             yield reverse, field
 
     def check(self):
+        """
+        Checks that the search query satisfies the following conditions:
+
+        1. All field names passed in the ``fields`` parameter exist as ``SearchField`` records on the model.
+        2. All fields used within filters on the passed ``queryset`` exist as ``FilterField`` records on the model.
+        3. The ``order_by`` clause on the passed ``queryset`` does not contain any expressions other than plain field
+           names and their reversed counterparts (``"some_field"`` and ``"-some_field"``), unless
+           ``HANDLES_ORDER_BY_EXPRESSIONS`` is ``True``.
+        4. All field names within the ``order_by`` clause on the passed ``queryset`` exist as ``FilterField`` records
+           on the model.
+        """
         # Check search fields
         if self.fields:
             allowed_fields = {
@@ -317,7 +331,8 @@ class BaseSearchResults:
 
     def _do_search(self):
         """
-        To be implemented by subclasses - performs the actual search query.
+        To be implemented by subclasses - performs the actual search query, returning an iterable
+        sequence of results.
         """
         raise NotImplementedError
 
