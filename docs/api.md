@@ -50,4 +50,9 @@
     .. automethod:: add_item
     .. automethod:: add_items
     .. automethod:: delete_item
+
+.. autoclass:: BaseSearchResults
+
+    .. automethod:: _do_search
+    .. automethod:: _do_count
 ```

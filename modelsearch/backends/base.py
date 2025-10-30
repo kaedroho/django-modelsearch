@@ -264,9 +264,13 @@ class BaseSearchQueryCompiler:
 
 class BaseSearchResults:
     """
-    A lazily-evaluated object representing the results of a search query. This emulates the
-    slicing behaviour of a Django QuerySet, but with the results not necessarily coming from
-    the database.
+    Represents the results of a search query. This emulates a Django QuerySet, but with the results not necessarily
+    coming from the database - the result set can be sliced to obtain a new SearchResults instance, and the search
+    is only actually performed when the results are iterated or evaluated as a list, or when the ``count()`` method
+    is called.
+
+    The process for performing a search is specific to each backend, and involves some division of work between
+    the search results class and the query compiler.
     """
 
     supports_facet = False
