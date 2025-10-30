@@ -112,6 +112,16 @@ class BaseSearchQueryCompiler:
             return result
 
     def _get_filters_from_where_node(self, where_node, check_only=False):
+        """
+        Internal method used by ``_get_filters_from_queryset`` to recursively validate a sub-expression of
+        the queryset's filter clause.
+
+        :param check_only: If ``True``, the method will simply return ``None`` if ``where_node`` and all sub-expressions
+          within it are valid.
+          If ``False``, the ``_process_lookup``, ``_process_match_none`` and ``_connect_filters`` methods must be
+          overridden; this method will then return the translated data structure obtained by applying these methods
+          to ``where_node``.
+        """
         # Check if this is a leaf node
         if isinstance(where_node, Lookup):
             if isinstance(where_node.lhs, ExtractDate):
@@ -207,11 +217,33 @@ class BaseSearchQueryCompiler:
             )
 
     def _get_filters_from_queryset(self, check_only=False):
+        """
+        Internal method used by ``check()`` to validate that all fields specified as filters on the queryset
+        exist as ``FilterField`` records on the model, and that all lookup clauses (such as ``__lt``) are recognised.
+        Backends may also use this to translate the filter clause into an alternative data structure for use during
+        searching.
+
+        :param check_only: If ``True``, the method will simply return ``None`` if no invalid filters are found.
+          If ``False``, the ``_process_lookup``, ``_process_match_none`` and ``_connect_filters`` methods must be
+          overridden; this method will then return the translated data structure obtained by applying these methods
+          to the queryset's filter clause.
+        """
         return self._get_filters_from_where_node(
             self.queryset.query.where, check_only=check_only
         )
 
     def _get_order_by(self):
+        """
+        Internal method used by ``check()`` to validate that all fields specified in the queryset's ``order_by``
+        clause exist as ``FilterField`` records on the model. Backends may also use this to construct the query to send
+        to the underlying search mechanism.
+
+        Returns an iterable sequence of ``(reverse, field)`` tuples where ``reverse`` is a boolean indicating whether
+        ordering on that field is reversed, and ``field`` is the ``FilterField`` instance. If
+        ``HANDLES_ORDER_BY_EXPRESSIONS`` is ``True``, complex expressions within the ``order_by`` clause are skipped
+        over; if ``False``, they raise an ``OrderByFieldError``.
+        """
+
         if self.order_by_relevance:
             return
 

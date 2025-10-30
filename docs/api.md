@@ -60,4 +60,7 @@
 
     .. autoattribute:: HANDLES_ORDER_BY_EXPRESSIONS
     .. automethod:: check
+    .. automethod:: _get_filters_from_queryset
+    .. automethod:: _get_filters_from_where_node
+    .. automethod:: _get_order_by
 ```
