@@ -39,4 +39,14 @@
 
     .. automethod:: search
     .. automethod:: autocomplete
+
+.. autoclass:: BaseIndex
+
+    .. automethod:: get_key
+    .. automethod:: add_model
+    .. automethod:: refresh
+    .. automethod:: reset
+    .. automethod:: add_item
+    .. automethod:: add_items
+    .. automethod:: delete_item
 ```

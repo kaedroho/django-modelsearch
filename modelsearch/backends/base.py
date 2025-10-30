@@ -401,10 +401,19 @@ class EmptySearchResults(BaseSearchResults):
 
 class BaseIndex:
     """
-    Manages some subset of objects in the data store.
-    The base class provides do-nothing implementations of the indexing operations. Use this
-    directly for search backends that do not maintain an index, such as the fallback database
-    backend. Subclass it for backends that need to do something.
+    The base class for all indexes.
+
+    An index manages the storage for some subset of objects in the backend's data store. A backend can work with either
+    a single index (as the database backends do) - in which case ``get_index_for_model`` and ``get_index_for_object``
+    will always return the same ``Index`` instance - or multiple indexes (as with the Elasticsearch backend, which
+    operates a separate index for each base model).
+
+    Partitioning objects across indexes by any criteria other than model is not currently supported - that is,
+    the backend's ``get_index_for_object`` method must always return a result that corresponds to
+    ``get_index_for_model`` for that object's type.
+
+    On the base class, all methods are null operations. This can be used directly for backends that do not need to
+    maintain their own data store (such as the fallback database backend, which queries the database directly).
     """
 
     def __init__(self, backend):
@@ -470,7 +479,7 @@ class BaseSearchBackend:
     #: The BaseSearchQueryCompiler subclass responsible for compiling autocomplete (partial word) search queries.
     autocomplete_query_compiler_class = None
 
-    #: The BaseIndex subclass responsible for managing the indexes for this backend.
+    #: The :py:class:`BaseIndex` subclass responsible for managing the indexes for this backend.
     index_class = BaseIndex
 
     #: The BaseSearchResults subclass responsible for representing search results.
@@ -489,13 +498,17 @@ class BaseSearchBackend:
 
     def get_index_for_model(self, model):
         """
-        Returns the index to be used for the given model.
+        Returns the index to be used for the given model. The base implementation returns an instance of
+        ``self.index_class`` instantiated with no parameters other than the backend itself, which is
+        appropriate for backends that manage a single index. Backends that manage multiple indexes should
+        override this method to return the appropriate index for the model.
         """
         return self.index_class(self)
 
     def get_index_for_object(self, obj):
         """
-        Returns the index to be used for the given model instance.
+        Returns the index to be used for the given model instance. This is a convenience wrapper around
+        ``get_index_for_model``.
         """
         return self.get_index_for_model(obj._meta.model)
 
