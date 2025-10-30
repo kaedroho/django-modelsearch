@@ -454,11 +454,34 @@ class BaseIndex:
 
 
 class BaseSearchBackend:
+    """
+    The base class for all search backends.
+
+    A backend is the entry point for all search and indexing functionality. Any request to index an
+    object for searching or to perform a search query will be directed at a backend.
+
+    The searching and indexing functionality is delegated to various helper classes, which are
+    specified as attributes on the backend class.
+    """
+
+    #: The BaseSearchQueryCompiler subclass responsible for compiling whole-word search queries.
     query_compiler_class = None
+
+    #: The BaseSearchQueryCompiler subclass responsible for compiling autocomplete (partial word) search queries.
     autocomplete_query_compiler_class = None
+
+    #: The BaseIndex subclass responsible for managing the indexes for this backend.
     index_class = BaseIndex
+
+    #: The BaseSearchResults subclass responsible for representing search results.
     results_class = None
+
+    #: The class responsible for rebuilding indexes for this backend.
     rebuilder_class = None
+
+    #: Whether indexing errors should be caught and logged, rather than raised. Catching these errors is
+    #: appropriate for backends that use an external service such as Elasticsearch, where an interruption in
+    #: service should not bring down the whole application.
     catch_indexing_errors = False
 
     def __init__(self, params):
@@ -491,7 +514,8 @@ class BaseSearchBackend:
     def refresh_indexes(self):
         """
         Refreshes all indexes used by this backend. This performs any housekeeping required by the
-        index so that recently-updated data is visible to searches.
+        index so that recently-updated data is visible to searches. Not all backends require this -
+        for the ones that don't, this is a null operation.
         """
         for index in self.all_indexes():
             index.refresh()
