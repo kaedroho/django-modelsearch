@@ -39,6 +39,7 @@
 
     .. automethod:: search
     .. automethod:: autocomplete
+    .. automethod:: _search
 
 .. autoclass:: BaseIndex
 

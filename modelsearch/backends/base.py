@@ -473,19 +473,20 @@ class BaseSearchBackend:
     specified as attributes on the backend class.
     """
 
-    #: The BaseSearchQueryCompiler subclass responsible for compiling whole-word search queries.
+    #: The :py:class:`BaseSearchQueryCompiler` subclass responsible for compiling whole-word search queries.
     query_compiler_class = None
 
-    #: The BaseSearchQueryCompiler subclass responsible for compiling autocomplete (partial word) search queries.
+    #: The :py:class:`BaseSearchQueryCompiler` subclass responsible for compiling autocomplete (partial word) search queries.
     autocomplete_query_compiler_class = None
 
     #: The :py:class:`BaseIndex` subclass responsible for managing the indexes for this backend.
     index_class = BaseIndex
 
-    #: The BaseSearchResults subclass responsible for representing search results.
+    #: The :py:class:`BaseSearchResults` subclass responsible for representing search results.
     results_class = None
 
-    #: The class responsible for rebuilding indexes for this backend.
+    #: The class responsible for rebuilding indexes for this backend. Can be ``None`` if the backend does not require
+    #: index rebuilding.
     rebuilder_class = None
 
     #: Whether indexing errors should be caught and logged, rather than raised. Catching these errors is
@@ -559,6 +560,23 @@ class BaseSearchBackend:
         self.get_index_for_object(obj).delete_item(obj)
 
     def _search(self, query_compiler_class, query, model_or_queryset, **kwargs):
+        """
+        Internal method that handles both ``search()`` and ``autocomplete()`` queries, by receiving the appropriate
+        query compiler class to use. This performs the following steps:
+
+        - Normalises the ``model_or_queryset`` parameter into a queryset, using ``model.objects.all()`` if a model class
+          is provided.
+        - Short-circuits the query compiler if the model is not indexed or the query is an empty string, returning an
+          empty result set in these cases.
+        - Instantiates the query compiler with the queryset, query string, and any additional keyword arguments.
+        - Calls ``check()`` on the query compiler to validate the query.
+        - Returns a ``results_class`` instance, passing in the backend and the query compiler.
+
+        :param query_compiler_class: The :py:class:`BaseSearchQueryCompiler` subclass to use for compiling the query.
+        :param query: The search query string.
+        :param model_or_queryset: The model class or queryset to search within.
+        :param kwargs: Additional keyword arguments as passed to `search()` or `autocomplete()`, to pass on to the query compiler.
+        """
         # Find model/queryset
         if isinstance(model_or_queryset, QuerySet):
             model = model_or_queryset.model
@@ -593,6 +611,12 @@ class BaseSearchBackend:
     ):
         """
         Performs a whole-word search.
+
+        :param query: The search query string.
+        :param model_or_queryset: The model class or queryset to search within.
+        :param fields: An optional list of field names to restrict the search to.
+        :param operator: The operator to use when combining search terms (``"and"`` or ``"or"``).
+        :param order_by_relevance: Whether to order results by relevance.
         """
         return self._search(
             self.query_compiler_class,
@@ -613,6 +637,12 @@ class BaseSearchBackend:
     ):
         """
         Performs an autocomplete (partial word match) search.
+
+        :param query: The search query string.
+        :param model_or_queryset: The model class or queryset to search within.
+        :param fields: An optional list of field names to restrict the search to.
+        :param operator: The operator to use when combining search terms (``"and"`` or ``"or"``).
+        :param order_by_relevance: Whether to order results by relevance.
         """
         if self.autocomplete_query_compiler_class is None:
             raise NotImplementedError(
