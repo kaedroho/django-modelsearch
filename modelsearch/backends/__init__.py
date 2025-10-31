@@ -4,7 +4,6 @@
 
 from importlib import import_module
 
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
 
@@ -82,24 +81,10 @@ def get_search_backend(backend="default", **kwargs):
     return backend_cls(params)
 
 
-def _backend_requires_auto_update(backend_name, params):
-    if params.get("AUTO_UPDATE", True):
-        return True
-
-    # _WAGTAILSEARCH_FORCE_AUTO_UPDATE is only used by Wagtail tests. It allows
-    # us to test AUTO_UPDATE behaviour against Elasticsearch without having to
-    # have AUTO_UPDATE enabed for every test.
-    force_auto_update = getattr(settings, "_WAGTAILSEARCH_FORCE_AUTO_UPDATE", [])
-    if backend_name in force_auto_update:
-        return True
-
-    return False
-
-
 def get_search_backends_with_name(with_auto_update=False):
     search_backends = get_app_config().get_search_backend_config()
     for backend, params in search_backends.items():
-        if with_auto_update and _backend_requires_auto_update(backend, params) is False:
+        if with_auto_update and params.get("AUTO_UPDATE", True) is False:
             continue
 
         yield backend, get_search_backend(backend)
