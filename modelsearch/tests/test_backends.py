@@ -1319,6 +1319,35 @@ class BackendTests:
         results = self.backend.search("Fifty Shades", models.Book)
         self.assertEqual(results.count(), 3)
 
+    def test_autoupdate(self):
+        backend_conf = settings.MODELSEARCH_BACKENDS[self.backend_name].copy()
+        backend_conf["AUTO_UPDATE"] = True
+        with self.settings(
+            MODELSEARCH_BACKENDS={
+                self.backend_name: backend_conf,
+            }
+        ):
+            # Create a new author, it should be automatically added to the index
+            if isinstance(self, TestCase):
+                # Transactions are active, so need to ensure they are committed before
+                # testing the search results
+                with self.captureOnCommitCallbacks(execute=True):
+                    author = models.Author.objects.create(name="Ernest Hemingway")
+            else:
+                author = models.Author.objects.create(name="Ernest Hemingway")
+
+            results = self.backend.search("Ernest Hemingway", models.Author)
+            self.assertEqual(results.count(), 1)
+
+            if isinstance(self, TestCase):
+                with self.captureOnCommitCallbacks(execute=True):
+                    author.delete()
+            else:
+                author.delete()
+
+            results = self.backend.search("Ernest Hemingway", models.Author)
+            self.assertEqual(results.count(), 0)
+
 
 @override_settings(
     MODELSEARCH_BACKENDS={"default": {"BACKEND": "modelsearch.backends.database"}}
