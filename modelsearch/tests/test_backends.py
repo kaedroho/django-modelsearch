@@ -1321,7 +1321,9 @@ class BackendTests:
 
 
 @override_settings(
-    MODELSEARCH_BACKENDS={"default": {"BACKEND": "modelsearch.backends.database"}}
+    MODELSEARCH_BACKENDS={
+        "default": {"BACKEND": "modelsearch.backends.database"},
+    }
 )
 class TestBackendLoader(TestCase):
     @mock.patch("modelsearch.backends.database.connection")
@@ -1468,6 +1470,19 @@ class TestBackendLoader(TestCase):
             InvalidSearchBackendError,
             get_search_backend,
             backend="modelsearch.backends.doesntexist",
+        )
+
+    @override_settings(
+        MODELSEARCH_BACKENDS={
+            "default": {"BACKEND": "modelsearch.backends.database"},
+            "nonexistent": {"BACKEND": "modelsearch.backends.doesnotexist"},
+        }
+    )
+    def test_nonexistent_backend_import_from_config(self):
+        self.assertRaises(
+            InvalidSearchBackendError,
+            get_search_backend,
+            backend="nonexistent",
         )
 
     def test_invalid_backend_import(self):
