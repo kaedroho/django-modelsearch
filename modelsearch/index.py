@@ -180,6 +180,7 @@ def insert_or_update_object(instance):
         ):
             try:
                 backend.add(indexed_instance)
+                backend.get_index_for_object(indexed_instance).refresh()
             except Exception:
                 # Log all errors
                 logger.exception(
