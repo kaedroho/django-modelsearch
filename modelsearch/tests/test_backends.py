@@ -1332,12 +1332,21 @@ class BackendTests:
                 # Transactions are active, so need to ensure they are committed before
                 # testing the search results
                 with self.captureOnCommitCallbacks(execute=True):
-                    models.Author.objects.create(name="Ernest Hemingway")
+                    author = models.Author.objects.create(name="Ernest Hemingway")
             else:
-                models.Author.objects.create(name="Ernest Hemingway")
+                author = models.Author.objects.create(name="Ernest Hemingway")
 
             results = self.backend.search("Ernest Hemingway", models.Author)
             self.assertEqual(results.count(), 1)
+
+            if isinstance(self, TestCase):
+                with self.captureOnCommitCallbacks(execute=True):
+                    author.delete()
+            else:
+                author.delete()
+
+            results = self.backend.search("Ernest Hemingway", models.Author)
+            self.assertEqual(results.count(), 0)
 
 
 @override_settings(
