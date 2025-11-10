@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "modelsearch"
 dynamic = ["version"]
 authors = [
-  {name = "Karl Hobley", email = "karl@kaed.uk"},
+  { name = "Wagtail core team + contributors", email = "hello@wagtail.org" },
 ]
 requires-python = ">= 3.10"
 dependencies = [
@@ -32,12 +32,12 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/kaedroho/django-modelsearch"
+Homepage = "https://github.com/wagtail/django-modelsearch"
 Documentation = "https://django-modelsearch.readthedocs.io/en/latest"
-Source = "https://github.com/kaedroho/django-modelsearch"
-Repository = "https://github.com/kaedroho/django-modelsearch"
-Issues = "https://github.com/kaedroho/django-modelsearch/issues"
-Changelog = "https://github.com/kaedroho/django-modelsearch/releases"
+Source = "https://github.com/wagtail/django-modelsearch"
+Repository = "https://github.com/wagtail/django-modelsearch"
+Issues = "https://github.com/wagtail/django-modelsearch/issues"
+Changelog = "https://github.com/wagtail/django-modelsearch/releases"
 
 [project.optional-dependencies]
 test = [
