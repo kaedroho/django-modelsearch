@@ -261,6 +261,7 @@ class ElasticsearchCommonSearchBackendTests(BackendTests):
                 "modelsearchtest_searchtests_author",
                 "modelsearchtest_searchtests_book",
                 "modelsearchtest_searchtests_advertwithcustomuuidprimarykey",
+                "modelsearchtest_searchtests_meeting",
             ],
         )
 

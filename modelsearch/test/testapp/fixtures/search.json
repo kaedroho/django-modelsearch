@@ -541,5 +541,29 @@
     "fields": {
       "programming_language": "rs"
     }
+  },
+  {
+    "pk": 1,
+    "model": "searchtests.meeting",
+    "fields": {
+      "name": "Breakfast yoga",
+      "start_time": "08:00"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "searchtests.meeting",
+    "fields": {
+      "name": "Stand-up meeting",
+      "start_time": "10:00"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "searchtests.meeting",
+    "fields": {
+      "name": "Evening yoga",
+      "start_time": "19:30"
+    }
   }
 ]

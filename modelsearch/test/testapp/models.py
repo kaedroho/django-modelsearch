@@ -192,3 +192,17 @@ class AdvertWithCustomUUIDPrimaryKey(index.Indexed, models.Model):
 
     def __str__(self):
         return self.text
+
+
+class Meeting(index.Indexed, models.Model):
+    name = models.CharField(max_length=255)
+    start_time = models.TimeField()
+
+    search_fields = [
+        index.SearchField("name"),
+        index.SearchField("start_time"),
+        index.FilterField("start_time"),
+    ]
+
+    def __str__(self):
+        return self.name
