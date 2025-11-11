@@ -1,7 +1,7 @@
 import unittest
 
 from collections import OrderedDict
-from datetime import date
+from datetime import date, time
 from io import StringIO
 from unittest import mock
 
@@ -722,6 +722,32 @@ class BackendTests:
         )
         self.assertEqual(len(results), 2)
 
+    def test_search_with_time_filter(self):
+        results = self.backend.search(
+            "yoga", models.Meeting.objects.filter(start_time=time(8, 0))
+        )
+        self.assertEqual(len(results), 1)
+
+    def test_search_with_time_lt_filter(self):
+        results = self.backend.search(
+            "yoga", models.Meeting.objects.filter(start_time__lt=time(12, 0))
+        )
+        self.assertEqual(len(results), 1)
+
+    def test_search_with_time_range_filter(self):
+        results = self.backend.search(
+            "yoga",
+            models.Meeting.objects.filter(start_time__range=(time(7, 0), time(9, 0))),
+        )
+        self.assertEqual(len(results), 1)
+
+    def test_search_with_time_in_filter(self):
+        results = self.backend.search(
+            "yoga",
+            models.Meeting.objects.filter(start_time__in=(time(7, 0), time(8, 0))),
+        )
+        self.assertEqual(len(results), 1)
+
     # ORDER BY RELEVANCE
 
     def test_order_by_relevance_match_all(self):
@@ -817,6 +843,21 @@ class BackendTests:
             [
                 "JavaScript: The Definitive Guide",
                 "JavaScript: The good parts",
+            ],
+        )
+
+    def test_order_by_time(self):
+        results = self.backend.search(
+            "yoga",
+            models.Meeting.objects.order_by("start_time"),
+            order_by_relevance=False,
+        )
+
+        self.assertEqual(
+            [r.name for r in results],
+            [
+                "Breakfast yoga",
+                "Evening yoga",
             ],
         )
 

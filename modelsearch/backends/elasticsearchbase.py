@@ -2,6 +2,7 @@ import json
 
 from collections import OrderedDict
 from copy import deepcopy
+from datetime import time
 from urllib.parse import urlparse
 
 from django.db import DEFAULT_DB_ALIAS, models
@@ -73,7 +74,7 @@ class ElasticsearchBaseMapping:
         "SlugField": "string",
         "SmallIntegerField": "integer",
         "TextField": "string",
-        "TimeField": "date",
+        "TimeField": "keyword",
         "URLField": "string",
     }
 
@@ -245,6 +246,12 @@ class ElasticsearchBaseMapping:
     def get_document_id(self, obj):
         return str(obj.pk)
 
+    def _clean_value(self, value):
+        # Convert types that Elasticsearch can't serialize directly
+        if isinstance(value, time):
+            return value.isoformat()
+        return value
+
     def _get_nested_document(self, fields, obj):
         doc = {}
         edgengrams = []
@@ -252,7 +259,7 @@ class ElasticsearchBaseMapping:
         mapping = type(self)(model)
 
         for field in fields:
-            value = field.get_value(obj)
+            value = self._clean_value(field.get_value(obj))
             doc[mapping.get_field_column_name(field)] = value
 
             # Check if this field should be added into _edgengrams
@@ -266,7 +273,7 @@ class ElasticsearchBaseMapping:
         doc = {"pk": str(obj.pk), "_django_content_type": self.get_all_content_types()}
         edgengrams = []
         for field in self.model.get_search_fields():
-            value = field.get_value(obj)
+            value = self._clean_value(field.get_value(obj))
 
             if isinstance(field, RelatedFields):
                 if isinstance(value, (models.Manager, models.QuerySet)):
@@ -502,7 +509,7 @@ class ElasticsearchBaseSearchQueryCompiler(BaseSearchQueryCompiler):
 
                 return {
                     "term": {
-                        column_name: value,
+                        column_name: self.mapping._clean_value(value),
                     }
                 }
 
@@ -521,7 +528,7 @@ class ElasticsearchBaseSearchQueryCompiler(BaseSearchQueryCompiler):
         if lookup in ["startswith", "prefix"]:
             return {
                 "prefix": {
-                    column_name: value,
+                    column_name: self.mapping._clean_value(value),
                 }
             }
 
@@ -529,7 +536,7 @@ class ElasticsearchBaseSearchQueryCompiler(BaseSearchQueryCompiler):
             return {
                 "range": {
                     column_name: {
-                        lookup: value,
+                        lookup: self.mapping._clean_value(value),
                     }
                 }
             }
@@ -540,8 +547,8 @@ class ElasticsearchBaseSearchQueryCompiler(BaseSearchQueryCompiler):
             return {
                 "range": {
                     column_name: {
-                        "gte": lower,
-                        "lte": upper,
+                        "gte": self.mapping._clean_value(lower),
+                        "lte": self.mapping._clean_value(upper),
                     }
                 }
             }
@@ -557,7 +564,7 @@ class ElasticsearchBaseSearchQueryCompiler(BaseSearchQueryCompiler):
                 value = list(value)
             return {
                 "terms": {
-                    column_name: value,
+                    column_name: [self.mapping._clean_value(val) for val in value],
                 }
             }
 
