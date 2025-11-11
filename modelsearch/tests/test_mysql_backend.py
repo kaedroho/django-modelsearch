@@ -180,18 +180,6 @@ class TestMySQLSearchBackend(BackendTests, TransactionTestCase):
     def test_boost(self):
         return super().test_boost()
 
-    @skip("The MySQL backend doesn't score annotations.")
-    def test_annotate_score(self):
-        return super().test_annotate_score()
-
-    @skip("The MySQL backend doesn't score annotations.")
-    def test_annotate_score_with_slice(self):
-        return super().test_annotate_score_with_slice()
-
-    @skip("The MySQL backend doesn't guarantee correct ranking of results.")
-    def test_ranking(self):
-        return super().test_ranking()
-
     @expectedFailure
     def test_negated_and(self):
         return super().test_negated_and()
