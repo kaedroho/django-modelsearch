@@ -9,7 +9,7 @@ from django.db import (
     router,
     transaction,
 )
-from django.db.models import Case, When
+from django.db.models import Case, OuterRef, Subquery, When
 from django.db.models.aggregates import Avg, Count
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.expressions import F
@@ -465,28 +465,44 @@ class MySQLSearchQueryCompiler(BaseSearchQueryCompiler):
             search_query, columns=["body"], output_field=FloatField()
         )
 
-        index_entries = IndexEntry.objects.annotate(score=score_expression).filter(
+        index_query = IndexEntry.objects.annotate(score=score_expression).filter(
             content_type_id__in=get_descendants_content_types_pks(self.queryset.model)
         )
+        # Filter the index query down to just those objects that match (or don't match) the search query.
         if not negated:
-            index_entries = index_entries.filter(match_expression)
-            if self.order_by_relevance:  # Only applies to the case where the outermost query is not a Not(), because if it is, the relevance score is always 0 (anything that matches is excluded from the results).
-                # FIXME: This has no effect because the final query is just running an id__in filter, without preserving order.
-                index_entries = index_entries.order_by(score_expression.desc())
+            index_query = index_query.filter(match_expression)
         else:
-            index_entries = index_entries.exclude(match_expression)
+            index_query = index_query.exclude(match_expression)
 
-        index_entries = index_entries.values_list("object_id", flat=True)
+        # Finally, filter self.queryset down to only those objects that match the search query.
+        results = self.queryset.filter(id__in=index_query.values("object_id"))
 
-        queryset = self.queryset
-        if not self.order_by_relevance and not queryset.query.order_by:
+        if self.order_by_relevance and score_field is None and not negated:
+            # When ordering by relevance, we need to annotate the scores even if the caller
+            # didn't request it, so that we can order by it.
+            score_field = "_score"
+
+        # If the caller requested it, annotate the queryset with the scores, and possibly order by them.
+        if score_field is not None and not negated:
+            # When the query is negated, all the scores will be 0, making this block irrelevant.
+            # Create a scalar subquery to associate the scores with the primary keys of the results.
+            score_subquery = index_query.filter(object_id=OuterRef("pk")).values(
+                "score"
+            )[:1]
+            results = results.annotate(
+                **{score_field: Subquery(score_subquery, output_field=FloatField())}
+            )
+            if self.order_by_relevance:
+                results = results.order_by(f"-{score_field}", "-pk")
+
+        if not results.query.order_by:
             # Add a default ordering to keep results consistent across pages
             # (see https://github.com/wagtail/wagtail/issues/3729).
-            queryset = queryset.order_by("-pk")
+            results = results.order_by("-pk")
 
-        results = queryset.filter(pk__in=index_entries)[start:stop]
-
-        return results
+        # We can't trim the results until the end, because mysql doesn't support LIMIT in subqueries, and you can't
+        # re-order a sliced queryset.
+        return results[start:stop]
 
 
 class MySQLAutocompleteQueryCompiler(MySQLSearchQueryCompiler):
