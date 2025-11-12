@@ -313,6 +313,8 @@ class BackendTests:
         )
 
     def test_search_all_unindexed(self):
+        self.backend.add_bulk(models.UnindexedBook, models.UnindexedBook.objects.all())
+        self.backend.refresh_indexes()
         # There should be no index entries for UnindexedBook
         results = self.backend.search(MATCH_ALL, models.UnindexedBook)
         self.assertEqual(results.count(), 0)
@@ -721,6 +723,13 @@ class BackendTests:
             MATCH_ALL, models.Book.objects.filter(publication_date__year=1954)
         )
         self.assertEqual(len(results), 2)
+
+    def test_child_model_with_id_filter(self):
+        learning_python = models.ProgrammingGuide.objects.get(title="Learning Python")
+        results = self.backend.search(
+            "Python", models.ProgrammingGuide.objects.filter(id=learning_python.id)
+        )
+        self.assertEqual(set(results), {learning_python})
 
     # ORDER BY RELEVANCE
 
@@ -1319,9 +1328,14 @@ class BackendTests:
         results = self.backend.search("Fifty Shades", models.Book)
         self.assertEqual(results.count(), 3)
 
+    def test_add_bulk_empty_list(self):
+        self.backend.add_bulk(models.Book, [])
+
 
 @override_settings(
-    MODELSEARCH_BACKENDS={"default": {"BACKEND": "modelsearch.backends.database"}}
+    MODELSEARCH_BACKENDS={
+        "default": {"BACKEND": "modelsearch.backends.database"},
+    }
 )
 class TestBackendLoader(TestCase):
     @mock.patch("modelsearch.backends.database.connection")
@@ -1468,6 +1482,19 @@ class TestBackendLoader(TestCase):
             InvalidSearchBackendError,
             get_search_backend,
             backend="modelsearch.backends.doesntexist",
+        )
+
+    @override_settings(
+        MODELSEARCH_BACKENDS={
+            "default": {"BACKEND": "modelsearch.backends.database"},
+            "nonexistent": {"BACKEND": "modelsearch.backends.doesnotexist"},
+        }
+    )
+    def test_nonexistent_backend_import_from_config(self):
+        self.assertRaises(
+            InvalidSearchBackendError,
+            get_search_backend,
+            backend="nonexistent",
         )
 
     def test_invalid_backend_import(self):
